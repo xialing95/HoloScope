@@ -10,11 +10,13 @@ DHCP_RANGE_START="192.168.50.10"
 DHCP_RANGE_END="192.168.50.50"
 DHCP_LEASE_TIME="12h"
 
-echo "Updating system..."
-sudo apt-get update
-sudo apt-get upgrade -y
+# echo "Updating system..."
+# sudo apt-get update
+# sudo apt-get upgrade -y
 
 echo "Installing hostapd and dnsmasq..."
+sudo dpkg --configure -a
+sudo apt install dhcpcd5
 sudo apt-get install -y hostapd dnsmasq
 
 echo "Stopping services to configure..."
@@ -66,30 +68,30 @@ fi
 echo "Setting DAEMON_CONF in /etc/default/hostapd..."
 sudo sed -i 's|^#DAEMON_CONF=.*|DAEMON_CONF="/etc/hostapd/hostapd.conf"|' /etc/default/hostapd
 
-echo "Enabling IPv4 forwarding..."
-sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
-sudo sysctl -w net.ipv4.ip_forward=1
+#echo "Enabling IPv4 forwarding..."
+#sudo sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/' /etc/sysctl.conf
+#sudo sysctl -w net.ipv4.ip_forward=1
 
-echo "Setting up NAT with iptables..."
-sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+#echo "Setting up NAT with iptables..."
+#sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
-echo "Saving iptables rules..."
-sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+#echo "Saving iptables rules..."
+#sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
 
-echo "Create script to restore iptables on reboot..."
-sudo bash -c "cat > /etc/network/if-up.d/iptables" << 'EOF'
-#!/bin/sh
-iptables-restore < /etc/iptables.ipv4.nat
-EOF
-sudo chmod +x /etc/network/if-up.d/iptables
+#echo "Create script to restore iptables on reboot..."
+#sudo bash -c "cat > /etc/network/if-up.d/iptables" << 'EOF'
+##!/bin/sh
+#iptables-restore < /etc/iptables.ipv4.nat
+#EOF
+#sudo chmod +x /etc/network/if-up.d/iptables
 
-# uncomment to start AP services automatically:
-#echo "Unmasking and enabling hostapd service..."
-#sudo systemctl unmask hostapd
-#sudo systemctl enable hostapd
+# start AP services automatically:
+echo "Unmasking and enabling hostapd service..."
+sudo systemctl unmask hostapd
+sudo systemctl enable hostapd
 
 #echo "Starting services..."
-#sudo systemctl restart hostapd
-#sudo systemctl restart dnsmasq
+sudo systemctl restart hostapd
+sudo systemctl restart dnsmasq
 
-echo "Setup complete. The access point '$AP_SSID' is configured but not started."
+echo "Setup complete. The access point '$AP_SSID' is configured and started."
