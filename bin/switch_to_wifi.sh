@@ -1,8 +1,14 @@
 #!/bin/bash
 
+# Check if SSID and PASSWORD are provided as arguments
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <WiFi_SSID> <WiFi_Password>"
+    exit 1
+fi
+
 HOTSPOT_NAME="Hotspot"
-WIFI_SSID="MIT"
-WIFI_PASSWORD="6c}Yg}tCmd"
+WIFI_SSID="$1"
+WIFI_PASSWORD="$2"
 WLAN_INTERFACE="wlan0"
 
 echo "Switching from Hotspot ($HOTSPOT_NAME) to WiFi client ($WIFI_SSID)..."
@@ -20,10 +26,10 @@ else
 fi
 
 # Wait a moment for connection to establish
-sleep 10
+sleep 30
 
 # Check WiFi connection status
-CON_STATUS=$(nmcli -t -f DEVICE,STATE device status | grep "$WLAN_INTERFACE" | cut -d: -f2)
+CON_STATUS=$(nmcli -t -f DEVICE,STATE device status | grep '^wlan0:' | cut -d: -f2)
 
 if [ "$CON_STATUS" = "connected" ]; then
     echo "WiFi connected successfully."
