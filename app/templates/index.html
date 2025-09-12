@@ -1,10 +1,319 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Control</title>
+    <!-- Embedded CSS for a self-contained page -->
+    <style>
+        /* Base styles from Tailwind */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        /* Responsive utilities and component styles */
+        .card-container {
+            width: 100%;
+            max-width: 56rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        @media (min-width: 768px) {
+            .card-container {
+                padding: 1.5rem;
+            }
+        }
+
+        .top-bar-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1f2937;
+            flex-shrink: 0;
+        }
+        @media (min-width: 768px) {
+            .title {
+                font-size: 1.5rem;
+            }
+        }
+
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .dropdown-button {
+            display: inline-flex;
+            justify-content: center;
+            width: 100%;
+            border-radius: 0.375rem;
+            border-width: 1px;
+            border-color: #d1d5db;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            background-color: #f9fafb;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            transition-property: all;
+            transition-duration: 300ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dropdown-button:hover {
+            background-color: #f3f4f6;
+        }
+        .dropdown-button:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+        }
+
+        .icon-svg {
+            margin-right: -0.25rem;
+            margin-left: 0.5rem;
+            height: 1.25rem;
+            width: 1.25rem;
+        }
+
+        .dropdown-menu {
+            transform-origin: top right;
+            position: absolute;
+            right: 0;
+            margin-top: 0.5rem;
+            width: 14rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            border-width: 1px;
+            border-color: rgba(0, 0, 0, 0.05);
+            border-style: solid;
+            display: none; /* Initially hidden */
+        }
+        .dropdown-menu.visible {
+            display: block;
+        }
+
+        .menu-item {
+            color: #374151;
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .menu-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .dynamic-content {
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border-top-width: 1px;
+            border-color: #e5e7eb;
+        }
+        @media (min-width: 768px) {
+            .dynamic-content {
+                padding: 2rem;
+            }
+        }
+        .hidden {
+            display: none;
+        }
+
+        .title-2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        @media (min-width: 768px) {
+            .title-2 {
+                font-size: 1.25rem;
+            }
+        }
+        
+        .form-fields-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-input {
+            margin-top: 0.25rem;
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            font-size: 0.875rem;
+        }
+        .form-input:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #22c55e;
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+        }
+
+        .connect-button {
+            width: 100%;
+            background-color: #22c55e;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition-property: all;
+            transition-duration: 300ms;
+        }
+        .connect-button:hover {
+            background-color: #16a34a;
+        }
+
+        .initial-message {
+            padding: 1.5rem;
+            margin-top: 1rem;
+            border-top-width: 1px;
+            border-color: #e5e7eb;
+            color: #4b5563;
+            text-align: center;
+        }
+    </style>
 </head>
-<body>
-    <h1>Welcome to the Home Page!</h1>
-    <p>This is the content of index.html.</p>
+<body class="bg-gray-100 flex flex-col items-center justify-start min-h-screen p-4">
+
+    <!-- Main Card Container -->
+    <div class="card-container">
+
+        <!-- Top Bar with Dropdown -->
+        <div class="top-bar-flex">
+            <h1 class="title">Network Control</h1>
+
+            <!-- Dropdown Container -->
+            <div class="dropdown-container">
+                <!-- Dropdown Toggle Button -->
+                <button id="dropdownButton" type="button" class="dropdown-button">
+                    Network Settings
+                    <!-- Heroicon name: chevron-down -->
+                    <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="dropdownMenu" class="dropdown-menu" role="menu" aria-orientation="vertical" aria-labelledby="menu-button">
+                    <div class="py-1" role="none">
+                        <!-- Option 1: Switch to AP -->
+                        <button id="switchApButton" class="menu-item" role="menuitem" tabindex="-1">
+                            Switch to AP
+                        </button>
+                    </div>
+                    <div class="py-1" role="none">
+                        <!-- Option 2: Switch to WiFi -->
+                        <button id="switchWifiButton" class="menu-item" role="menuitem" tabindex="-1">
+                            Switch to WiFi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hidden form for submission -->
+                <form id="apForm" action="{{ url_for('main_bp.switch_ap') }}" method="post" class="hidden"></form>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Area (Initially Hidden) -->
+        <div id="wifiFormContainer" class="dynamic-content hidden">
+            <h2 class="title-2">Connect to WiFi</h2>
+            <form action="{{ url_for('main_bp.switch_wifi') }}" method="post" class="form-fields-container">
+                <div>
+                    <label for="ssid" class="form-label">SSID (Network Name)</label>
+                    <input type="text" id="ssid" name="ssid" required placeholder="SSID" class="form-input">
+                </div>
+                <div>
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Password" class="form-input">
+                </div>
+                <button type="submit" class="connect-button">
+                    Connect
+                </button>
+            </form>
+        </div>
+
+        <!-- Initial Placeholder Message -->
+        <div id="initialMessage" class="initial-message">
+             <p>Select an option from the "Network Settings" dropdown to get started.</p>
+        </div>
+    </div>
+
+    <script>
+        const dropdownButton = document.getElementById('dropdownButton');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const switchApButton = document.getElementById('switchApButton');
+        const switchWifiButton = document.getElementById('switchWifiButton');
+        const apForm = document.getElementById('apForm');
+        const wifiFormContainer = document.getElementById('wifiFormContainer');
+        const initialMessage = document.getElementById('initialMessage');
+
+        // Function to toggle the dropdown menu visibility
+        function toggleDropdown() {
+            dropdownMenu.classList.toggle('hidden');
+        }
+        
+        // Listen for clicks on the dropdown button
+        dropdownButton.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent the body click from closing it immediately
+            toggleDropdown();
+        });
+
+        // Listen for a click on the document to hide the dropdown if the user clicks outside
+        document.addEventListener('click', (event) => {
+            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Listen for a click on the 'Switch to AP' button to submit the hidden form
+        switchApButton.addEventListener('click', () => {
+            apForm.submit();
+        });
+
+        // Listen for a click on the 'Switch to WiFi' button to show the WiFi form
+        switchWifiButton.addEventListener('click', () => {
+            // Hide the dropdown menu
+            dropdownMenu.classList.add('hidden');
+            // Show the WiFi form
+            initialMessage.classList.add('hidden');
+            wifiFormContainer.classList.remove('hidden');
+        });
+
+    </script>
 </body>
 </html>
