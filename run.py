@@ -7,4 +7,4 @@ if __name__ == '__main__':
     # host='0.0.0.0' tells the server to listen on all available network interf>
     # making it accessible from other computers on the same network.
     # debug=True allows for automatic reloading and provides a debugger.
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)
