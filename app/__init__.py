@@ -1,10 +1,22 @@
-from flask import Flask
+from flask import Flask, render_template
 
-def create_app():
+def create_app(config_class=None):
     app = Flask(__name__)
 
-    # Import and register blueprints or routes here
-    from .routes import main_bp
-    app.register_blueprint(main_bp) # If using blueprints
+    # Import and register blueprints
+    from .network import network_bp
+    from .camera import camera_bp
+    from .file import file_bp
+    from .sensors import sensors_bp
+
+    app.register_blueprint(network_bp, url_prefix='/network')
+    app.register_blueprint(camera_bp, url_prefix='/camera')
+    app.register_blueprint(sensors_bp, url_prefix='/sensors')
+    app.register_blueprint(file_bp, url_prefix='/file')
+
+    # Example homepage
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
     return app

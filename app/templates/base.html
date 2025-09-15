@@ -1,0 +1,27 @@
+{% extends "index.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block top_bar_content %}
+    <p>Network: <span id="network-status">Connected</span></p>
+{% endblock %}
+
+{% block main_content %}
+    <div class="dashboard-grid">
+        <div class="grid-item">
+            <h2>Camera Stream</h2>
+            <div id="camera-stream-placeholder">
+                <img src="{{ url_for('camera.stream') }}" alt="Live Camera Stream">
+            </div>
+        </div>
+
+        <div class="grid-item">
+            <h2>Sensor Data</h2>
+            <div id="sensor-data-placeholder">
+                <p>Temperature: <span id="temp-value">--</span> °C</p>
+                <p>Humidity: <span id="humid-value">--</span> %</p>
+                <img src="{{ url_for('sensors.plot') }}" alt="Sensor Plot">
+            </div>
+        </div>
+    </div>
+{% endblock %}

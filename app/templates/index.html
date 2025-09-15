@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HoloScope</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='../static/style.css') }}">
+    <script src="{{ url_for('static', filename='../static/main.js') }}"></script>
+</head>
+<body>
+    <div class="content-wrapper">
+        <aside class="sidebar">
+            <h1 class="logo">HoloScope</h1>
+
+            <div id="connection-status" class="status-indicator">
+                Status
+            </div>
+            
+            <nav class="main-nav">
+                <a>Dashboard</a>
+                <a href="{{ url_for('network.index') }}">Network Manager</a>
+                <a href="{{ url_for('camera.index') }}">Camera Setting</a>
+                <a href="{{ url_for('sensors.index') }}">Sensor Setting</a>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="main-content-area">
+        </main>
+    </div>
+    
+</body>
+</html>

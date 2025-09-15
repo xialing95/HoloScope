@@ -1,0 +1,33 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wi-Fi Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='../static/style.css') }}">
+</head>
+<body> -->
+
+    <main class="container">
+        <div class="card">
+            <h2>Hotspot</h2>
+            <p>Enable a Wi-Fi hotspot to share your internet connection.</p>
+            <button onclick="enableHotspot()">Enable Hotspot</button>
+            <p id="hotspot-status"></p>
+        </div>
+
+        <div class="card">
+            <h2>Connect to Wi-Fi</h2>
+            <p>Connect to an existing Wi-Fi network.</p>
+            <label for="ssid">SSID:</label>
+            <input type="text" id="ssid" name="ssid" placeholder="Enter network name">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter password">
+            <button onclick="connectToWifi()">Connect</button>
+            <p id="wifi-status"></p>
+        </div>
+    </main>
+
+    <!-- <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> -->

@@ -1,0 +1,146 @@
+<html>
+  <head>
+    <title>Soil Holographic Sensor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  </head>
+  <body>
+    <div class="page-content">
+      
+      <h1>Soil Holographic Stream</h1>
+
+      <div>
+        <h3>Latest Image Preview</h3>
+
+      </div>
+  
+      <div id="camera-setting" class="form-input">      
+        <h3>Camera Setting</h3>  
+        <form method="POST" action="/camera_setting">
+          <ul style="list-style-type:none;">        
+            <li>Resolution: 4:3 resolution [640, 480], [1640, 1232], [3280, 2464]: <b>{{resolution}}</b> 
+              <input type="text" name="resolution" value="{{resolution}}"></li>
+            <li>Framerate: 10-30: <b>{{framerate}}</b> 
+              <input type="number" name="framerate" value="{{framerate}}"></li>
+            <li>Analogue Gain: 50-1600: <b>{{iso}}</b> 
+              <input type="number" name="iso" value="{{iso}}"></li>
+            <li>Exposure Time (us): 30-200000: <b>{{expSpd}}</b> 
+              <input type="number" name="expSpd" value="{{expSpd}}"></li>
+
+            <li>Exposure Mode: 
+                <select name="expMod">
+                    <option value="auto" {{ 'selected' if expMod == 'auto' }}>Auto</option>
+                    <option value="off" {{ 'selected' if expMod == 'off' }}>Off</option>
+                </select>
+            </li>
+            
+            <li>Auto White Balance Mode: 
+                <select name="awbMod">
+                    <option value="auto" {{ 'selected' if awbMod == 'auto' }}>Auto</option>
+                    <option value="off" {{ 'selected' if awbMod == 'off' }}>Off</option>
+                </select>
+            </li>
+
+            <!-- <li>Exposure Mode: auto/off: <b>{{expMod}}</b> 
+              <input type="text" name="expMod" value="{{expMod}}"></li>
+            <li>Auto White Balance Mode: auto/off: <b>{{awbMod}}</b> 
+              <input type="text" name="awbMod" value="{{awbMod}}"></li> -->
+              
+            <li>Auto White Balance Gain: 0.9-1.9: <b>{{awbGain}}</b> 
+              <input type="number" name="awbGain" step="0.1" value="{{awbGain}}"></li>
+          </ul>
+          <input type="submit" value="Preview Camera Setting"> 
+        </form>
+      </div>
+      
+      <div id="timelapse-setting" class="form-input">
+        <h3>Time Lapse Setting</h3>
+        <form method="POST" action="/start">
+          <div>
+            Filename: <input type="text" name="filename" placeholder="location, microbes"><br>
+            Total run time (seconds): <input type="number" name="duration" placeholder="60"><br>
+            Interval between shots (seconds): <input type="number" name="interval" placeholder="10"><br>
+            <input type="submit" value="Start TimeLapse">
+          </div>
+        </form>
+        <h4>Execution time (seconds): {{elapseTime}}, Total Number Photos: {{numphotos}}</h4>      
+      </div>
+
+      <div id="bme680-setting" class="form-input">
+        <h3>Environmental Sensor</h3>
+        <form method="POST" action="/">
+          <div>
+            <h4>Temperature: {{temp}}°C, Humidity: {{humidity}}%, Pressure: {{pressure}}hPa</h4>
+            <input type="submit" name="reset_i2c" value="Reset I2C">
+          </div>
+        </form>
+
+        <form method="POST" action="/startEnvSensor">
+          <div>
+            Duration (seconds): <input type="number" name="sensor_duration" placeholder="60"><br>
+            Interval (seconds): <input type="number" name="sensor_interval" placeholder="10"><br>
+            <input type="submit" value="Start Environmental Sensor Log">
+          </div>
+        </form>
+      </div>
+       
+      <div id="imagelist-container" class="form-input">
+        <h3>Image List <button onclick="updateImageList()">Update List</button></h3>
+        <ul id="image-list">
+            {% for image in images %}
+            <li>
+                {{ image }}
+                <a href="{{ url_for('download', filename=image) }}" download>Download</a>
+                <button onclick="deleteImage('{{ image }}')">Delete</button>
+            </li>
+            {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <script>
+    // Function to update the image list dynamically
+    function updateImageList() {
+        fetch('/get_images')
+            .then(response => response.json())
+            .then(data => {
+                const imageList = document.getElementById('image-list');
+                imageList.innerHTML = '';  // Clear the existing list
+                data.forEach(image => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        ${image}
+                        <a href="/static/${image}" download>
+                            <button>Download</button>
+                        </a>
+
+                        <button onclick="deleteImage('${image}')" >Delete</button>
+                    `;
+                    imageList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching image list:', error));
+    }
+
+    function deleteImage(filename) {
+    fetch(`/delete-image/${filename}`, { method: 'DELETE' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                updateImageList(); // Refresh the list after deletion
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => console.error('Error deleting image:', error)); 
+    }
+
+    function showSpinner() {
+      document.getElementById('spinner').style.display = 'block';
+      document.getElementById('message').style.display = 'block';
+      document.getElementById('connectForm').style.display = 'none';
+    }
+    </script>
+
+  </body>
+</html>
