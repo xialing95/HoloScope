@@ -3,4 +3,4 @@ from . import file_bp
 
 @file_bp.route('/')
 def index():
-    return 'file blueprint works'
+    return render_template('file.html')

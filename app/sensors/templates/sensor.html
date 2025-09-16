@@ -1,4 +1,21 @@
 <div class="card">
-    <h2>Camera Stream</h2>
-    <p>Live camera feeds will be displayed here.</p>
-</div>
+      <div id="bme680-setting" class="form-input">
+        <h3>Environmental Sensor</h3>
+        <form method="POST" action="/">
+          <div>
+            <h4>Temperature: {{temp}}°C, Humidity: {{humidity}}%, Pressure: {{pressure}}hPa</h4>
+            <input type="submit" name="reset_i2c" value="Reset I2C">
+          </div>
+        </form>
+
+        <form method="POST" action="/startEnvSensor">
+          <div>
+            Duration (seconds): <input type="number" name="sensor_duration" placeholder="60"><br>
+            Interval (seconds): <input type="number" name="sensor_interval" placeholder="10"><br>
+            <input type="submit" value="Start Environmental Sensor Log">
+          </div>
+        </form>
+      </div>
+      </div>
+      
+

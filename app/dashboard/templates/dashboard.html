@@ -1,0 +1,26 @@
+<main class="container">
+
+<div class="card">
+    <h2>Camera Stream</h2>
+    <p>Live camera feeds will be displayed here.</p>
+</div>
+
+<div class="card">
+    <h2>Sensor Stream </h2>
+    <p>Sensor feed.</p>
+</div>
+
+    <div id="timelapse-setting" class="form-input">
+    <h3>Time Lapse Setting</h3>
+    <form method="POST" action="/start">
+        <div>
+        Filename: <input type="text" name="filename" placeholder="location, microbes"><br>
+        Total run time (seconds): <input type="number" name="duration" placeholder="60"><br>
+        Interval between shots (seconds): <input type="number" name="interval" placeholder="10"><br>
+        <input type="submit" value="Start TimeLapse">
+        </div>
+    </form>
+    <h4>Execution time (seconds): {{elapseTime}}, Total Number Photos: {{numphotos}}</h4>      
+    </div>
+
+</main>

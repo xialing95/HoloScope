@@ -15,12 +15,14 @@
             <div id="connection-status" class="status-indicator">
                 Status
             </div>
-            
+
             <nav class="main-nav">
-                <a>Dashboard</a>
+                <a href="{{ url_for('dashboard.index') }}">Dashboard</a>
                 <a href="{{ url_for('network.index') }}">Network Manager</a>
                 <a href="{{ url_for('camera.index') }}">Camera Setting</a>
                 <a href="{{ url_for('sensors.index') }}">Sensor Setting</a>
+                <a href="{{ url_for('file.index') }}">Files</a>
+
             </nav>
         </aside>
 
