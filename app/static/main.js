@@ -30,3 +30,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+function enableHotspot() {
+    // Show a "Connecting..." message while the script runs
+    document.getElementById("network-status").innerText = "AP Connecting...";
+
+    fetch('/enable_ap')
+        .then(response => response.json())
+        .then(data => {
+            // Update the status paragraph with the message from the server
+            document.getElementById("network-status").innerText = data.status;
+        })
+        .catch(error => {
+            // Handle any errors that occur during the fetch request
+            console.error('Error:', error);
+            document.getElementById("network-status").innerText = "Error enabling hotspot.";
+        });
+}       
