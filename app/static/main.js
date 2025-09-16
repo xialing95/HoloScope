@@ -1,4 +1,7 @@
-// Add an ID to your main content element for easy targeting
+/*
+ * Main index page JavaScript
+ * Add an ID to your main content element for easy targeting
+ */ 
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.main-nav a');
     const mainContentArea = document.getElementById('main-content-area');
@@ -31,11 +34,49 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+/*
+ * Network-related JavaScript functions
+ * JavaScript function to call the Flask route
+ */
 function enableHotspot() {
     // Show a "Connecting..." message while the script runs
     document.getElementById("network-status").innerText = "Hotspot Connecting...";
 
-    fetch('/enable_Hotspot')
+    fetch('/network/enable_hotspot')
+        .then(response => response.json())
+        .then(data => {
+            // Update the status paragraph with the message from the server
+            document.getElementById("network-status").innerText = data.status;
+        })
+        .catch(error => {
+            // Handle any errors that occur during the fetch request
+            console.error('Error:', error);
+            document.getElementById("network-status").innerText = "Error enabling hotspot.";
+        });
+}       
+
+function connectToWifi() {
+    // Show a "Connecting..." message while the script runs
+    document.getElementById("network-status").innerText = "WiFi Connecting...";
+    
+    // 1. Get the values from the input fields
+    const ssid = document.getElementById('ssid').value;
+    const password = document.getElementById('password').value;
+
+    // 2. Prepare the data to be sent in the request body
+    const data = {
+        ssid: ssid,
+        password: password
+    };
+
+    // 3. Send the POST request using the Fetch API
+    fetch('/network/connect_to_wifi', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
         .then(response => response.json())
         .then(data => {
             // Update the status paragraph with the message from the server
