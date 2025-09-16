@@ -4,17 +4,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
   </head>
   <body>
-    <div class="page-content">
+    <div class="page-content, container">
       
-      <h1>Soil Holographic Stream</h1>
-
-      <div>
-        <h3>Latest Image Preview</h3>
-
+      <div class="card">
+        <h2>Latest Image Preview</h2>
       </div>
   
-      <div id="camera-setting" class="form-input">      
-        <h3>Camera Setting</h3>  
+      <div id="camera-setting" class="form-input, card" >      
+        <h2>Camera Setting</h2>  
         <form method="POST" action="/camera_setting">
           <ul style="list-style-type:none;">        
             <li>Resolution: 4:3 resolution [640, 480], [1640, 1232], [3280, 2464]: <b>{{resolution}}</b> 
