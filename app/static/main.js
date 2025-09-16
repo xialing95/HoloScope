@@ -33,9 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function enableHotspot() {
     // Show a "Connecting..." message while the script runs
-    document.getElementById("network-status").innerText = "AP Connecting...";
+    document.getElementById("network-status").innerText = "Hotspot Connecting...";
 
-    fetch('/enable_ap')
+    fetch('/enable_Hotspot')
         .then(response => response.json())
         .then(data => {
             // Update the status paragraph with the message from the server

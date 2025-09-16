@@ -11,11 +11,18 @@ def create_app(config_class=None):
     from .dashboard import dashboard_bp
 
 
-    app.register_blueprint(network_bp, url_prefix='/network')
-    app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
-    app.register_blueprint(camera_bp, url_prefix='/camera')
-    app.register_blueprint(sensors_bp, url_prefix='/sensors')
-    app.register_blueprint(file_bp, url_prefix='/file')
+    # app.register_blueprint(network_bp, url_prefix='/network')
+    # app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
+    # app.register_blueprint(camera_bp, url_prefix='/camera')
+    # app.register_blueprint(sensors_bp, url_prefix='/sensors')
+    # app.register_blueprint(file_bp, url_prefix='/file')
+
+    # avoid network prefix for example use /enable_ap instead of /network/enable_ap
+    app.register_blueprint(network_bp)
+    app.register_blueprint(dashboard_bp)
+    app.register_blueprint(camera_bp)
+    app.register_blueprint(sensors_bp)
+    app.register_blueprint(file_bp)
 
     # Example homepage
     @app.route('/')

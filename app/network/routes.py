@@ -8,8 +8,8 @@ def index():
 
 # This route handles the request from the JavaScript function
 # Assumed GET request for simplicity
-@network_bp.route('/enable_ap')
-def enable_ap():
+@network_bp.route('/enable_hotspot')
+def enable_hotspot():
     try:
         # Execute the bash script. The script should be in the same directory, or you can specify the full path.
         # It's good practice to provide the full path to the script to avoid issues.
