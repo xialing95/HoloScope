@@ -17,3 +17,29 @@
         <p id="wifi-status"></p>
     </div>
 </div>
+
+<div class="card">
+    <h2>Hotspot</h2>
+    <p>Enable a Wi-Fi hotspot to share your internet connection.</p>
+    <button onclick="enableHotspot()">Enable Hotspot</button>
+    <p id="hotspot-status"></p>
+</div>
+
+<script>
+function enableHotspot() {
+    // Show a "Connecting..." message while the script runs
+    document.getElementById("network-status").innerText = "AP Connecting...";
+
+    fetch('/enable_hotspot')
+        .then(response => response.json())
+        .then(data => {
+            // Update the status paragraph with the message from the server
+            document.getElementById("network-status").innerText = data.status;
+        })
+        .catch(error => {
+            // Handle any errors that occur during the fetch request
+            console.error('Error:', error);
+            document.getElementById("network-status").innerText = "Error enabling hotspot.";
+        });
+}
+</script>
