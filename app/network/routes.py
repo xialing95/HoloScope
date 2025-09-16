@@ -8,15 +8,15 @@ def index():
 
 # This route handles the request from the JavaScript function
 # Assumed GET request for simplicity
-@network_bp.route('/enable_hotspot')
-def enable_hotspot():
+@network_bp.route('/enable_ap')
+def enable_ap():
     try:
         # Execute the bash script. The script should be in the same directory, or you can specify the full path.
         # It's good practice to provide the full path to the script to avoid issues.
         # `shell=True` is required to run the command directly in the shell. Be cautious with user input if you were to pass any.
         # `subprocess.check_output` will raise a `CalledProcessError` if the script returns a non-zero exit code.
         # `sudo` may be needed if the script requires elevated permissions.
-        subprocess.check_output(['/bin/bash', '../bin/switch_to_ap.sh'], stderr=subprocess.STDOUT)
+        subprocess.check_output(['/bin/bash', '../app/bin/switch_to_ap.sh'], stderr=subprocess.STDOUT)
         
         # If the script runs without error, return a success message
         status_message = "AP successfully!"
