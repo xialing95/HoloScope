@@ -9,46 +9,65 @@
       <div class="card">
         <h2>Latest Image Preview</h2>
       </div>
-  
-      <div id="camera-setting" class="form-input, card" >      
-        <h2>Camera Setting</h2>  
-        <form method="POST" action="/camera_setting">
-          <ul style="list-style-type:none;">        
-            <li>Resolution: 4:3 resolution [640, 480], [1640, 1232], [3280, 2464]: <b>{{resolution}}</b> 
-              <input type="text" name="resolution" value="{{resolution}}"></li>
-            <li>Framerate: 10-30: <b>{{framerate}}</b> 
-              <input type="number" name="framerate" value="{{framerate}}"></li>
-            <li>Analogue Gain: 50-1600: <b>{{iso}}</b> 
-              <input type="number" name="iso" value="{{iso}}"></li>
-            <li>Exposure Time (us): 30-200000: <b>{{expSpd}}</b> 
-              <input type="number" name="expSpd" value="{{expSpd}}"></li>
 
+      <div class="card">
+          <h2>Core Image and Video Settings</h2>
+          <p></p>
+          <form method="POST" action="/camera_setting">
+              <ul style="list-style-type:none;">        
+                <li>Resolution: 4:3 resolution [640, 480], [1640, 1232], [3280, 2464]: <b>{{resolution}}</b> 
+                  <input type="text" name="resolution" value="{{resolution}}"></li>
+                <li>Framerate: 10-30: <b>{{framerate}}</b> 
+                  <input type="number" name="framerate" value="{{framerate}}"></li>
+                <li>Analogue Gain: 50-1600: <b>{{iso}}</b> 
+                  <input type="number" name="iso" value="{{iso}}"></li>
+                <li>Exposure Time (us): 30-200000: <b>{{expSpd}}</b> 
+                  <input type="number" name="expSpd" value="{{expSpd}}"></li>
+                <input type="submit" value="Preview Camera Setting"> 
+          </form>
+      </div>
+
+
+      <div class="card">
+          <h2>Exposure and Gain</h2>
+          <p></p>
+          <form method="POST" action="/camera_setting"></form>
             <li>Exposure Mode: 
                 <select name="expMod">
                     <option value="auto" {{ 'selected' if expMod == 'auto' }}>Auto</option>
                     <option value="off" {{ 'selected' if expMod == 'off' }}>Off</option>
                 </select>
             </li>
-            
+          <input type="submit" value="Preview Camera Setting"> 
+          </form>
+      </div>
+
+      <div class="card">
+          <h2>White Balance and Color</h2>
+          <p></p>
+          <form method="POST" action="/camera_setting"></form>
             <li>Auto White Balance Mode: 
                 <select name="awbMod">
                     <option value="auto" {{ 'selected' if awbMod == 'auto' }}>Auto</option>
                     <option value="off" {{ 'selected' if awbMod == 'off' }}>Off</option>
                 </select>
             </li>
-
-            <!-- <li>Exposure Mode: auto/off: <b>{{expMod}}</b> 
-              <input type="text" name="expMod" value="{{expMod}}"></li>
-            <li>Auto White Balance Mode: auto/off: <b>{{awbMod}}</b> 
-              <input type="text" name="awbMod" value="{{awbMod}}"></li> -->
-              
             <li>Auto White Balance Gain: 0.9-1.9: <b>{{awbGain}}</b> 
-              <input type="number" name="awbGain" step="0.1" value="{{awbGain}}"></li>
-          </ul>
-          <input type="submit" value="Preview Camera Setting"> 
-        </form>
+              <input type="number" name="awbGain" step="0.1" value="{{awbGain}}">
+            </li>
+            <input type="submit" value="Preview Camera Setting"> 
+          </form>
       </div>
-      
-       
+
+      <div class="card">
+          <h2>Advance</h2>
+          <p></p>
+          <label for="ssid">SSID:</label>
+          <input type="text" id="ssid" name="ssid" placeholder="Enter network name">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" placeholder="Enter password">
+          <button onclick="connectToWifi()">Connect</button>
+      </div>
+
   </body>
 </html>
