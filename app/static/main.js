@@ -2,6 +2,8 @@
  * Main index page JavaScript
  * Add an ID to your main content element for easy targeting
  */ 
+
+// update main content area when nav link is clicked
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.main-nav a');
     const mainContentArea = document.getElementById('main-content-area');
@@ -34,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// get camera and sensor status if connected
+
+
 /*
  * Network-related JavaScript functions
  * JavaScript function to call the Flask route
@@ -58,7 +63,7 @@ function enableHotspot() {
 function connectToWifi() {
     // Show a "Connecting..." message while the script runs
     document.getElementById("network-status").innerText = "WiFi Connecting...";
-    
+
     // 1. Get the values from the input fields
     const ssid = document.getElementById('ssid').value;
     const password = document.getElementById('password').value;
@@ -87,4 +92,35 @@ function connectToWifi() {
             console.error('Error:', error);
             document.getElementById("network-status").innerText = "Error enabling hotspot.";
         });
-}       
+}
+
+/*
+ * Camera setting & preview related JavaScript functions
+ * JavaScript function to call the Flask route
+ */
+document.addEventListener('submit', function(event) {
+    // Check if the form being submitted is the one you want
+    if (event.target && event.target.id === 'camera_config') {
+        event.preventDefault(); 
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const statusDiv = document.getElementById('camera-status');
+
+        fetch('/camera/camera_config', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(text => {
+            statusDiv.textContent = text;
+        })
+        .catch(error => {
+            statusDiv.textContent = 'Failed to update controls: ' + error;
+        });
+    }
+});
+
+
+
+ 

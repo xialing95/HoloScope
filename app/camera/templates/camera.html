@@ -1,73 +1,55 @@
-<html>
-  <head>
-    <title>Soil Holographic Sensor</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  </head>
-  <body>
-    <div class="page-content, container">
-      
-      <div class="card">
-        <h2>Latest Image Preview</h2>
-      </div>
+<form class="container" id="camera_config" method="POST" action="/camera/camera_config">
+    <div class="card">
+        <h3>Core Image and Video Settings</h3>
+        <ul>
+            <li>
+                <label for="resolution">Resolution:</label>
+                <select name="resolution" id="resolution">
+                    <option value="640x480" {{ 'selected' if resolution == [640, 480] }}>640x480</option>
+                    <option value="1640x1232" {{ 'selected' if resolution == [1640, 1232] }}>1640x1232</option>
+                    <option value="3280x2464" {{ 'selected' if resolution == [3280, 2464] }}>3280x2464</option>
+                </select>
+            </li>
+            <li>
+                <label for="framerate">Framerate (10-30):</label>
+                <input type="number" id="framerate" name="framerate" min="10" max="30" value="{{ framerate }}">
+            </li>
+            <li>
+                <label for="iso">Analogue Gain (50-1600):</label>
+                <input type="number" id="iso" name="iso" min="50" max="1600" value="{{ iso }}">
+            </li>
+            <li>
+                <label for="expSpd">Exposure Time (µs):</label>
+                <input type="number" id="expSpd" name="expSpd" min="30" max="200000" value="{{ expSpd }}">
+            </li>
+        </ul>
 
-      <div class="card">
-          <h2>Core Image and Video Settings</h2>
-          <p></p>
-          <form method="POST" action="/camera_setting">
-              <ul style="list-style-type:none;">        
-                <li>Resolution: 4:3 resolution [640, 480], [1640, 1232], [3280, 2464]: <b>{{resolution}}</b> 
-                  <input type="text" name="resolution" value="{{resolution}}"></li>
-                <li>Framerate: 10-30: <b>{{framerate}}</b> 
-                  <input type="number" name="framerate" value="{{framerate}}"></li>
-                <li>Analogue Gain: 50-1600: <b>{{iso}}</b> 
-                  <input type="number" name="iso" value="{{iso}}"></li>
-                <li>Exposure Time (us): 30-200000: <b>{{expSpd}}</b> 
-                  <input type="number" name="expSpd" value="{{expSpd}}"></li>
-                <input type="submit" value="Preview Camera Setting"> 
-          </form>
-      </div>
-
-
-      <div class="card">
-          <h2>Exposure and Gain</h2>
-          <p></p>
-          <form method="POST" action="/camera_setting"></form>
-            <li>Exposure Mode: 
-                <select name="expMod">
+        <h3>Exposure and Gain</h3>
+        <ul>
+            <li>
+                <label for="expMod">Exposure Mode:</label>
+                <select name="expMod" id="expMod">
                     <option value="auto" {{ 'selected' if expMod == 'auto' }}>Auto</option>
                     <option value="off" {{ 'selected' if expMod == 'off' }}>Off</option>
                 </select>
             </li>
-          <input type="submit" value="Preview Camera Setting"> 
-          </form>
-      </div>
-
-      <div class="card">
-          <h2>White Balance and Color</h2>
-          <p></p>
-          <form method="POST" action="/camera_setting"></form>
-            <li>Auto White Balance Mode: 
-                <select name="awbMod">
+        </ul>
+        
+        <h3>White Balance and Color</h3>
+        <ul>
+            <li>
+                <label for="awbMod">Auto White Balance Mode:</label>
+                <select name="awbMod" id="awbMod">
                     <option value="auto" {{ 'selected' if awbMod == 'auto' }}>Auto</option>
                     <option value="off" {{ 'selected' if awbMod == 'off' }}>Off</option>
                 </select>
             </li>
-            <li>Auto White Balance Gain: 0.9-1.9: <b>{{awbGain}}</b> 
-              <input type="number" name="awbGain" step="0.1" value="{{awbGain}}">
+            <li>
+                <label for="awbGain">Auto White Balance Gain (0.9-1.9):</label>
+                <input type="number" id="awbGain" name="awbGain" step="0.1" min="0.9" max="1.9" value="{{ awbGain }}">
             </li>
-            <input type="submit" value="Preview Camera Setting"> 
-          </form>
-      </div>
-
-      <div class="card">
-          <h2>Advance</h2>
-          <p></p>
-          <label for="ssid">SSID:</label>
-          <input type="text" id="ssid" name="ssid" placeholder="Enter network name">
-          <label for="password">Password:</label>
-          <input type="password" id="password" name="password" placeholder="Enter password">
-          <button onclick="connectToWifi()">Connect</button>
-      </div>
-
-  </body>
-</html>
+        </ul>
+    </div>
+    
+    <button type="submit">Update Camera Settings</button>
+</form>

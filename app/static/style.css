@@ -166,3 +166,40 @@ body {
     color: white;
 }
 
+
+/* List item styling */
+li {
+    display: flex; /* Aligns items horizontally */
+    justify-content: space-between; /* Puts space between labels and inputs */
+    align-items: center; /* Centers items vertically */
+    margin-bottom: 15px; /* Adds space between list items */
+}
+
+/* Label styling */
+label {
+    flex: 1; /* Allows label to grow and take up space */
+    font-weight: bold;
+    color: #555;
+    margin-right: 10px;
+    white-space: nowrap; /* Prevents labels from wrapping */
+}
+
+/* Input and select styling */
+input[type="number"], select {
+    flex: 1; /* Allows input fields to grow and take up space */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+input[type="number"]:focus, select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Option styling (within select) */
+option {
+    padding: 8px;
+}

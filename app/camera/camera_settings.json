@@ -1,0 +1,12 @@
+{
+    "resolution": [
+        640,
+        480
+    ],
+    "framerate": 10,
+    "iso": 50,
+    "expSpd": 1000,
+    "expMod": "auto",
+    "awbMod": "auto",
+    "awbGain": 1.0
+}
