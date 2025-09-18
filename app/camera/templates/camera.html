@@ -1,6 +1,7 @@
-<form class="container" id="camera_config" method="POST" action="/camera/camera_config">
+
+<form id="camera_config" method="POST" action="/camera/camera_config">
     <div class="card">
-        <h3>Core Image and Video Settings</h3>
+        <h3>Camera Core Configuration</h3>
         <ul>
             <li>
                 <label for="resolution">Resolution:</label>
@@ -10,6 +11,16 @@
                     <option value="3280x2464" {{ 'selected' if resolution == [3280, 2464] }}>3280x2464</option>
                 </select>
             </li>
+
+            <li>
+                <label for="colorspace">Color space (not added to backend yet):</label>
+                <select name="colorspace" id="colorspace">
+                    <option value="sYCC" {{ 'selected' if colorspace == 'sYCC' }}>sYCC</option>
+                    <option value="Smpte170m" {{ 'selected' if colorspace == 'Smpte170m' }}>Smpte170m</option>
+                    <option value="Rec709" {{ 'selected' if colorspace == 'Rec709' }}>Rec709</option>
+                </select>
+            </li>
+
             <li>
                 <label for="framerate">Framerate (10-30):</label>
                 <input type="number" id="framerate" name="framerate" min="10" max="30" value="{{ framerate }}">
@@ -49,7 +60,19 @@
                 <input type="number" id="awbGain" name="awbGain" step="0.1" min="0.9" max="1.9" value="{{ awbGain }}">
             </li>
         </ul>
+        <button type="submit">Update Camera Settings</button>
+        <p id =camera-status></p>
+
     </div>
-    
-    <button type="submit">Update Camera Settings</button>
 </form>
+
+<div class="card">
+    <h3>Preview</h3>
+    <img alt="Camera Setting Preview Image (JPEG)" />
+    
+    <h3>Camera Metadata</h3>
+    <ul>
+        <li>Camera Model: {{ camera_model }}</li>
+        <li>Camera Meta: </li>
+    </ul>
+</div>

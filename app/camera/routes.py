@@ -6,12 +6,14 @@ import time
 from flask import Flask, Response, render_template, request, redirect, url_for
 from threading import Condition
 from os.path import exists
-# from picamera2 import Picamera2
 
+from picamera2 import Picamera2
+import time
+import threading
 
-# Initialize the camera
-# picam2 = Picamera2()
-
+'''
+JSON file handling for camera settings
+'''
 # Get the directory of the currently executing script
 script_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,6 +46,66 @@ def save_settings(settings):
 # Load the initial settings
 camera_settings = load_settings()
 
+'''
+Camera Picamera2 function
+'''
+# Global variables for the camera object and its settings
+camera = None
+
+def initialize_camera():
+    global camera
+    if camera is None:
+        camera = Picamera2()
+    else:
+        print("Camera object is exist.")
+
+def delete_camera_object():
+    global camera
+    if camera:
+        try:
+            # 1. Stop the camera to halt any streams
+            if camera.started:
+                camera.stop()
+                print("Camera stopped.")
+
+            # 2. Close the camera to release hardware resources
+            camera.close()
+            print("Camera closed.")
+            
+            # 3. Explicitly remove the reference to the object
+            camera = None
+            print("Camera object reference deleted.")
+        except Exception as e:
+            print(f"Error while trying to delete camera object: {e}")
+    else:
+        print("No camera object to delete.")
+
+        
+def camera_preview():
+    # creates a preview suitable configuration to load on the camera
+    preview_config = camera.create_preview_configuration(
+                    main={'size': tuple(camera_settings['resolution'])}
+        )
+    # creates a Still image suitable configuration to load on the camera
+    capture_config = camera.create_still_configuration(raw={}, display=None)
+    camera.configure(preview_config)
+    camera.start()
+
+    time.sleep(2)
+
+    r = camera.switch_mode_capture_request_and_stop(capture_config)
+    r.save("main", "preview.jpg")
+    r.save_dng("preview.dng") 
+
+def get_camera_metadata():
+    if camera:
+        return camera.capture_metadata()
+    return {}
+    
+
+'''
+Flask routes for camera settings
+'''
 @camera_bp.route('/')
 def index():
     return render_template('camera.html')
@@ -91,4 +153,24 @@ def camera_config():
     
     except Exception as e:
         error_message = f"Error: Failed to save settings. Reason: {e}"
+        return Response(error_message, mimetype='text/plain', status=500)
+    
+@camera_bp.route('/camera_preview')
+def camera_preview_route():
+    try:
+        # Initialize the camera if not already done
+        initialize_camera()
+
+        # Apply the current settings and capture a preview image
+        camera_preview()
+
+        # Read the captured image file
+        with open("main/preview.jpg", "rb") as img_file:
+            img_data = img_file.read()
+
+        # Return the image data as a response with the correct MIME type
+        return Response(img_data, mimetype='image/jpeg')
+    
+    except Exception as e:
+        error_message = f"Error: Failed to capture preview. Reason: {e}"
         return Response(error_message, mimetype='text/plain', status=500)
