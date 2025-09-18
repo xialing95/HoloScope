@@ -100,14 +100,37 @@ function connectToWifi() {
  */
 document.addEventListener('submit', function(event) {
     // Check if the form being submitted is the one you want
-    if (event.target && event.target.id === 'camera_config') {
+    if (event.target && event.target.id === 'camera_init_config') {
         event.preventDefault(); 
 
         const form = event.target;
         const formData = new FormData(form);
         const statusDiv = document.getElementById('camera-status');
 
-        fetch('/camera/camera_config', {
+        fetch('/camera/camera_init_config', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(text => {
+            statusDiv.textContent = text;
+        })
+        .catch(error => {
+            statusDiv.textContent = 'Failed to start camera ' + error;
+        });
+    }
+});
+
+document.addEventListener('submit', function(event) {
+    // Check if the form being submitted is the one you want
+    if (event.target && event.target.id === 'camera_control') {
+        event.preventDefault(); 
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const statusDiv = document.getElementById('camera-status');
+
+        fetch('/camera/camera_control', {
             method: 'POST',
             body: formData
         })
