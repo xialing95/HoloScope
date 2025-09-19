@@ -66,8 +66,10 @@ def initialize_config_camera():
     camera = Picamera2()
 
     capture_config = camera.create_still_configuration(
-                main={"size": tuple(camera_settings['resolution'])},  
-                raw={'size': tuple(camera_settings['resolution'])}, 
+                # main={'size': tuple(camera_settings['resolution'])},  
+                # raw={'size': tuple(camera_settings['resolution'])}, 
+                main = {},
+                raw = {},
                 display=None
                 )
     controls={
