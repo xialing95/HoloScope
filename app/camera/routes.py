@@ -19,6 +19,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Join the directory with the filename
 SETTINGS_FILE = os.path.join(script_dir, 'camera_settings.json')
+PREVIEW_FILE = os.path.join(script_dir, 'preview.jpg')
 
 # Function to load settings from a file
 def load_settings():
@@ -63,13 +64,13 @@ capture_config = None
 def initialize_config_camera():
     global camera, preview_config, capture_config
     print("Attempting to initialize and configure camera...")
+
+    if camera:
+        print("Deleting existing camera object...")
+        delete_camera_object()
+
     camera = Picamera2()
 
-    # creates a preview suitable configuration to load on the camera
-    # preview_config = camera.create_preview_configuration(
-    #             main={'size': tuple(camera_settings['resolution'])}
-    #             )
-    # creates a Still image suitable configuration to load on the camera
     capture_config = camera.create_still_configuration(
                 main={"size": tuple(camera_settings['resolution'])},  
                 raw={'size': tuple(camera_settings['resolution'])}, 
@@ -90,10 +91,10 @@ def initialize_config_camera():
     request_object = camera.switch_mode_capture_request_and_stop(capture_config)
 
     # Save the main frame as a JPEG
-    request_object.save("main", "preview.jpg")
+    request_object.save("main", PREVIEW_FILE)
 
     # Save the raw frame as a DNG file (for RAW data)
-    request_object.save_dng("preview.dng")
+    request_object.save_dng(PREVIEW_FILE.replace('.jpg', '.dng'))
     print("Camera object created and configured.")
 
 
@@ -184,9 +185,9 @@ def camera_init_config():
             initialize_config_camera()
 
         # Check if the file was created successfully
-        if os.path.exists('preview.jpg'):
+        if os.path.exists(PREVIEW_FILE):
             # Return the image file as a response
-            return send_file('preview.jpg', mimetype='image/jpeg')
+            return send_file(PREVIEW_FILE, mimetype='image/jpeg')
         else:
             return Response("Error: Could not capture image.", mimetype='text/plain', status=500)
     
