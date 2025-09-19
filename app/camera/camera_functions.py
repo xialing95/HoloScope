@@ -140,9 +140,9 @@ try:
     
 except Exception as e:
     print(f"Error accessing camera controls: {e}")
-# finally:
-#     # Always remember to stop and close the camera
-#     if 'picam2' in locals() and picam2.started:
-#         picam2.stop()
-#     if 'picam2' in locals():
-#         picam2.close()
+finally:
+    # Always remember to stop and close the camera
+    if 'camera' in locals() and camera.started:
+        camera.stop()
+    if 'camera' in locals():
+        camera.close()
