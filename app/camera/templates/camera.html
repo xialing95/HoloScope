@@ -74,8 +74,10 @@
 </form>
 
 <div class="card">
-    <h3>Preview</h3>
-    <img src="{{ url_for('serve_preview') }}" alt="Preview Image">
+    <div id="preview-container">
+        <h3>Live Preview</h3>
+        <img id="camera-preview" src="" alt="Camera Live Preview" style="max-width: 100%; height: auto;">
+    </div>
     
     <h3>Camera Metadata</h3>
     <ul>

@@ -193,21 +193,3 @@ def camera_init_config():
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
         return Response(error_message, mimetype='text/plain', status=500)
     
-    
-@camera_bp.route('/camera_preview')
-def camera_preview_route():
-    try:
-
-        # Apply the current settings and capture a preview image
-        camera_preview()
-
-        # Read the captured image file
-        with open("main/preview.jpg", "rb") as img_file:
-            img_data = img_file.read()
-
-        # Return the image data as a response with the correct MIME type
-        return Response(img_data, mimetype='image/jpeg')
-    
-    except Exception as e:
-        error_message = f"Error: Failed to capture preview. Reason: {e}"
-        return Response(error_message, mimetype='text/plain', status=500)

@@ -99,51 +99,40 @@ function connectToWifi() {
  * JavaScript function to call the Flask route
  */
 document.addEventListener('submit', function(event) {
+    const previewImage = document.getElementById('camera-preview');
+
     // Check if the form being submitted is the one you want
     if (event.target && event.target.id === 'camera_init_config') {
         event.preventDefault(); 
 
-        const form = event.target;
-        const formData = new FormData(form);
-        const statusDiv = document.getElementById('camera-status');
+      // Get the form's action URL
+        const formAction = this.action || '/capture-image';
 
-        fetch('/camera/camera_init_config', {
-            method: 'POST',
-            body: formData
+        // Use the fetch API to send a POST request
+        fetch(formAction, {
+            method: 'POST'
         })
-        .then(response => response.text())
-        .then(text => {
-            statusDiv.textContent = text;
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            // The response body is the image data.
+            // Convert it to a Blob to create a URL for the <img> tag.
+            return response.blob();
+        })
+        .then(imageBlob => {
+            // Create a temporary URL for the image Blob
+            const imageUrl = URL.createObjectURL(imageBlob);
+            
+            // Set the image source
+            previewImage.src = imageUrl;
+
+            console.log('Image captured and displayed successfully.');
         })
         .catch(error => {
-            statusDiv.textContent = 'Failed to start camera ' + error;
+            console.error('Error:', error);
+            alert('Failed to capture image. Check the console for details.');
         });
     }
 });
 
-document.addEventListener('submit', function(event) {
-    // Check if the form being submitted is the one you want
-    if (event.target && event.target.id === 'camera_control') {
-        event.preventDefault(); 
-
-        const form = event.target;
-        const formData = new FormData(form);
-        const statusDiv = document.getElementById('camera-status');
-
-        fetch('/camera/camera_control', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(text => {
-            statusDiv.textContent = text;
-        })
-        .catch(error => {
-            statusDiv.textContent = 'Failed to update controls: ' + error;
-        });
-    }
-});
-
-
-
- 
