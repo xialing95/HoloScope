@@ -1,12 +1,13 @@
 {
     "resolution": [
-        640,
-        480
+        1920,
+        1080
     ],
-    "framerate": 10,
-    "iso": 50,
-    "expSpd": 1000,
-    "expMod": "auto",
-    "awbMod": "auto",
-    "awbGain": 1.0
+    "ExposureTimeMode": 0,
+    "ExposureTime": 20000,
+    "ExposureValue": 0.0,
+    "AnalogueGainMode": 0,
+    "AnalogueGain": 1.0,
+    "Brightness": 0.0,
+    "Contrast": 1.0
 }
