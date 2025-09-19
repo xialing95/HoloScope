@@ -68,21 +68,23 @@ def initialize_config_camera():
     capture_config = camera.create_still_configuration(
                 main={"size": tuple(camera_settings['resolution'])},  
                 raw={'size': tuple(camera_settings['resolution'])}, 
-                controls={
-                    'ExposureTimeMode': camera_settings['ExposureTimeMode'],
-                    'ExposureTime': camera_settings['ExposureTime'],
-                    'ExposureValue': camera_settings['ExposureValue'],
-                    'AnalogueGainMode': camera_settings['AnalogueGainMode'],
-                    'AnalogueGain': camera_settings['AnalogueGain'],
-                    'Brightness': camera_settings['Brightness'],
-                    'Contrast': camera_settings['Contrast'],
-                },
                 display=None
                 )
-    
+    controls={
+        'ExposureTimeMode': camera_settings['ExposureTimeMode'],
+        'ExposureTime': camera_settings['ExposureTime'],
+        'ExposureValue': camera_settings['ExposureValue'],
+        'AnalogueGainMode': camera_settings['AnalogueGainMode'],
+        'AnalogueGain': camera_settings['AnalogueGain'],
+        'Brightness': camera_settings['Brightness'],
+        'Contrast': camera_settings['Contrast'],
+    }
+
     camera.configure(capture_config)
     camera.start()
     time.sleep(2)
+    camera.set_controls(controls)
+    time.sleep(1)
     # Switch mode, take the picture, and get a request object
     request_object = camera.switch_mode_capture_request_and_stop(capture_config)
 
