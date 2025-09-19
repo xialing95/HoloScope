@@ -180,7 +180,7 @@ def camera_init_config():
 
         # --- Stop, re-configure, and start the camera ---
         # Stop the camera if it's currently running
-        if camera.started:
+        if camera and camera.started:
             print("Stopping existing camera instance...")
             camera.stop()
 
