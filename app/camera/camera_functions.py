@@ -65,13 +65,21 @@ def initialize_config_camera():
 
     camera = Picamera2()
 
-    capture_config = camera.create_still_configuration(
-                # main={'size': tuple(camera_settings['resolution'])},  
-                # raw={'size': tuple(camera_settings['resolution'])}, 
-                main = {},
-                raw = {},
-                display=None
-                )
+    preview_config = camera.create_preview_configuration()
+    capture_config = camera.create_still_configuration(raw={}, display=None)
+    camera.configure(preview_config)
+
+    camera.start()
+    time.sleep(2)
+
+
+    # capture_config = camera.create_still_configuration(
+    #             # main={'size': tuple(camera_settings['resolution'])},  
+    #             # raw={'size': tuple(camera_settings['resolution'])}, 
+    #             main = {},
+    #             raw = {},
+    #             display=None
+    #             )
     # controls={
     #     'ExposureTimeMode': camera_settings['ExposureTimeMode'],
     #     'ExposureTime': camera_settings['ExposureTime'],
@@ -83,8 +91,8 @@ def initialize_config_camera():
     # }
 
     # camera.configure(capture_config)
-    camera.start()
-    time.sleep(2)
+    # camera.start()
+    # time.sleep(2)
     # camera.set_controls(controls)
     # time.sleep(1)
     # Switch mode, take the picture, and get a request object
