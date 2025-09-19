@@ -100,9 +100,10 @@ function connectToWifi() {
  */
 document.addEventListener('submit', function(event) {
     const previewImage = document.getElementById('camera-preview');
+    const form = event.target; // Get the form element that triggered the event
 
     // Check if the form being submitted is the one you want
-    if (event.target && event.target.id === 'camera_init_config') {
+    if (form && form.id === 'camera_init_config') {
         event.preventDefault(); 
 
         // Correctly get the form's action URL from the target
