@@ -3,6 +3,7 @@ import pprint
 import os
 import io
 import json
+import time
 
 '''
 JSON file handling for camera settings
@@ -80,6 +81,8 @@ def initialize_config_camera():
                 )
     
     camera.configure(capture_config)
+    camera.start()
+    time.sleep(2)
     # Switch mode, take the picture, and get a request object
     request_object = camera.switch_mode_capture_request_and_stop(capture_config)
 
