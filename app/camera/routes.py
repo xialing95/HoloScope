@@ -62,6 +62,8 @@ capture_config = None
 
 def initialize_config_camera():
     global camera, preview_config, capture_config
+    print("Attempting to initialize and configure camera...")
+
     if camera is None:
         camera = Picamera2()
 
@@ -179,6 +181,7 @@ def camera_init_config():
         # --- Stop, re-configure, and start the camera ---
         # Stop the camera if it's currently running
         if camera.started:
+            print("Stopping existing camera instance...")
             camera.stop()
 
         initialize_config_camera()
@@ -191,5 +194,6 @@ def camera_init_config():
     
     except Exception as e:
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
+        print(f"Server-side error caught: {error_message}")
         return Response(error_message, mimetype='text/plain', status=500)
     
