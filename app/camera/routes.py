@@ -7,7 +7,7 @@ from flask import Flask, Response, render_template, request, send_file
 from threading import Condition
 from os.path import exists
 
-from python3-picamera2 import Picamera2
+from picamera2 import Picamera2
 import time
 import threading
 
