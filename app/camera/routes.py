@@ -63,43 +63,39 @@ capture_config = None
 def initialize_config_camera():
     global camera, preview_config, capture_config
     print("Attempting to initialize and configure camera...")
+    camera = Picamera2()
 
-    if camera is None:
-        camera = Picamera2()
+    # creates a preview suitable configuration to load on the camera
+    # preview_config = camera.create_preview_configuration(
+    #             main={'size': tuple(camera_settings['resolution'])}
+    #             )
+    # creates a Still image suitable configuration to load on the camera
+    capture_config = camera.create_still_configuration(
+                main={"size": tuple(camera_settings['resolution'])},  
+                raw={'size': tuple(camera_settings['resolution'])}, 
+                controls={
+                    'ExposureTimeMode': camera_settings['ExposureTimeMode'],
+                    'ExposureTime': camera_settings['ExposureTime'],
+                    'ExposureValue': camera_settings['ExposureValue'],
+                    'AnalogueGainMode': camera_settings['AnalogueGainMode'],
+                    'AnalogueGain': camera_settings['AnalogueGain'],
+                    'Brightness': camera_settings['Brightness'],
+                    'Contrast': camera_settings['Contrast'],
+                },
+                display=None
+                )
+    
+    camera.configure(capture_config)
+    # Switch mode, take the picture, and get a request object
+    request_object = camera.switch_mode_capture_request_and_stop(capture_config)
 
-        # creates a preview suitable configuration to load on the camera
-        # preview_config = camera.create_preview_configuration(
-        #             main={'size': tuple(camera_settings['resolution'])}
-        #             )
-        # creates a Still image suitable configuration to load on the camera
-        capture_config = camera.create_still_configuration(
-                    main={"size": tuple(camera_settings['resolution'])},  
-                    raw={'size': tuple(camera_settings['resolution'])}, 
-                    controls={
-                        'ExposureTimeMode': camera_settings['ExposureTimeMode'],
-                        'ExposureTime': camera_settings['ExposureTime'],
-                        'ExposureValue': camera_settings['ExposureValue'],
-                        'AnalogueGainMode': camera_settings['AnalogueGainMode'],
-                        'AnalogueGain': camera_settings['AnalogueGain'],
-                        'AwbMode': camera_settings['awbMod'],
-                        'Brightness': camera_settings['Brightness'],
-                        'Contrast': camera_settings['Contrast'],
-                    },
-                    display=None
-                    )
-        
-        camera.configure(capture_config)
-        # Switch mode, take the picture, and get a request object
-        request_object = camera.switch_mode_capture_request_and_stop(capture_config)
+    # Save the main frame as a JPEG
+    request_object.save("main", "preview.jpg")
 
-        # Save the main frame as a JPEG
-        request_object.save("main", "preview.jpg")
+    # Save the raw frame as a DNG file (for RAW data)
+    request_object.save_dng("preview.dng")
+    print("Camera object created and configured.")
 
-        # Save the raw frame as a DNG file (for RAW data)
-        request_object.save_dng("preview.dng")
-        print("Camera object created and configured.")
-    else:
-        print("Camera object is exist.")
 
 def delete_camera_object():
     global camera
@@ -183,8 +179,10 @@ def camera_init_config():
         if camera and camera.started:
             print("Stopping existing camera instance...")
             camera.stop()
+            initialize_config_camera()
+        else:
+            initialize_config_camera()
 
-        initialize_config_camera()
         # Check if the file was created successfully
         if os.path.exists('preview.jpg'):
             # Return the image file as a response
