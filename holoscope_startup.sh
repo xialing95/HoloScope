@@ -1,5 +1,38 @@
 #!/bin/bash
 
+# A bash script to check for and install the libcamera-dev package on Debian-based systems.
+
+# Function to check if a package is installed.
+# We use dpkg-query for this which is a more reliable way than just checking apt.
+is_package_installed() {
+  dpkg-query -W --showformat='${Status}\n' "$1" 2>/dev/null | grep "install ok installed"
+}
+
+# Check if libcamera-dev is already installed.
+if is_package_installed "libcamera-dev"; then
+  echo "libcamera-dev is already installed. No action needed."
+else
+  # If not installed, prompt the user for confirmation and then install.
+  echo "libcamera-dev is not found. We will now install it."
+  read -p "Do you want to continue with the installation? (y/n) " -n 1 -r
+  echo    # Add a newline for better readability
+  if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo "Starting installation..."
+
+    # Update package lists
+    echo "Updating package lists..."
+    sudo apt-get update
+
+    # Install the package
+    echo "Installing libcamera-dev..."
+    sudo apt-get install -y libcamera-dev
+
+    echo "Installation complete. The libcamera-dev package is now installed."
+  else
+    echo "Installation aborted."
+  fi
+fi
+
 HOTSPOT_NAME="Hotspot"
 SSID="HoloScopeAP"
 PASSWORD="fishystuff"
