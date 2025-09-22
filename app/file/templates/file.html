@@ -4,7 +4,7 @@
         {% for image in images %}
         <li>
             {{ image }}
-            <a href="{{ url_for('download', filename=image) }}" download>Download</a>
+            <a href="{{ url_for('file/download', filename=image) }}" download>Download</a>
             <button onclick="deleteImage('{{ image }}')">Delete</button>
         </li>
         {% endfor %}
