@@ -139,3 +139,59 @@ document.addEventListener('submit', function(event) {
     }
 });
 
+/*
+ * File download & preview related JavaScript functions
+ * JavaScript function to call the Flask route
+ */
+
+// Function to update the image list dynamically
+async function updateImageList() {
+    try {
+        const response = await fetch('file/images');
+        const images = await response.json();
+        const imageList = document.getElementById('image-list');
+        imageList.innerHTML = ''; // Clear the current list
+
+        if (images.length === 0) {
+            const listItem = document.createElement('li');
+            listItem.textContent = 'No images found.';
+            imageList.appendChild(listItem);
+        } else {
+            images.forEach(image => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    ${image}
+                    <div>
+                        <a href="file/download/${image}" download>Download</a>
+                        <button onclick="deleteImage('${image}')">Delete</button>
+                    </div>
+                `;
+                imageList.appendChild(listItem);
+            });
+        }
+    } catch (error) {
+        console.error('Failed to update image list:', error);
+    }
+}
+
+async function deleteImage(filename) {
+    if (!confirm(`Are you sure you want to delete ${filename}?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`file/delete/${filename}`, {
+            method: 'POST', // Use POST for deletion requests
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            updateImageList(); // Refresh the list after successful deletion
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Failed to delete image:', error);
+        alert('An error occurred while trying to delete the image.');
+    }
+}
