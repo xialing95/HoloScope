@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Define the target directory path within the home directory
+dir="$HOME/capture_image"
+
+# Check if the directory does not exist
+if [ ! -d "$dir" ]; then
+    # Create the directory
+    mkdir -p "$dir"
+    echo "Directory '$dir' created successfully."
+else
+    # The directory already exists
+    echo "Directory '$dir' already exists."
+fi
+
 # A bash script to check for and install the libcamera-dev package on Debian-based systems.
 
 # Function to check if a package is installed.

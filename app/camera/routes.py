@@ -86,7 +86,21 @@ def initialize_config_camera():
                 display=None
                 )
     
+    # controls={
+    #     'ExposureTimeMode': camera_settings['ExposureTimeMode'],
+    #     'ExposureTime': camera_settings['ExposureTime'],
+    #     'ExposureValue': camera_settings['ExposureValue'],
+    #     'AnalogueGainMode': camera_settings['AnalogueGainMode'],
+    #     'AnalogueGain': camera_settings['AnalogueGain'],
+    #     'Brightness': camera_settings['Brightness'],
+    #     'Contrast': camera_settings['Contrast'],
+    # }
+
     camera.configure(capture_config)
+    camera.start()
+    time.sleep(2)
+    # camera.set_controls(controls)
+    # time.sleep(1)
     # Switch mode, take the picture, and get a request object
     request_object = camera.switch_mode_capture_request_and_stop(capture_config)
 
@@ -96,7 +110,6 @@ def initialize_config_camera():
     # Save the raw frame as a DNG file (for RAW data)
     request_object.save_dng(PREVIEW_FILE.replace('.jpg', '.dng'))
     print("Camera object created and configured.")
-
 
 def delete_camera_object():
     global camera
