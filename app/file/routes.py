@@ -20,7 +20,7 @@ def index():
         images = sorted([f for f in os.listdir(CAPTURE_IMAGE_DIR) if os.path.isfile(os.path.join(CAPTURE_IMAGE_DIR, f))])
     except FileNotFoundError:
         images = []
-    return render_template('index.html', images=images)
+    return render_template('file.html', images=images)
 
 # Route to download a specific image.
 @file_bp.route('/download/<filename>')
