@@ -194,9 +194,9 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
                         
                         # Capture and save both DNG and JPG files
-                        buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.create_still_configuration(), ["main", "raw"])
-                        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.create_still_configuration()["main"]), metadata, filepath.replace('.dng', '.jpg'))
-                        picam2.helpers.save_dng(buffers[1], metadata, picam2.create_still_configuration()["raw"], filepath)
+                        buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
+                        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, filepath.replace('.dng', '.jpg'))
+                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], filepath)
                         
                         # Wait for the next interval, accounting for capture time
                         elapsed = time.time() - start_time
@@ -224,6 +224,11 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
 def get_camera_metadata(picam2):
     if picam2 and picam2.started:
         return picam2.capture_metadata()
+    return {}
+
+def get_camera_controls():
+    if picam2 and picam2.started:
+        return picam2.camera_controls
     return {}
 
 # --- Flask routes for camera settings ---

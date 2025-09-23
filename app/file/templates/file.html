@@ -1,12 +1,14 @@
-    <div id="imagelist-container" class="form-input">
-    <h3>Image List <button onclick="updateImageList()">Update List</button></h3>
-    <ul id="image-list">
-        {% for image in images %}
-        <li>
-            {{ image }}
-            <a href="{{ url_for('file.download', filename=image) }}" download>Download</a>
-            <button onclick="deleteImage('{{ image }}')">Delete</button>
-        </li>
-        {% endfor %}
-    </ul>
-    </div>
+    <main class="container">
+        <div id="imagelist-container" class="card">
+        <h3>Image List <button onclick="updateImageList()">Update List</button></h3>
+            <ul id="image-list">
+                {% for image in images %}
+                <li>
+                    {{ image }}
+                    <a href="{{ url_for('file.download', filename=image) }}" download>Download</a>
+                    <button onclick="deleteImage('{{ image }}')">Delete</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </main>
