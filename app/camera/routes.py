@@ -184,7 +184,7 @@ def camera_init_config():
         if 'colorspace' in request.form:
             camera_settings['colorspace'] = request.form['colorspace']
 
-        # 2. Save the updated settings to the JSON file
+        # Save the updated settings to the JSON file
         save_settings(camera_settings)
         with open(SETTINGS_FILE, 'r') as f:
             settings_data= json.load(f)
@@ -204,9 +204,11 @@ def camera_init_config():
         else:
             return jsonify({
                 'camera_settings': settings_data,
-                'image_url': f'/camera/preview.jpg?t={int(time.time())}'            
+                'image_url': '/camera/preview.jpg'       
+                # 'image_url': f'/camera/preview.jpg?t={int(time.time())}'            
+     
             })    
-    
+ 
     except Exception as e:
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
         print(f"Server-side error caught: {error_message}")
