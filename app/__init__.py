@@ -1,7 +1,15 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory, current_app
+import os
 
 def create_app(config_class=None):
     app = Flask(__name__)
+
+    # Define the image directory path
+    home_dir = os.path.expanduser('~')
+    capture_image_dir = os.path.join(home_dir, "capture_image")
+
+    # Store the path in the app configuration
+    app.config['CAPTURE_IMAGE_DIR'] = capture_image_dir
 
     # Import and register blueprints
     from .network import network_bp
