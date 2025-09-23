@@ -361,7 +361,7 @@ def camera_start_timelapse():
     
     except Exception as e:
         print(f"Error starting time-lapse: {e}")
-    return jsonify({'status': 'error', 'message': str(e)})
+        return jsonify({'status': 'error', 'message': str(e)})
 
 @camera_bp.route('/stop_timelapse', methods=['POST'])
 def camera_stop_timelapse():
