@@ -29,7 +29,7 @@ def load_settings():
         with open(SETTINGS_FILE, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        # Return default settings if the file does not exist
+        print("Settings file not found. Loading default settings.")
         return {
                 "resolution": [
                     1920,
@@ -49,7 +49,6 @@ def load_settings():
 def save_settings(settings):
     with open(SETTINGS_FILE, 'w') as f:
         json.dump(settings, f, indent=4)
-    return True
 
 # Load the initial settings
 camera_settings = load_settings()
@@ -187,6 +186,8 @@ def camera_init_config():
 
         # 2. Save the updated settings to the JSON file
         save_settings(camera_settings)
+        with open(SETTINGS_FILE, 'r') as f:
+            settings_data= json.load(f)
 
         # --- Stop, re-configure, and start the camera ---
         # Stop the camera if it's currently running
@@ -197,21 +198,11 @@ def camera_init_config():
         else:
             initialize_config_camera()
 
-        with open(SETTINGS_FILE, 'r') as f:
-            settings_data= json.load(f)
     
         return jsonify({
             'camera_settings': settings_data,
             'image_url': '/camera/preview.jpg',
         })
-
-        
-    #     # Check if the file was created successfully
-    #     if os.path.exists(PREVIEW_FILE):
-    #         # Return the image file as a response
-    #         return send_file(PREVIEW_FILE, mimetype='image/jpeg')
-    #     else:
-    #         return Response("Error: Could not capture image.", mimetype='text/plain', status=500)
     
     except Exception as e:
         error_message = f"Error: Failed to initialize camera. Reason: {e}"

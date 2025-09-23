@@ -98,46 +98,6 @@ function connectToWifi() {
  * Camera setting & preview related JavaScript functions
  * JavaScript function to call the Flask route
  */
-// document.addEventListener('submit', function(event) {
-//     const previewImage = document.getElementById('camera-preview');
-//     const form = event.target; // Get the form element that triggered the event
-
-//     // Check if the form being submitted is the one you want
-//     if (form && form.id === 'camera_init_config') {
-//         event.preventDefault(); 
-
-//         // Correctly get the form's action URL from the target
-//         // We'll use a placeholder URL for this example since a real endpoint isn't available
-//         const formAction = form.action || 'https://placehold.co/600x400/000000/FFFFFF/png?text=Captured+Image';
-
-//         // Use the fetch API to send a POST request
-//         fetch(formAction, {
-//             method: 'POST'
-//         })
-//         .then(response => {
-//             if (!response.ok) {
-//                 throw new Error('Network response was not ok');
-//             }
-//             // The response body is the image data.
-//             // Convert it to a Blob to create a URL for the <img> tag.
-//             return response.blob();
-//         })
-//         .then(imageBlob => {
-//             // Create a temporary URL for the image Blob
-//             const imageUrl = URL.createObjectURL(imageBlob);
-            
-//             // Set the image source
-//             previewImage.src = imageUrl;
-//             oldObjectUrl = imageUrl;
-
-//             console.log('Image captured and displayed successfully.');
-//         })
-//         .catch(error => {
-//             console.error('Error:', error);
-//             alert('Failed to capture image. Check the console for details.');
-//         });
-//     }
-// });
 
 document.addEventListener('submit', function(event) {
     const previewImage = document.getElementById('camera-preview');
@@ -147,10 +107,14 @@ document.addEventListener('submit', function(event) {
     // Check if the form being submitted is the one you want
     if (form && form.id === 'camera_init_config') {
         event.preventDefault(); 
+        
+        //  Create a FormData object from the form
+        const formData = new FormData(form);
 
         // Use the fetch API to send a POST request
         fetch('/camera/camera_init_config', {
             method: 'POST',
+            body: formData,
         })
         .then(response => {
             // Check if the response is okay before parsing
