@@ -149,10 +149,6 @@ def serve_holoscope_images(filename):
 @camera_bp.route('/camera_init_config', methods=['GET', 'POST'])
 def camera_init_config():
     try:
-        # Update in-memory settings dictionary from request.form
-        # Note: All values from request.form are strings.
-
-        # Update resolution
         if 'resolution' in request.form:
             res_str = request.form['resolution'].split('x')
             camera_settings['resolution'] = [int(res_str[0]), int(res_str[1])]
@@ -206,7 +202,7 @@ def camera_init_config():
     
         return jsonify({
             'camera_settings': settings_json_text,
-            'image_url': '/holoscope_images/preview.jpg',
+            'image_url': '/camera/preview.jpg',
         })
 
         

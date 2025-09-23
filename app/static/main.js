@@ -149,7 +149,7 @@ document.addEventListener('submit', function(event) {
         event.preventDefault(); 
 
         // Use the fetch API to send a POST request
-        fetch('camera/camera_init_config', {
+        fetch('/camera/camera_init_config', {
             method: 'POST',
         })
         .then(data => {
