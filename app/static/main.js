@@ -174,7 +174,7 @@ document.addEventListener('submit', function(event) {
         .catch(error => {
             console.error('Error:', error);
             const statusDiv = document.getElementById('status-update');
-            statusDiv.innerHTML = `<p style="color:red;">Error updating content.</p>`;
+            statusDiv.innerText = `<p style="color:red;">Error updating content.</p>`;
         });
     }
 });
