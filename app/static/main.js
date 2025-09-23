@@ -152,6 +152,13 @@ document.addEventListener('submit', function(event) {
         fetch('/camera/camera_init_config', {
             method: 'POST',
         })
+        .then(response => {
+            // Check if the response is okay before parsing
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json(); 
+        })
         .then(data => {
             // Update the image's source using the URL from the JSON
             previewImage.src = data.image_url;
