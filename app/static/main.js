@@ -158,8 +158,8 @@ document.addEventListener('submit', function(event) {
             console.log(data.image_url);
 
             // Update the text content of the status div
-            statusDiv.innerHTML = `<p>${data.status}</p>`;
-            console.log(data.status);
+            statusDiv.innerHTML = `<p>${data.camera_settings}</p>`;
+            console.log(data.camera_settings);
 
         })
         .catch(error => {

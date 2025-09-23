@@ -3,7 +3,7 @@ import io
 import os
 import json
 import time
-from flask import Flask, Response, render_template, request, send_file, jsonify
+from flask import Flask, Response, render_template, request, jsonify, current_app, send_from_directory
 from threading import Condition
 from os.path import exists
 
@@ -139,7 +139,13 @@ https://libcamera.org/api-html/namespacelibcamera_1_1controls.html
 @camera_bp.route('/')
 def index():
     return render_template('camera.html')
-    
+
+# This tells Flask to serve files from this directory under the /holoscope_images/ URL
+@camera_bp.route('/camera/<path:filename>')
+def serve_holoscope_images(filename):
+    # Make sure 'capture_image_dir' is defined in your app's configuration
+    return send_from_directory(capture_image_dir, filename)    
+
 @camera_bp.route('/camera_init_config', methods=['GET', 'POST'])
 def camera_init_config():
     try:
@@ -199,8 +205,8 @@ def camera_init_config():
             settings_json_text= json.load(f)
     
         return jsonify({
-            'status': settings_json_text,
-            'image_url': PREVIEW_FILE,
+            'camera_settings': settings_json_text,
+            'image_url': '/holoscope_images/preview.jpg',
         })
 
         
@@ -215,4 +221,3 @@ def camera_init_config():
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
         print(f"Server-side error caught: {error_message}")
         return Response(error_message, mimetype='text/plain', status=500)
-    
