@@ -127,7 +127,6 @@ def get_camera_metadata():
     if camera:
         return camera.capture_metadata()
     return {}
-    
 
 # Initialize the camera object
 try:

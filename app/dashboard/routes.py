@@ -4,7 +4,7 @@ import os
 import time
 import multiprocessing
 import signal
-from camera_functions import initialize_config_camera, delete_camera_object, load_settings, save_settings
+# from camera_functions import initialize_config_camera, delete_camera_object, load_settings, save_settings
 
 from picamera2 import Picamera2
 import time
