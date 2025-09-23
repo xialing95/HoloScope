@@ -112,7 +112,7 @@ document.addEventListener('submit', function(event) {
         const formData = new FormData(form);
 
         // Use the fetch API to send a POST request
-        fetch('/camera/camera_init_config', {
+        fetch('/camera/init_config', {
             method: 'POST',
             body: formData,
         })

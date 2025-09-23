@@ -140,12 +140,12 @@ def index():
     return render_template('camera.html')
 
 # This tells Flask to serve files from this directory under the /holoscope_images/ URL
-@camera_bp.route('/<path:filename>')
+@camera_bp.route('/preview.jpg')
 def serve_holoscope_images(filename):
     # Make sure 'capture_image_dir' is defined in your app's configuration
     return send_from_directory(current_app.config['CAPTURE_IMAGE_DIR'], filename)   
 
-@camera_bp.route('/camera_init_config', methods=['GET', 'POST'])
+@camera_bp.route('/init_config', methods=['GET', 'POST'])
 def camera_init_config():
     try:
         if 'resolution' in request.form:
@@ -198,11 +198,14 @@ def camera_init_config():
         else:
             initialize_config_camera()
 
-    
-        return jsonify({
-            'camera_settings': settings_data,
-            'image_url': '/camera/preview.jpg',
-        })
+        # Add a check to ensure the file exists and has content
+        if not os.path.exists(PREVIEW_FILE) or os.path.getsize(PREVIEW_FILE) == 0:
+            return jsonify({'error': 'Image file not saved or is empty.'}), 500
+        else:
+            return jsonify({
+                'camera_settings': settings_data,
+                'image_url': '/camera/preview.jpg?t={int(time.time())}',
+            })    
     
     except Exception as e:
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
