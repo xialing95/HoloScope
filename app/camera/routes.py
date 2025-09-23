@@ -104,11 +104,13 @@ def take_picture(picam2, filename_dir):
         
         # Save the main (JPG) stream
         jpg_filepath = filename_dir.replace('.dng', '.jpg')
-        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.create_still_configuration()["main"]), metadata, jpg_filepath)
+        # Use the camera's configured stream to save the image
+        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, jpg_filepath)
         
         # Save the raw (DNG) stream
         dng_filepath = filename_dir.replace('.jpg', '.dng')
-        picam2.helpers.save_dng(buffers[1], metadata, picam2.create_still_configuration()["raw"], dng_filepath)
+        # Use the camera's configured stream to save the DNG file
+        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], dng_filepath)
         
         print(f"Picture taken and saved to {jpg_filepath} and {dng_filepath}.")
         return True
