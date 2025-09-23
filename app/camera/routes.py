@@ -23,6 +23,9 @@ os.makedirs(static_dir, exist_ok=True)
 SETTINGS_FILE = os.path.join(static_dir, 'camera_settings.json')
 PREVIEW_FILE = os.path.join(capture_image_dir, 'preview.jpg')
 
+# Global variable for the camera object
+picam2 = None
+
 # --- Multiprocessing Setup ---
 # A queue to send commands to the timelapse process
 command_queue = multiprocessing.Queue()
