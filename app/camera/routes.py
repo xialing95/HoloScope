@@ -318,8 +318,12 @@ def camera_init_config():
         print(f"Server-side error caught: {error_message}")
         return Response(error_message, mimetype='text/plain', status=500)
 
+
 @camera_bp.route('/start_timelapse', methods=['POST'])
 def camera_start_timelapse():
+    # Declare the variable as global to access the one from outside the function
+    global timelapse_process
+    
     try:
         data = request.json
         duration = int(data.get('duration', 60))
@@ -345,7 +349,7 @@ def camera_start_timelapse():
         # Clear shared values
         photo_count_value.value = 0
         total_photos_value.value = num_photos
-        
+
         # Start the new process if one isn't already running
         if timelapse_process is None or not timelapse_process.is_alive():
             timelapse_process = multiprocessing.Process(
