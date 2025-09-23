@@ -257,14 +257,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
             interval: interval
         };
         
-        fetch('/dashboard/start_timelapse', {
+        fetch('/camera/start_timelapse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         })
         .then(response => response.json())
         .then(result => {
-            const messageBox = document.getElementById('message-box');
+            const messageBox = document.getElementById('camera-message-box');
             if (result.status === 'error') {
                 messageBox.innerHTML = `<p>${result.message}</p>`;
             } else {
@@ -273,14 +273,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }
         })
         .catch(error => {
-            const messageBox = document.getElementById('message-box');
+            const messageBox = document.getElementById('camera-message-box');
             messageBox.innerHTML = `<p>Error starting time-lapse. Check console.</p>`;
             console.error('Error:', error);
         });
     };
 
     window.stopTimelapse = function() {
-        fetch('/dashboard/stop_timelapse', {
+        fetch('/camera/stop_timelapse', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         })
@@ -292,45 +292,45 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .catch(error => console.error('Error:', error));
     };
 
-    // Periodically check the time-lapse status
-    setInterval(() => {
-        fetch('/dashboard/timelapse_status')
-            .then(response => response.json())
-            .then(data => {
-                const messageBox = document.getElementById('message-box');
-                const progressBar = document.getElementById('progress-bar');
-                const photoStatus = document.getElementById('photo-status');
-                const progressContainer = document.getElementById('progress-container');
+    // // Periodically check the time-lapse status
+    // setInterval(() => {
+    //     fetch('/dashboard/timelapse_status')
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             const messageBox = document.getElementById('message-box');
+    //             const progressBar = document.getElementById('progress-bar');
+    //             const photoStatus = document.getElementById('photo-status');
+    //             const progressContainer = document.getElementById('progress-container');
 
-                if (data.status === 'Running') {
-                    const progress = (data.current_photo / data.total_photos) * 100;
-                    if (progressBar) {
-                        progressBar.style.width = `${progress}%`;
-                    }
-                    if (photoStatus) {
-                        photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
-                    }
-                    if (messageBox) {
-                        messageBox.innerHTML = `<p>Time-lapse is running...</p>`;
-                    }
-                    if (progressContainer) {
-                        progressContainer.style.display = 'block';
-                    }
-                } else {
-                    if (progressBar) {
-                        progressBar.style.width = `0%`;
-                    }
-                    if (photoStatus) {
-                        photoStatus.textContent = `0/0`;
-                    }
-                    if (progressContainer) {
-                        progressContainer.style.display = 'none';
-                    }
-                    if (data.status !== 'Idle' && messageBox) {
-                        messageBox.innerHTML = `<p>Time-lapse ended with status: ${data.status}</p>`;
-                    }
-                }
-            })
-            .catch(error => console.error('Error fetching status:', error));
-    }, 3000); // Poll every 3 seconds
+    //             if (data.status === 'Running') {
+    //                 const progress = (data.current_photo / data.total_photos) * 100;
+    //                 if (progressBar) {
+    //                     progressBar.style.width = `${progress}%`;
+    //                 }
+    //                 if (photoStatus) {
+    //                     photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
+    //                 }
+    //                 if (messageBox) {
+    //                     messageBox.innerHTML = `<p>Time-lapse is running...</p>`;
+    //                 }
+    //                 if (progressContainer) {
+    //                     progressContainer.style.display = 'block';
+    //                 }
+    //             } else {
+    //                 if (progressBar) {
+    //                     progressBar.style.width = `0%`;
+    //                 }
+    //                 if (photoStatus) {
+    //                     photoStatus.textContent = `0/0`;
+    //                 }
+    //                 if (progressContainer) {
+    //                     progressContainer.style.display = 'none';
+    //                 }
+    //                 if (data.status !== 'Idle' && messageBox) {
+    //                     messageBox.innerHTML = `<p>Time-lapse ended with status: ${data.status}</p>`;
+    //                 }
+    //             }
+    //         })
+    //         .catch(error => console.error('Error fetching status:', error));
+    // }, 3000); // Poll every 3 seconds
 });
