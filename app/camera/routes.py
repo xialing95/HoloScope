@@ -80,9 +80,9 @@ def initialize_camera(settings):
     """Initializes and returns a Picamera2 object with given settings."""
     try:
          # Check if a camera object already exists and close it before creating a new one
-        global camera
-        if camera:
-            camera = delete_camera_object(camera)
+        global picam2
+        if picam2:
+            picam2 = delete_camera_object(picam2)
 
         picam2 = Picamera2()
         capture_config = picam2.create_still_configuration(
