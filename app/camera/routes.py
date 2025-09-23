@@ -204,7 +204,7 @@ def camera_init_config():
         else:
             return jsonify({
                 'camera_settings': settings_data,
-                'image_url': '/camera/preview.jpg?t={int(time.time())}',
+                'image_url': f'/camera/preview.jpg?t={int(time.time())}'            
             })    
     
     except Exception as e:
