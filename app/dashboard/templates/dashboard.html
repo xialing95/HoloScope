@@ -33,43 +33,26 @@
 </main> -->
 
 <main class="container">
-    <h3>PiCamera2 Time-lapse</h3>
-    <form id="timelapse-form" class="card">
+    <form class="card">
+        <h3>PiCamera2 Time-lapse</h3>
         <div>
-            <label for="filename">Filename</label>
-            <input type="text" id="filename" name="filename" placeholder="microbes, night_sky, etc.">
-        </div>
-        
-        <div>
-            <label for="duration">Total Run Time (seconds)</label>
-            <input type="number" id="duration" name="duration" placeholder="60" value="60">
-        </div>
-        
-        <div>
-            <label for="interval">Interval Between Shots (seconds)</label>
-            <input type="number" id="interval" name="interval" placeholder="10" value="10">
-        </div>
-        
-        <div>
-            <button type="button" onclick="startTimelapse()" id="start-button">
-                <svg id="start-icon" viewBox="0 0 20 20" fill="currentColor" style="width: 20px; height: 20px; vertical-align: middle;">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-                </svg>
-                Start Time-lapse
-            </button>
-            <button type="button" onclick="stopTimelapse()" id="stop-button">
-                <svg viewBox="0 0 20 20" fill="currentColor" style="width: 20px; height: 20px; vertical-align: middle;">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 9a1 1 0 00-.707.293l-2 2a1 1 0 001.414 1.414l2-2a1 1 0 00-1.414-1.414zM12 9a1 1 0 01.707.293l2 2a1 1 0 01-1.414 1.414l-2-2A1 1 0 0112 9z" clip-rule="evenodd" />
-                </svg>
-                Stop
+            <button type="button" >
+                Refresh
             </button>
         </div>
     </form>
 
-    <div>
+    <form class="card">
+        <h3>Sensor Value</h3>
         <div>
-            <p>Ready to start.</p>
+            <button type="button" >
+                Refresh
+            </button>
         </div>
+    </form>
+
+
+    <div>
         <div id="progress-container" style="display:none;">
             <p>Progress:</p>
             <div>
@@ -81,6 +64,5 @@
                 <div style="width:0%"></div>
             </div>
         </div>
-    </div>
     </div>
 </main>

@@ -95,15 +95,31 @@ def initialize_config_camera():
     time.sleep(2)
     camera.set_controls(controls)
     time.sleep(1)
-    # Switch mode, take the picture, and get a request object
-    request_object = camera.switch_mode_capture_request_and_stop(capture_config)
-
-    # Save the main frame as a JPEG
-    request_object.save("main", PREVIEW_FILE)
-
-    # Save the raw frame as a DNG file (for RAW data)
-    request_object.save_dng(PREVIEW_FILE.replace('.jpg', '.dng'))
     print("Camera object created and configured.")
+
+def take_preview_picture():
+    global camera
+    if not camera:
+        print("Camera not initialized. Initializing now...")
+        initialize_config_camera()
+    else:
+        print("Camera already initialized. Taking preview picture...")
+
+    if camera and camera.started:
+        try:
+            # Switch mode, take the picture, and get a request object
+            request_object = camera.switch_mode_capture_request_and_stop(capture_config)
+
+            # Save the main frame as a JPEG
+            request_object.save("main", PREVIEW_FILE)
+
+            # Save the raw frame as a DNG file (for RAW data)
+            request_object.save_dng(PREVIEW_FILE.replace('.jpg', '.dng'))
+            print("Preview picture taken and saved.")
+        except Exception as e:
+            print(f"Error taking preview picture: {e}")
+    else:
+        print("Camera is not started. Cannot take picture.")
 
 def delete_camera_object():
     global camera
@@ -195,8 +211,10 @@ def camera_init_config():
             print("Stopping existing camera instance...")
             camera.stop()
             initialize_config_camera()
+            take_preview_picture()
         else:
             initialize_config_camera()
+            take_preview_picture()
 
         # Add a check to ensure the file exists and has content
         if not os.path.exists(PREVIEW_FILE) or os.path.getsize(PREVIEW_FILE) == 0:
