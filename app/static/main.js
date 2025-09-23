@@ -269,12 +269,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 messageBox.innerHTML = `<p>${result.message}</p>`;
             } else {
                 messageBox.innerHTML = `<p>${result.message}</p>`;
-                document.getElementById('progress-container').style.display = 'block';
             }
         })
         .catch(error => {
             const messageBox = document.getElementById('camera-message-box');
-            messageBox.innerHTML = `<p>Error starting time-lapse. Check console.</p>`;
+            messageBox.innerText = `<p>Error starting time-lapse. Check console.</p>`;
             console.error('Error:', error);
         });
     };
@@ -287,7 +286,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .then(response => response.json())
         .then(result => {
             const messageBox = document.getElementById('message-box');
-            messageBox.innerHTML = `<p>${result.message}</p>`;
+            messageBox.innerText = `<p>${result.message}</p>`;
         })
         .catch(error => console.error('Error:', error));
     };
