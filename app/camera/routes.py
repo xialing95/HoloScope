@@ -100,7 +100,7 @@ def take_picture(picam2, filename_dir):
         picam2.start()
         
         # Capture buffers from both main (JPG) and raw (DNG) streams
-        buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.create_still_configuration(), ["main", "raw"])
+        buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
         
         # Save the main (JPG) stream
         jpg_filepath = filename_dir.replace('.dng', '.jpg')
