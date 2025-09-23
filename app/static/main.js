@@ -244,72 +244,93 @@ async function deleteImage(filename) {
 //     });
 // });
 
-document.getElementById('timelapse-form').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    const form = event.target;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    
-    fetch('/dashboard/start_timelapse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    })
-    .then(response => response.json())
-    .then(result => {
-        const messageBox = document.getElementById('message-box');
-        if (result.status === 'error') {
-            messageBox.innerHTML = `<p>${result.message}</p>`;
-        } else {
-            messageBox.innerHTML = `<p>${result.message}</p>`;
-            // Show progress bar
-            document.getElementById('progress-container').classList.remove('hidden');
-        }
-    })
-    .catch(error => {
-        const messageBox = document.getElementById('message-box');
-        messageBox.innerHTML = `<p>Error starting time-lapse. Check console.</p>`;
-        console.error('Error:', error);
-    });
-});
-
-document.getElementById('stop-button').addEventListener('click', function() {
-    fetch('/dashboard/stop_timelapse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json())
-    .then(result => {
-        const messageBox = document.getElementById('message-box');
-        messageBox.innerHTML = `<p>${result.message}</p>`;
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-// Periodically check the time-lapse status
-setInterval(() => {
-    fetch('/dashboard/timelapse_status')
+document.addEventListener('DOMContentLoaded', (event) => {
+    // New functions to start and stop the time-lapse
+    window.startTimelapse = function() {
+        const filename = document.getElementById('filename').value;
+        const duration = document.getElementById('duration').value;
+        const interval = document.getElementById('interval').value;
+        
+        const data = {
+            filename: filename,
+            duration: duration,
+            interval: interval
+        };
+        
+        fetch('/dashboard/start_timelapse', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        })
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
             const messageBox = document.getElementById('message-box');
-            const photoStatus = document.getElementById('photo-status');
-            // const progressContainer = document.getElementById('progress-container');
-
-            if (data.status === 'Running') {
-                // const progress = (data.current_photo / data.total_photos) * 100;
-                // progressBar.style.width = `${progress}%`;
-                // photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
-                messageBox.innerHTML = `<p>Time-lapse is running...</p>`;
-                // progressContainer.classList.remove('hidden');
+            if (result.status === 'error') {
+                messageBox.innerHTML = `<p>${result.message}</p>`;
             } else {
-                // progressBar.style.width = `0%`;
-                photoStatus.textContent = `0/0`;
-                // progressContainer.classList.add('hidden');
-                if (data.status !== 'Idle') {
-                    messageBox.innerHTML = `<p>Time-lapse ended with status: ${data.status}</p>`;
-                }
+                messageBox.innerHTML = `<p>${result.message}</p>`;
+                document.getElementById('progress-container').style.display = 'block';
             }
         })
-        .catch(error => console.error('Error fetching status:', error));
-}, 3000); // Poll every 3 seconds
+        .catch(error => {
+            const messageBox = document.getElementById('message-box');
+            messageBox.innerHTML = `<p>Error starting time-lapse. Check console.</p>`;
+            console.error('Error:', error);
+        });
+    };
+
+    window.stopTimelapse = function() {
+        fetch('/dashboard/stop_timelapse', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(result => {
+            const messageBox = document.getElementById('message-box');
+            messageBox.innerHTML = `<p>${result.message}</p>`;
+        })
+        .catch(error => console.error('Error:', error));
+    };
+
+    // Periodically check the time-lapse status
+    setInterval(() => {
+        fetch('/dashboard/timelapse_status')
+            .then(response => response.json())
+            .then(data => {
+                const messageBox = document.getElementById('message-box');
+                const progressBar = document.getElementById('progress-bar');
+                const photoStatus = document.getElementById('photo-status');
+                const progressContainer = document.getElementById('progress-container');
+
+                if (data.status === 'Running') {
+                    const progress = (data.current_photo / data.total_photos) * 100;
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+                    if (photoStatus) {
+                        photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
+                    }
+                    if (messageBox) {
+                        messageBox.innerHTML = `<p>Time-lapse is running...</p>`;
+                    }
+                    if (progressContainer) {
+                        progressContainer.style.display = 'block';
+                    }
+                } else {
+                    if (progressBar) {
+                        progressBar.style.width = `0%`;
+                    }
+                    if (photoStatus) {
+                        photoStatus.textContent = `0/0`;
+                    }
+                    if (progressContainer) {
+                        progressContainer.style.display = 'none';
+                    }
+                    if (data.status !== 'Idle' && messageBox) {
+                        messageBox.innerHTML = `<p>Time-lapse ended with status: ${data.status}</p>`;
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching status:', error));
+    }, 3000); // Poll every 3 seconds
+});

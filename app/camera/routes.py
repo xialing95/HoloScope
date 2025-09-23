@@ -213,3 +213,6 @@ def camera_init_config():
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
         print(f"Server-side error caught: {error_message}")
         return Response(error_message, mimetype='text/plain', status=500)
+
+# @camera_bp.route('/set_timelpase', methods=['GET'])
+# def camera_set_timelpase():
