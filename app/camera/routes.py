@@ -11,7 +11,7 @@ from picamera2 import Picamera2
 import time
 
 '''
-JSON file handling for ca   mera settings
+JSON file handling for camera settings
 '''
 # Get the path to the user's home directory.
 home_dir = os.path.expanduser('~')

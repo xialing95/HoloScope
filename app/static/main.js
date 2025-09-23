@@ -200,3 +200,122 @@ async function deleteImage(filename) {
         alert('An error occurred while trying to delete the image.');
     }
 }
+
+/*
+ * Dashboard setup timelapse JavaScript functions
+ * JavaScript function to call the Flask route
+ */
+// document.getElementById('timelapse-form').addEventListener('submit', function(event) {
+//     // Prevent the default form submission (page reload)
+//     event.preventDefault();
+
+//     // Get the form element
+//     const form = event.target;
+    
+//     // Create a FormData object to easily collect all form data
+//     const formData = new FormData(form);
+
+//     // Get the status message element
+//     const statusElement = document.getElementById('timelapse-status');
+
+//     // Display a loading message
+//     statusElement.innerHTML = '<h4>Starting time lapse...</h4>';
+
+//     // Send the form data to the server
+//     fetch('/dashboard/start', {
+//         method: 'POST',
+//         body: formData,
+//     })
+//     .then(response => {
+//         // Check if the response is valid before parsing
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         return response.json();
+//     })
+//     .then(data => {
+//         // Update the status with the server's response
+//         statusElement.innerHTML = `<h4>Execution time (seconds): ${data.elapseTime}, Total Number Photos: ${data.numphotos}</h4>`;
+//     })
+//     .catch(error => {
+//         // Handle any errors that occurred during the fetch
+//         console.error('Error:', error);
+//         statusElement.innerHTML = '<h4 style="color:red;">Failed to start time lapse.</h4>';
+//     });
+// });
+
+document.getElementById('timelapse-form').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch('dashboard/start_timelapse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.json())
+    .then(result => {
+        const messageBox = document.getElementById('message-box');
+        if (result.status === 'error') {
+            messageBox.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700';
+            messageBox.innerHTML = `<p>${result.message}</p>`;
+        } else {
+            messageBox.className = 'p-3 rounded-lg text-sm bg-green-100 text-green-700';
+            messageBox.innerHTML = `<p>${result.message}</p>`;
+            // Show progress bar
+            document.getElementById('progress-container').classList.remove('hidden');
+        }
+    })
+    .catch(error => {
+        const messageBox = document.getElementById('message-box');
+        messageBox.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700';
+        messageBox.innerHTML = `<p>Error starting time-lapse. Check console.</p>`;
+        console.error('Error:', error);
+    });
+});
+
+document.getElementById('stop-button').addEventListener('click', function() {
+    fetch('dashboard/stop_timelapse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(result => {
+        const messageBox = document.getElementById('message-box');
+        messageBox.className = 'p-3 rounded-lg text-sm bg-gray-100 text-gray-700';
+        messageBox.innerHTML = `<p>${result.message}</p>`;
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+// Periodically check the time-lapse status
+setInterval(() => {
+    fetch('dashboard/timelapse_status')
+        .then(response => response.json())
+        .then(data => {
+            const messageBox = document.getElementById('message-box');
+            const progressBar = document.getElementById('progress-bar');
+            const photoStatus = document.getElementById('photo-status');
+            const progressContainer = document.getElementById('progress-container');
+
+            if (data.status === 'Running') {
+                const progress = (data.current_photo / data.total_photos) * 100;
+                progressBar.style.width = `${progress}%`;
+                photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
+                messageBox.innerHTML = `<p>Time-lapse is running...</p>`;
+                progressContainer.classList.remove('hidden');
+            } else {
+                progressBar.style.width = `0%`;
+                photoStatus.textContent = `0/0`;
+                progressContainer.classList.add('hidden');
+                if (data.status !== 'Idle') {
+                    messageBox.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700';
+                    messageBox.innerHTML = `<p>Time-lapse ended with status: ${data.status}</p>`;
+                }
+            }
+        })
+        .catch(error => console.error('Error fetching status:', error));
+}, 3000); // Poll every 3 seconds

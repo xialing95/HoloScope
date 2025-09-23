@@ -206,55 +206,64 @@ option {
 
 
 #imagelist-container {
-margin-top: 20px;
+    margin-top: 20px;
 }
+
 #image-list {
-list-style-type: none;
-padding: 0;
+    list-style-type: none;
+    padding: 0;
 }
+
 #image-list li {
-background-color: #f9f9f9;
-border: 1px solid #ddd;
-border-radius: 8px;
-padding: 12px;
-margin-bottom: 10px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-font-size: 16px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
 }
+
 #image-list a, #image-list button {
-padding: 8px 12px;
-border: none;
-border-radius: 6px;
-cursor: pointer;
-text-decoration: none;
-font-weight: bold;
-transition: background-color 0.3s ease;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
 }
+
 #image-list a {
-background-color: #007bff;
-color: #fff;
+    background-color: #007bff;
+    color: #fff;
 }
+
 #image-list a:hover {
-background-color: #0056b3;
+    background-color: #0056b3;
 }
+
 #image-list button {
-background-color: #dc3545;
-color: #fff;
-margin-left: 10px;
+    background-color: #dc3545;
+    color: #fff;
+    margin-left: 10px;
 }
+
 #image-list button:hover {
-background-color: #c82333;
+    background-color: #c82333;
 }
+
 .update-button {
-background-color: #6c757d;
-color: #fff;
-padding: 6px 10px;
-border-radius: 6px;
-border: none;
-cursor: pointer;
+    background-color: #6c757d;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
 }
+
 .update-button:hover {
-background-color: #5a6268;
+    background-color: #5a6268;
 }
