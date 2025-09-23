@@ -266,9 +266,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .then(result => {
             const messageBox = document.getElementById('camera-message-box');
             if (result.status === 'error') {
-                messageBox.innerHTML = `<p>${result.message}</p>`;
+                messageBox.innerText = `<p>${result.message}</p>`;
             } else {
-                messageBox.innerHTML = `<p>${result.message}</p>`;
+                messageBox.innerText = `<p>${result.message}</p>`;
             }
         })
         .catch(error => {

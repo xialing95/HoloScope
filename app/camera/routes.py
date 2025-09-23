@@ -24,6 +24,18 @@ static_dir = os.path.join(home_dir, "HoloScope", "app", "static")
 SETTINGS_FILE = os.path.join(static_dir, 'camera_settings.json')
 PREVIEW_FILE = os.path.join(capture_image_dir, 'preview.jpg')
 
+# --- Multiprocessing Setup ---
+# A queue to send commands to the timelapse process
+command_queue = multiprocessing.Queue()
+# A value to store the current status of the timelapse
+status_value = multiprocessing.Value('i', 0)
+# A value to store the current photo count
+photo_count_value = multiprocessing.Value('i', 0)
+# A value to store the number of photos to take
+total_photos_value = multiprocessing.Value('i', 0)
+# A process object to manage the timelapse process
+timelapse_process = None
+
 # Function to load settings from a file
 def load_settings():
     try:
@@ -127,13 +139,12 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
     Main function for the time-lapse process.
     This runs in a separate process and is independent of the Flask server.
     """
-    picam2 = None
     
     def signal_handler(signum, frame):
         # Gracefully shut down the camera on SIGTERM
-        if picam2 and picam2.started:
+        if camera and camera.started:
             print("Received shutdown signal. Stopping camera...")
-            picam2.stop()
+            camera.stop()
         exit(0)
     
     signal.signal(signal.SIGTERM, signal_handler)
@@ -150,15 +161,15 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                     print(f"Starting time-lapse with settings: {settings}")
                     status_value.value = 1  # 1: Running
                     
-                    # Initialize PiCamera2
-                    picam2 = Picamera2()
-                    config = picam2.create_still_configuration(
-                        main={"size": settings['resolution']},
-                        lores={"size": (640, 480)},
-                        display="lores"
-                    )
-                    picam2.configure(config)
-                    picam2.start()
+                    # # Initialize PiCamera2
+                    # picam2 = Picamera2()
+                    # config = picam2.create_still_configuration(
+                    #     main={"size": settings['resolution']},
+                    #     lores={"size": (640, 480)},
+                    #     display="lores"
+                    # )
+                    # picam2.configure(config)
+                    camera.start()
                     
                     # Run the time-lapse loop
                     start_time = time.time()
@@ -168,11 +179,19 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                             break
                         
                         photo_count_value.value = i + 1
-                        filename = settings['filename_base'] + f"_{i:04d}.jpg"
+                        filename = settings['filename_base'] + f"_{i:04d}.dng"
                         filepath = os.path.join(settings['image_dir'], filename)
                         print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
                         
-                        picam2.capture_file(filepath)
+                        # camera.capture_file(filepath)
+                        # request = camera.capture_request()
+                        # request.save_dng(filepath.replace('.jpg', '.dng'))
+                        # request.save("main", "newest.jpg" )
+                        # request.release()
+
+                        buffers, metadata = camera.switch_mode_and_capture_buffers(capture_config, ["main", "raw"])
+                        camera.helpers.save(camera.helpers.make_image(buffers[0], capture_config["main"]), metadata, filepath.replace('.dng', '.jpg'))
+                        camera.helpers.save_dng(buffers[1], metadata, capture_config["raw"], filepath)
                         
                         # Wait for the next interval, accounting for capture time
                         elapsed = time.time() - start_time
@@ -181,7 +200,7 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         start_time = time.time()
                     
                     status_value.value = 0  # 0: Idle
-                    picam2.stop()
+                    camera.stop()
                     print("Timelapse finished successfully.")
                     
                 elif command['action'] == 'stop':
@@ -194,8 +213,8 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
         except Exception as e:
             print(f"Error in timelapse process: {e}")
             status_value.value = -1 # -1: Error
-            if picam2 and picam2.started:
-                picam2.stop()
+            if camera and camera.started:
+                camera.stop()
             time.sleep(5) # Wait before retrying
 
 def delete_camera_object():
@@ -322,21 +341,29 @@ def camera_start_timelapse():
             return jsonify({'status': 'error', 'message': message})
         else:
             num_photos = duration // interval
+        
+        # Placeholder settings. In a real app, these would come from the form.
+        settings = {
+            'filename_base': filename_base,
+            'duration': duration,
+            'interval': interval,
+            'num_photos': num_photos,
+        }
 
-        # # Clear shared values
-        # photo_count_value.value = 0
-        # total_photos_value.value = num_photos
+        # Clear shared values
+        photo_count_value.value = 0
+        total_photos_value.value = num_photos
         
-        # # Start the new process if one isn't already running
-        # if timelapse_process is None or not timelapse_process.is_alive():
-        #     timelapse_process = multiprocessing.Process(
-        #         target=run_timelapse,
-        #         args=(command_queue, status_value, photo_count_value, total_photos_value)
-        #     )
-        #     timelapse_process.start()
+        # Start the new process if one isn't already running
+        if timelapse_process is None or not timelapse_process.is_alive():
+            timelapse_process = multiprocessing.Process(
+                target=run_timelapse,
+                args=(command_queue, status_value, photo_count_value, total_photos_value)
+            )
+            timelapse_process.start()
         
-        # # Send the start command to the new process via the queue
-        # command_queue.put({'action': 'start', 'settings': settings})
+        # Send the start command to the new process via the queue
+        command_queue.put({'action': 'start', 'settings': settings})
         
         return jsonify({'status': 'success', 'message': f'Time-lapse started. Capturing {num_photos} photos.'})
     
