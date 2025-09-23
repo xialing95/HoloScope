@@ -31,21 +31,19 @@ def load_settings():
     except FileNotFoundError:
         # Return default settings if the file does not exist
         return {
-            "resolution": [1920, 1080],
-            "framerate": 30,
-            "iso": 100,
-            "expSpd": 20000,
-            "expMod": "Manual",
-            "ExposureTimeMode": 1,
-            "ExposureTime": 20000,
-            "ExposureValue": 0,
-            "AnalogueGainMode": 1,
-            "AnalogueGain": 1.0,
-            "AwbEnable": "True",
-            "awbGain": 1.0,
-            "Brightness": 0.0,
-            "Contrast": 1.0
-        }
+                "resolution": [
+                    1920,
+                    1080
+                ],
+                "ExposureTimeMode": 0,
+                "ExposureTime": 20000,
+                "ExposureValue": 0.0,
+                "AnalogueGainMode": 0,
+                "AnalogueGain": 1.0,
+                "Brightness": 0.0,
+                "Contrast": 1.0
+            }
+
 
 # Function to save settings to a file
 def save_settings(settings):
@@ -64,6 +62,9 @@ preview_config = None
 capture_config = None
 
 def initialize_config_camera():
+    # Load the initial settings
+    camera_settings = load_settings()
+    
     global camera, preview_config, capture_config
     print("Attempting to initialize and configure camera...")
 
@@ -92,8 +93,8 @@ def initialize_config_camera():
     camera.configure(capture_config)
     camera.start()
     time.sleep(2)
-    # camera.set_controls(controls)
-    # time.sleep(1)
+    camera.set_controls(controls)
+    time.sleep(1)
     # Switch mode, take the picture, and get a request object
     request_object = camera.switch_mode_capture_request_and_stop(capture_config)
 
