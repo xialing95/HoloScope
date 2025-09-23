@@ -7,9 +7,19 @@ import threading
 from picamera2 import Picamera2
 import time
 
-# Define the base directory for the images.
+# Get the path to the user's home directory.
+home_dir = os.path.expanduser('~')
+
 # This finds the user's home directory and appends 'capture_image'.
 CAPTURE_IMAGE_DIR = os.path.join(os.path.expanduser('~'), 'capture_image')
+
+
+# Define the full path for the new directory.
+capture_image_dir = os.path.join(home_dir, "capture_image")
+static_dir = os.path.join(home_dir, "HoloScope", "app", "static")
+
+# Join the directory with the filename
+SETTINGS_FILE = os.path.join(static_dir, 'camera_settings.json')
 
 # Global state to store time-lapse information
 timelapse_state = {
