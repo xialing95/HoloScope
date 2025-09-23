@@ -7,6 +7,8 @@ from flask import Flask, Response, render_template, request, jsonify, current_ap
 from os.path import exists
 import multiprocessing
 import signal
+
+import sys
 from picamera2 import Picamera2
 from libcamera import controls
 
@@ -146,6 +148,22 @@ def take_picture(picam2, filename_dir):
         if picam2 and picam2.started:
             picam2.stop()
 
+# --- Main process signal handler ---
+def shutdown_handler(signum, frame):
+    """
+    Handles a SIGINT (Ctrl-C) signal to gracefully terminate the child process.
+    """
+    global timelapse_process
+    print("Main process received Ctrl-C. Initiating graceful shutdown of timelapse process...")
+    if timelapse_process and timelapse_process.is_alive():
+        timelapse_process.terminate()
+        timelapse_process.join()
+        print("Timelapse process terminated successfully.")
+    sys.exit(0)
+
+# Register the signal handler for SIGINT (Ctrl-C)
+signal.signal(signal.SIGINT, shutdown_handler)
+
 # --- PiCamera Logic (Runs in a separate process) ---
 def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value, settings):
     """
@@ -171,14 +189,15 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
         status_value.value = -1 # -1: Error
         print("Initialization of camera failed in timelapse process.")
         return # Exit if camera initialization fails
+    else:
+        print("Camera initialized successfully in timelapse process.") 
 
     while True:
         try:
             # Check for commands from the main process without blocking
-            print(command['action'])
-
             if not command_queue.empty():
                 command = command_queue.get_nowait()
+
                 if command['action'] == 'start':
                     settings = command['settings']
                     print(f"Starting time-lapse with settings: {settings}")
