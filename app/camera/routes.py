@@ -60,9 +60,30 @@ def save_settings(settings):
     with open(SETTINGS_FILE, 'w') as f:
         json.dump(settings, f, indent=4)
 
+def delete_camera_object(picam2):
+    """Safely stops and closes a Picamera2 object."""
+    try:
+        if picam2 and picam2.started:
+            print("Stopping existing camera instance...")
+            picam2.stop()
+            print("Camera stopped.")
+        
+        if picam2:
+            picam2.close()
+            print("Camera closed.")
+        return None
+    except Exception as e:
+        print(f"Error while trying to delete camera object: {e}")
+        return picam2
+
 def initialize_camera(settings):
     """Initializes and returns a Picamera2 object with given settings."""
     try:
+         # Check if a camera object already exists and close it before creating a new one
+        global camera
+        if camera:
+            camera = delete_camera_object(camera)
+
         picam2 = Picamera2()
         capture_config = picam2.create_still_configuration(
             main={"size": tuple(settings['resolution'])},
