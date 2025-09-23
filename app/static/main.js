@@ -148,16 +148,9 @@ document.addEventListener('submit', function(event) {
     if (form && form.id === 'camera_init_config') {
         event.preventDefault(); 
 
-        // Correctly get the form's action URL from the target
-        // We'll use a placeholder URL for this example since a real endpoint isn't available
-        const formAction = form.action || 'https://placehold.co/600x400/000000/FFFFFF/png?text=Captured+Image';
-
         // Use the fetch API to send a POST request
         fetch(formAction, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
         })
         .then(data => {
             // Update the image's source using the URL from the JSON
