@@ -12,10 +12,14 @@ JSON file handling for camera settings
 '''
 # Get the directory of the currently executing script
 script_dir = os.path.dirname(os.path.abspath(__file__))
+# Get the path to the user's home directory.
+home_dir = os.path.expanduser('~')
+# Define the full path for the new directory.
+capture_image_dir = os.path.join(home_dir, "capture_image")
 
 # Join the directory with the filename
 SETTINGS_FILE = os.path.join(script_dir, 'camera_settings.json')
-PREVIEW_FILE = os.path.join(script_dir, 'preview.jpg')
+PREVIEW_FILE = os.path.join(capture_image_dir, 'preview.jpg')
 
 # Function to load settings from a file
 def load_settings():

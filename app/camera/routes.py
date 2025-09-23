@@ -9,20 +9,18 @@ from os.path import exists
 
 from picamera2 import Picamera2
 import time
-import threading
 
 '''
 JSON file handling for camera settings
 '''
-# Get the directory of the currently executing script
-script_dir = os.path.dirname(os.path.abspath(__file__))
 # Get the path to the user's home directory.
 home_dir = os.path.expanduser('~')
 # Define the full path for the new directory.
 capture_image_dir = os.path.join(home_dir, "capture_image")
+static_dir = os.path.join(home_dir, "HoloScope", "app", "static")
 
 # Join the directory with the filename
-SETTINGS_FILE = os.path.join(script_dir, 'camera_settings.json')
+SETTINGS_FILE = os.path.join(static_dir, 'camera_settings.json')
 PREVIEW_FILE = os.path.join(capture_image_dir, 'preview.jpg')
 
 # Function to load settings from a file
@@ -78,27 +76,18 @@ def initialize_config_camera():
     capture_config = camera.create_still_configuration(
                 main={"size": tuple(camera_settings['resolution'])},  
                 raw={'size': tuple(camera_settings['resolution'])}, 
-                controls={
-                    'ExposureTimeMode': camera_settings['ExposureTimeMode'],
-                    'ExposureTime': camera_settings['ExposureTime'],
-                    'ExposureValue': camera_settings['ExposureValue'],
-                    'AnalogueGainMode': camera_settings['AnalogueGainMode'],
-                    'AnalogueGain': camera_settings['AnalogueGain'],
-                    'Brightness': camera_settings['Brightness'],
-                    'Contrast': camera_settings['Contrast'],
-                },
                 display=None
                 )
     
-    # controls={
-    #     'ExposureTimeMode': camera_settings['ExposureTimeMode'],
-    #     'ExposureTime': camera_settings['ExposureTime'],
-    #     'ExposureValue': camera_settings['ExposureValue'],
-    #     'AnalogueGainMode': camera_settings['AnalogueGainMode'],
-    #     'AnalogueGain': camera_settings['AnalogueGain'],
-    #     'Brightness': camera_settings['Brightness'],
-    #     'Contrast': camera_settings['Contrast'],
-    # }
+    controls={
+        'ExposureTimeMode': camera_settings['ExposureTimeMode'],
+        'ExposureTime': camera_settings['ExposureTime'],
+        'ExposureValue': camera_settings['ExposureValue'],
+        'AnalogueGainMode': camera_settings['AnalogueGainMode'],
+        'AnalogueGain': camera_settings['AnalogueGain'],
+        'Brightness': camera_settings['Brightness'],
+        'Contrast': camera_settings['Contrast'],
+    }
 
     camera.configure(capture_config)
     camera.start()
