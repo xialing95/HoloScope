@@ -251,7 +251,7 @@ document.getElementById('timelapse-form').addEventListener('submit', function(ev
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     
-    fetch('dashboard/start_timelapse', {
+    fetch('/dashboard/start_timelapse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -260,10 +260,8 @@ document.getElementById('timelapse-form').addEventListener('submit', function(ev
     .then(result => {
         const messageBox = document.getElementById('message-box');
         if (result.status === 'error') {
-            messageBox.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700';
             messageBox.innerHTML = `<p>${result.message}</p>`;
         } else {
-            messageBox.className = 'p-3 rounded-lg text-sm bg-green-100 text-green-700';
             messageBox.innerHTML = `<p>${result.message}</p>`;
             // Show progress bar
             document.getElementById('progress-container').classList.remove('hidden');
@@ -271,21 +269,19 @@ document.getElementById('timelapse-form').addEventListener('submit', function(ev
     })
     .catch(error => {
         const messageBox = document.getElementById('message-box');
-        messageBox.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700';
         messageBox.innerHTML = `<p>Error starting time-lapse. Check console.</p>`;
         console.error('Error:', error);
     });
 });
 
 document.getElementById('stop-button').addEventListener('click', function() {
-    fetch('dashboard/stop_timelapse', {
+    fetch('/dashboard/stop_timelapse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })
     .then(response => response.json())
     .then(result => {
         const messageBox = document.getElementById('message-box');
-        messageBox.className = 'p-3 rounded-lg text-sm bg-gray-100 text-gray-700';
         messageBox.innerHTML = `<p>${result.message}</p>`;
     })
     .catch(error => console.error('Error:', error));
@@ -293,26 +289,24 @@ document.getElementById('stop-button').addEventListener('click', function() {
 
 // Periodically check the time-lapse status
 setInterval(() => {
-    fetch('dashboard/timelapse_status')
+    fetch('/dashboard/timelapse_status')
         .then(response => response.json())
         .then(data => {
             const messageBox = document.getElementById('message-box');
-            const progressBar = document.getElementById('progress-bar');
             const photoStatus = document.getElementById('photo-status');
-            const progressContainer = document.getElementById('progress-container');
+            // const progressContainer = document.getElementById('progress-container');
 
             if (data.status === 'Running') {
-                const progress = (data.current_photo / data.total_photos) * 100;
-                progressBar.style.width = `${progress}%`;
-                photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
+                // const progress = (data.current_photo / data.total_photos) * 100;
+                // progressBar.style.width = `${progress}%`;
+                // photoStatus.textContent = `${data.current_photo}/${data.total_photos}`;
                 messageBox.innerHTML = `<p>Time-lapse is running...</p>`;
-                progressContainer.classList.remove('hidden');
+                // progressContainer.classList.remove('hidden');
             } else {
-                progressBar.style.width = `0%`;
+                // progressBar.style.width = `0%`;
                 photoStatus.textContent = `0/0`;
-                progressContainer.classList.add('hidden');
+                // progressContainer.classList.add('hidden');
                 if (data.status !== 'Idle') {
-                    messageBox.className = 'p-3 rounded-lg text-sm bg-red-100 text-red-700';
                     messageBox.innerHTML = `<p>Time-lapse ended with status: ${data.status}</p>`;
                 }
             }

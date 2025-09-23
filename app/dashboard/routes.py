@@ -4,6 +4,7 @@ import os
 import time
 import multiprocessing
 import signal
+from camera_functions import initialize_config_camera, delete_camera_object, load_settings, save_settings
 
 from picamera2 import Picamera2
 import time
@@ -70,7 +71,6 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         display="lores"
                     )
                     picam2.configure(config)
-                    picam2.set_controls({'AwbEnable': settings['AwbEnable']})
                     picam2.start()
                     
                     # Run the time-lapse loop
@@ -142,21 +142,6 @@ def start_timelapse():
         else:
             num_photos = duration // interval
         
-        # Placeholder settings. In a real app, these would come from the form.
-        settings = {
-            'filename_base': filename_base,
-            'duration': duration,
-            'interval': interval,
-            'num_photos': num_photos,
-            'resolution': (1920, 1080),
-            'ExposureTimeMode': 0, # Auto
-            'ExposureTime': 10000,
-            'AnalogueGain': 1.0,
-            'AnalogueGainMode': 0,
-            'AwbEnable': True,
-            'image_dir': app.config['IMAGE_DIR']
-        }
-
         # Clear shared values
         photo_count_value.value = 0
         total_photos_value.value = num_photos
