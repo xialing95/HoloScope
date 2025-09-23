@@ -161,14 +161,6 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                     print(f"Starting time-lapse with settings: {settings}")
                     status_value.value = 1  # 1: Running
                     
-                    # # Initialize PiCamera2
-                    # picam2 = Picamera2()
-                    # config = picam2.create_still_configuration(
-                    #     main={"size": settings['resolution']},
-                    #     lores={"size": (640, 480)},
-                    #     display="lores"
-                    # )
-                    # picam2.configure(config)
                     camera.start()
                     
                     # Run the time-lapse loop
@@ -180,7 +172,7 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         
                         photo_count_value.value = i + 1
                         filename = settings['filename_base'] + f"_{i:04d}.dng"
-                        filepath = os.path.join(settings['image_dir'], filename)
+                        filepath = os.path.join(capture_image_dir, filename)
                         print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
                         
                         # camera.capture_file(filepath)
@@ -370,7 +362,6 @@ def camera_start_timelapse():
     except Exception as e:
         print(f"Error starting time-lapse: {e}")
     return jsonify({'status': 'error', 'message': str(e)})
-
 
 @camera_bp.route('/stop_timelapse', methods=['POST'])
 def camera_stop_timelapse():
