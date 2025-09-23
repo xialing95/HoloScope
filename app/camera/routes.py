@@ -169,11 +169,14 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
     picam2 = initialize_camera(settings)
     if not picam2:
         status_value.value = -1 # -1: Error
+        print("Initialization of camera failed in timelapse process.")
         return # Exit if camera initialization fails
 
     while True:
         try:
             # Check for commands from the main process without blocking
+            print(command['action'])
+
             if not command_queue.empty():
                 command = command_queue.get_nowait()
                 if command['action'] == 'start':
