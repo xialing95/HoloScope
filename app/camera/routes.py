@@ -140,7 +140,7 @@ def index():
     return render_template('camera.html')
 
 # This tells Flask to serve files from this directory under the /holoscope_images/ URL
-@camera_bp.route('/preview.jpg')
+@camera_bp.route('/<path:filename>')
 def serve_holoscope_images(filename):
     # Make sure 'capture_image_dir' is defined in your app's configuration
     return send_from_directory(current_app.config['CAPTURE_IMAGE_DIR'], filename)   
@@ -204,8 +204,8 @@ def camera_init_config():
         else:
             return jsonify({
                 'camera_settings': settings_data,
-                'image_url': '/camera/preview.jpg'       
-                # 'image_url': f'/camera/preview.jpg?t={int(time.time())}'            
+                # 'image_url': '/camera/preview.jpg'       
+                'image_url': f'/camera/preview.jpg?t={int(time.time())}'            
      
             })    
  
