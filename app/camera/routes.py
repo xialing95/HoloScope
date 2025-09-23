@@ -3,7 +3,7 @@ import io
 import os
 import json
 import time
-from flask import Flask, Response, render_template, request, send_file
+from flask import Flask, Response, render_template, request, send_file, jsonify
 from threading import Condition
 from os.path import exists
 
@@ -11,7 +11,7 @@ from picamera2 import Picamera2
 import time
 
 '''
-JSON file handling for camera settings
+JSON file handling for ca   mera settings
 '''
 # Get the path to the user's home directory.
 home_dir = os.path.expanduser('~')
@@ -149,13 +149,16 @@ def camera_init_config():
         if 'resolution' in request.form:
             res_str = request.form['resolution'].split('x')
             camera_settings['resolution'] = [int(res_str[0]), int(res_str[1])]
+            print(f"Updated resolution to: {camera_settings['resolution']}")
         
         # Update Exposure and Gain
         if 'ExposureTimeMode' in request.form:
             camera_settings['ExposureTimeMode'] = int(request.form['ExposureTimeMode'])
+            print(f"Updated ExposureTimeMode to: {camera_settings['ExposureTimeMode']}")
 
         if 'ExposureTime' in request.form:
             camera_settings['ExposureTime'] = int(request.form['ExposureTime'])
+            print(f"Updated ExposureTime to: {camera_settings['ExposureTime']}")
 
         if 'ExposureValue' in request.form:
             camera_settings['ExposureValue'] = float(request.form['ExposureValue'])
@@ -191,12 +194,21 @@ def camera_init_config():
         else:
             initialize_config_camera()
 
-        # Check if the file was created successfully
-        if os.path.exists(PREVIEW_FILE):
-            # Return the image file as a response
-            return send_file(PREVIEW_FILE, mimetype='image/jpeg')
-        else:
-            return Response("Error: Could not capture image.", mimetype='text/plain', status=500)
+
+        settings_json_text = json.dumps(load_settings(), indent=4)
+    
+        return jsonify({
+            'status': settings_json_text,
+            'image_url': PREVIEW_FILE,
+        })
+
+        
+    #     # Check if the file was created successfully
+    #     if os.path.exists(PREVIEW_FILE):
+    #         # Return the image file as a response
+    #         return send_file(PREVIEW_FILE, mimetype='image/jpeg')
+    #     else:
+    #         return Response("Error: Could not capture image.", mimetype='text/plain', status=500)
     
     except Exception as e:
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
