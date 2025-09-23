@@ -198,10 +198,10 @@ def camera_init_config():
             initialize_config_camera()
 
         with open(SETTINGS_FILE, 'r') as f:
-            settings_json_text= json.load(f)
+            settings_data= json.load(f)
     
         return jsonify({
-            'camera_settings': settings_json_text,
+            'camera_settings': settings_data,
             'image_url': '/camera/preview.jpg',
         })
 

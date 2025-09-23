@@ -141,7 +141,7 @@ function connectToWifi() {
 
 document.addEventListener('submit', function(event) {
     const previewImage = document.getElementById('camera-preview');
-    const statusDiv = document.getElementById('camera-status');
+    const statusDiv = document.getElementById('camera-message-box');
     const form = event.target; // Get the form element that triggered the event
 
     // Check if the form being submitted is the one you want
@@ -162,11 +162,13 @@ document.addEventListener('submit', function(event) {
         .then(data => {
             // Update the image's source using the URL from the JSON
             previewImage.src = data.image_url;
-            console.log(data.image_url);
 
-            // Update the text content of the status div
-            statusDiv.innerHTML = `<p>${data.camera_settings}</p>`;
-            console.log(data.camera_settings);
+            // Access the camera_settings object
+            const cameraSettings = data.camera_settings;
+            // Convert the JavaScript object back to a formatted JSON string
+            const formattedSettings = JSON.stringify(cameraSettings, null, 4);
+            // Update the innerHTML of the div with the formatted string inside <pre> tags
+            statusDiv.innerHTML = `<p>Camera Settings:</p><pre>${formattedSettings}</pre>`;
 
         })
         .catch(error => {
