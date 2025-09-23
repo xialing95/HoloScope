@@ -150,6 +150,7 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
     signal.signal(signal.SIGTERM, signal_handler)
 
     print("Timelapse process started. Waiting for commands...")
+    initialize_config_camera()
 
     while True:
         try:
@@ -160,9 +161,7 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                     settings = command['settings']
                     print(f"Starting time-lapse with settings: {settings}")
                     status_value.value = 1  # 1: Running
-                    
-                    camera.start()
-                    
+                                        
                     # Run the time-lapse loop
                     start_time = time.time()
                     for i in range(settings['num_photos']):
