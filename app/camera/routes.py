@@ -149,7 +149,6 @@ def take_picture(picam2, filename_dir):
             picam2.stop()
 
 # --- PiCamera Logic (Runs in a separate process) ---
-def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value, settings):
     """
     Main function for the time-lapse process.
     This runs in a separate process and is independent of the Flask server.
@@ -237,6 +236,90 @@ def get_camera_controls():
         return picam2.camera_controls
     return {}
 
+# --- PiCamera Logic (Runs in a separate process) ---
+def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value):
+    """
+    Main function for the time-lapse process.
+    This runs in a separate process and is independent of the Flask server.
+    """
+    picam2 = None
+    
+    def signal_handler(signum, frame):
+        # Gracefully shut down the camera on SIGTERM
+        if picam2 and picam2.started:
+            print("Received shutdown signal. Stopping camera...")
+            picam2.stop()
+        exit(0)
+    
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    print("Timelapse process started. Waiting for commands...")
+    
+    while True:
+        try:
+            # Check for commands from the main process without blocking
+            if not command_queue.empty():
+                command = command_queue.get_nowait()
+                
+                if command['action'] == 'start':
+                    settings = command['settings']
+                    
+                    # Initialize the camera object within this process
+                    picam2 = initialize_camera(settings['camera_settings'])
+                    if not picam2:
+                        status_value.value = -1 # -1: Error
+                        print("Initialization of camera failed in timelapse process.")
+                        return # Exit if camera initialization fails
+                        
+                    print(f"Starting time-lapse with settings: {settings}")
+                    status_value.value = 1  # 1: Running
+                    
+                    # Run the time-lapse loop
+                    start_time = time.time()
+                    for i in range(settings['num_photos']):
+                        if status_value.value == 0:  # Check for stop command
+                            print("Timelapse stopped by user command.")
+                            break
+                        
+                        photo_count_value.value = i + 1
+                        filename_base = settings['filename_base'] + f"_{i:04d}"
+                        filepath = os.path.join(capture_image_dir, filename_base + ".dng")
+                        print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
+                        
+                        # Capture and save both DNG and JPG files
+                        buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
+                        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, filepath.replace('.dng', '.jpg'))
+                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], filepath)
+                        
+                        # Wait for the next interval, accounting for capture time
+                        elapsed = time.time() - start_time
+                        if elapsed < settings['interval']:
+                            time.sleep(settings['interval'] - elapsed)
+                        start_time = time.time()
+                    
+                    status_value.value = 0  # 0: Idle
+                    print("Timelapse finished successfully.")
+                    
+                elif command['action'] == 'stop':
+                    status_value.value = 0  # 0: Idle
+                    print("Received stop command. Stopping.")
+            
+            # The process should always keep the camera running to be ready for the next command
+            time.sleep(1)
+
+        except Exception as e:
+            print(f"Error in timelapse process: {e}")
+            status_value.value = -1 # -1: Error
+            if picam2 and picam2.started:
+                picam2.stop()
+            time.sleep(5) # Wait before retrying
+
+def get_camera_metadata(picam2):
+    if picam2 and picam2.started:
+        return picam2.capture_metadata()
+    return {}
+
+
 # --- Flask routes for camera settings ---
 @camera_bp.route('/')
 def index():
@@ -306,25 +389,25 @@ def camera_start_timelapse():
         
         num_photos = duration // interval
         
+        # Load the settings to be sent to the child process
         settings = load_settings()
         
         photo_count_value.value = 0
         total_photos_value.value = num_photos
 
-        # Start the new process if one isn't already running
-        if timelapse_process is None or not timelapse_process.is_alive():
-            timelapse_process = multiprocessing.Process(
-                target=run_timelapse,
-                args=(command_queue, status_value, photo_count_value, total_photos_value)
-            )
-            timelapse_process.start()
+        timelapse_process = multiprocessing.Process(
+            target=run_timelapse,
+            args=(command_queue, status_value, photo_count_value, total_photos_value)
+        )
+        timelapse_process.start()
         
         command_queue.put({'action': 'start', 'settings': {
             'filename_base': filename_base,
             'duration': duration,
             'interval': interval,
             'num_photos': num_photos,
-            'image_dir': capture_image_dir
+            'image_dir': capture_image_dir,
+            'camera_settings': settings # Explicitly pass the full settings dictionary
         }})
         
         return jsonify({'status': 'success', 'message': f'Time-lapse started. Capturing {num_photos} photos.'})
