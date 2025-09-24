@@ -165,7 +165,8 @@ async function updateImageList() {
             images.forEach(image => {
                 const listItem = document.createElement('li');
                 listItem.innerHTML = `
-                    ${image}
+                    <input type="checkbox" class="image-checkbox" data-filename="${image}">
+                    <span class="filename">${image}</span>
                     <div>
                         <a href="file/download/${image}" download>Download</a>
                         <button onclick="deleteImage('${image}')">Delete</button>
