@@ -266,14 +266,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .then(result => {
             const messageBox = document.getElementById('timelapse-message-box');
             if (result.status === 'error') {
-                messageBox.innerText = `<p>${result.message}</p>`;
+                messageBox.innerText = `result.message`;
             } else {
-                messageBox.innerText = `<p>${result.message}</p>`;
+                messageBox.innerText = `result.message`;
             }
         })
         .catch(error => {
             const messageBox = document.getElementById('timelapse-message-box');
-            messageBox.innerText = `<p>Error starting time-lapse. Check console.</p>`;
+            messageBox.innerText = `Error starting time-lapse. Check console.`;
             console.error('Error:', error);
         });
     };
@@ -285,15 +285,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
         })
         .then(response => response.json())
         .then(result => {
-            const messageBox = document.getElementById('message-box');
-            messageBox.innerText = `<p>${result.message}</p>`;
+            const messageBox = document.getElementById('timelapse-message-box');
+            messageBox.innerText = `result.message`;
         })
         .catch(error => console.error('Error:', error));
     };
 
     // Periodically check the time-lapse status
     setInterval(() => {
-        fetch('/dashboard/timelapse_status')
+        fetch('/camera/timelapse_status')
             .then(response => response.json())
             .then(data => {
                 const messageBox = document.getElementById('timelapse-status');
