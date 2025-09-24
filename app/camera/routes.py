@@ -148,22 +148,6 @@ def take_picture(picam2, filename_dir):
         if picam2 and picam2.started:
             picam2.stop()
 
-# --- Main process signal handler ---
-def shutdown_handler(signum, frame):
-    """
-    Handles a SIGINT (Ctrl-C) signal to gracefully terminate the child process.
-    """
-    global timelapse_process
-    print("Main process received Ctrl-C. Initiating graceful shutdown of timelapse process...")
-    if timelapse_process and timelapse_process.is_alive():
-        timelapse_process.terminate()
-        timelapse_process.join()
-        print("Timelapse process terminated successfully.")
-    sys.exit(0)
-
-# Register the signal handler for SIGINT (Ctrl-C)
-signal.signal(signal.SIGINT, shutdown_handler)
-
 # --- PiCamera Logic (Runs in a separate process) ---
 def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value, settings):
     """
@@ -327,11 +311,13 @@ def camera_start_timelapse():
         photo_count_value.value = 0
         total_photos_value.value = num_photos
 
-        timelapse_process = multiprocessing.Process(
-            target=run_timelapse,
-            args=(command_queue, status_value, photo_count_value, total_photos_value, settings)
-        )
-        timelapse_process.start()
+        # Start the new process if one isn't already running
+        if timelapse_process is None or not timelapse_process.is_alive():
+            timelapse_process = multiprocessing.Process(
+                target=run_timelapse,
+                args=(command_queue, status_value, photo_count_value, total_photos_value)
+            )
+            timelapse_process.start()
         
         command_queue.put({'action': 'start', 'settings': {
             'filename_base': filename_base,
@@ -360,6 +346,36 @@ def camera_stop_timelapse():
         return jsonify({'status': 'success', 'message': 'Time-lapse has been stopped.'})
     return jsonify({'status': 'info', 'message': 'No time-lapse is currently running.'})
 
+@camera_bp.route('/timelapse_status')
+def timelapse_status():
+    """Returns the current status of the time-lapse."""
+    status_map = {0: 'Idle', 1: 'Running', -1: 'Error'}
+    current_status = status_map.get(status_value.value, 'Unknown')
+    
+    return jsonify({
+        'status': current_status,
+        'current_photo': photo_count_value.value,
+        'total_photos': total_photos_value.value
+    })
+
+# --- Main process signal handler ---
+def shutdown_handler(signum, frame):
+    """
+    Handles a SIGINT (Ctrl-C) signal to gracefully terminate the child process.
+    """
+    global timelapse_process
+    print("Main process received Ctrl-C. Initiating graceful shutdown of timelapse process...")
+    # if timelapse_process and timelapse_process.is_alive():
+    #     timelapse_process.terminate()
+    #     timelapse_process.join()
+    #     print("Timelapse process terminated successfully.")
+    timelapse_process.terminate()
+    timelapse_process.join()
+    print("Timelapse process terminated successfully.")
+    sys.exit(0)
+
+# Register the signal handler for SIGINT (Ctrl-C)
+signal.signal(signal.SIGINT, shutdown_handler)
 
 # from . import camera_bp
 # import io
