@@ -208,8 +208,8 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         filepath = os.path.join(capture_image_dir, filename_base + ".dng")
                         print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
                         
-                        picam2.capture_file(filepath.replace('.dng', '.jpg'))
-                        
+                        picam2.capture_file('/home/capture_image/test.jpg')
+
 
                         # # Capture and save both DNG and JPG files
                         # buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
