@@ -1,21 +1,30 @@
-<div class="card">
-      <div id="bme680-setting" class="form-input">
-        <h3>Environmental Sensor</h3>
+<main class="container">
+    <div class="card">
+        <h3>Current Environmental Data</h3>
+        <div class="sensor-data">
+            <p>Temperature: <span id="temp">{{temp}}°C</span></p>
+            <p>Humidity: <span id="humidity">{{humidity}}%</span></p>
+            <p>Pressure: <span id="pressure">{{pressure}}hPa</span></p>
+        </div>
         <form method="POST" action="/">
-          <div>
-            <h4>Temperature: {{temp}}°C, Humidity: {{humidity}}%, Pressure: {{pressure}}hPa</h4>
-            <input type="submit" name="reset_i2c" value="Reset I2C">
-          </div>
+            <input type="submit" name="reset_i2c" value="Refresh Readings">
         </form>
-
-        <form method="POST" action="/startEnvSensor">
-          <div>
-            Duration (seconds): <input type="number" name="sensor_duration" placeholder="60"><br>
-            Interval (seconds): <input type="number" name="sensor_interval" placeholder="10"><br>
-            <input type="submit" value="Start Environmental Sensor Log">
-          </div>
+    </div>
+    
+    <div class="card">
+        <h2>Sensor Data Logging</h2>
+        <form id="logging-form" method="POST" action="/startEnvSensor">
+            <div class="form-group">
+                <label for="sensor_duration">Duration (seconds):</label>
+                <input type="number" id="sensor_duration" name="sensor_duration" placeholder="60" required>
+            </div>
+            <div class="form-group">
+                <label for="sensor_interval">Interval (seconds):</label>
+                <input type="number" id="sensor_interval" name="sensor_interval" placeholder="10" required>
+            </div>
+            <button type="submit">Start Log</button>
         </form>
-      </div>
-      </div>
-      
-
+        <div id="status-message"></div>
+        <pre id="log-output"></pre>
+    </div>
+</main>
