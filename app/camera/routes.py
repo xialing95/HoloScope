@@ -153,6 +153,12 @@ def take_picture(picam2, filename_dir):
     Main function for the time-lapse process.
     This runs in a separate process and is independent of the Flask server.
     """
+# --- PiCamera Logic (Runs in a separate process) ---
+def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value):
+    """
+    Main function for the time-lapse process.
+    This runs in a separate process and is independent of the Flask server.
+    """
     picam2 = None
     
     def signal_handler(signum, frame):
@@ -166,23 +172,22 @@ def take_picture(picam2, filename_dir):
 
     print("Timelapse process started. Waiting for commands...")
     
-    # Initialize the camera object within this process
-    picam2 = initialize_camera(settings)
-    if not picam2:
-        status_value.value = -1 # -1: Error
-        print("Initialization of camera failed in timelapse process.")
-        return # Exit if camera initialization fails
-    else:
-        print("Camera initialized successfully in timelapse process.") 
-
     while True:
         try:
             # Check for commands from the main process without blocking
             if not command_queue.empty():
                 command = command_queue.get_nowait()
-
+                
                 if command['action'] == 'start':
                     settings = command['settings']
+                    
+                    # Initialize the camera object within this process
+                    picam2 = initialize_camera(settings['camera_settings'])
+                    if not picam2:
+                        status_value.value = -1 # -1: Error
+                        print("Initialization of camera failed in timelapse process.")
+                        return # Exit if camera initialization fails
+                        
                     print(f"Starting time-lapse with settings: {settings}")
                     status_value.value = 1  # 1: Running
                     
