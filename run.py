@@ -1,5 +1,6 @@
 from flask import Flask
 from app import create_app
+import os
 
 if __name__ == '__main__':
     # This line runs the application.
@@ -7,4 +8,5 @@ if __name__ == '__main__':
     # making it accessible from other computers on the same network.
     # debug=True allows for automatic reloading and provides a debugger.
     app = create_app()
+
     app.run(host='0.0.0.0', port=8080, debug=True, threaded=False, processes=1)

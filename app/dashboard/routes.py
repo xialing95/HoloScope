@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from . import dashboard_bp
 import os
-import time
-import multiprocessing
-import signal
 import glob
-
-# from camera_functions import initialize_config_camera, delete_camera_object, load_settings, save_settings
+import app
 import time
 
 # Access the directory path from app.config
