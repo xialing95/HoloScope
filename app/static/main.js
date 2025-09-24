@@ -201,6 +201,111 @@ async function deleteImage(filename) {
     }
 }
 
+// Delete all images
+async function deleteAllImages() {
+    if (!confirm('Are you sure you want to delete ALL images? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('file/delete_all', {
+            method: 'POST',
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            updateImageList();
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Failed to delete all images:', error);
+        alert('An error occurred while trying to delete all images.');
+    }
+}
+
+// New Function: Download all images as a ZIP
+function downloadAllImages() {
+    window.location.href = 'file/download_all';
+}
+
+// Helper function to get filenames of selected checkboxes
+function getSelectedFilenames() {
+    const checkboxes = document.querySelectorAll('.image-checkbox:checked');
+    return Array.from(checkboxes).map(checkbox => checkbox.dataset.filename);
+}
+
+// New Function: Delete selected images
+async function deleteSelected() {
+    const filenames = getSelectedFilenames();
+    if (filenames.length === 0) {
+        alert('Please select at least one image to delete.');
+        return;
+    }
+
+    if (!confirm(`Are you sure you want to delete the selected ${filenames.length} image(s)?`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch('file/delete_selected', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ filenames: filenames }),
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            updateImageList();
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Failed to delete selected images:', error);
+        alert('An error occurred while trying to delete the selected images.');
+    }
+}
+
+// New Function: Download selected images
+async function downloadSelected() {
+    const filenames = getSelectedFilenames();
+    if (filenames.length === 0) {
+        alert('Please select at least one image to download.');
+        return;
+    }
+
+    try {
+        const response = await fetch('file/download_selected', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ filenames: filenames }),
+        });
+
+        // The response will be a ZIP file, so we handle it as a blob
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'selected_images.zip';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } else {
+            const result = await response.json();
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Failed to download selected images:', error);
+        alert('An error occurred while trying to download the selected images.');
+    }
+}
+
 /*
  * Timelapse setup timelapse JavaScript functions
  * JavaScript function to call the Flask route
