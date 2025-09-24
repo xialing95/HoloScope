@@ -202,48 +202,9 @@ async function deleteImage(filename) {
 }
 
 /*
- * Dashboard setup timelapse JavaScript functions
+ * Timelapse setup timelapse JavaScript functions
  * JavaScript function to call the Flask route
  */
-// document.getElementById('timelapse-form').addEventListener('submit', function(event) {
-//     // Prevent the default form submission (page reload)
-//     event.preventDefault();
-
-//     // Get the form element
-//     const form = event.target;
-    
-//     // Create a FormData object to easily collect all form data
-//     const formData = new FormData(form);
-
-//     // Get the status message element
-//     const statusElement = document.getElementById('timelapse-status');
-
-//     // Display a loading message
-//     statusElement.innerHTML = '<h4>Starting time lapse...</h4>';
-
-//     // Send the form data to the server
-//     fetch('/dashboard/start', {
-//         method: 'POST',
-//         body: formData,
-//     })
-//     .then(response => {
-//         // Check if the response is valid before parsing
-//         if (!response.ok) {
-//             throw new Error('Network response was not ok');
-//         }
-//         return response.json();
-//     })
-//     .then(data => {
-//         // Update the status with the server's response
-//         statusElement.innerHTML = `<h4>Execution time (seconds): ${data.elapseTime}, Total Number Photos: ${data.numphotos}</h4>`;
-//     })
-//     .catch(error => {
-//         // Handle any errors that occurred during the fetch
-//         console.error('Error:', error);
-//         statusElement.innerHTML = '<h4 style="color:red;">Failed to start time lapse.</h4>';
-//     });
-// });
-
 document.addEventListener('DOMContentLoaded', (event) => {
     // New functions to start and stop the time-lapse
     window.startTimelapse = function() {
@@ -321,3 +282,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
             .catch(error => console.error('Error fetching status:', error));
     }, 3000); // Poll every 3 seconds
 });
+
+/*
+ * Dashboard JavaScript functions
+ * JavaScript function to call the Flask route
+ */
+function refreshImage() {
+    var img = document.getElementById('latest-image');
+    // This is a common trick to force the browser to reload the image
+    // by adding a unique timestamp to the URL.
+    img.src = '/dashboard/latest_image?' + new Date().getTime();
+}

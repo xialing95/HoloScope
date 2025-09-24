@@ -60,3 +60,5 @@ def get_images():
         return jsonify(images)
     except FileNotFoundError:
         return jsonify([])
+    
+

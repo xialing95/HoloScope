@@ -35,8 +35,11 @@
 <main class="container">
     <form class="card">
         <h3>PiCamera2 Time-lapse</h3>
+        <div class="image-container">
+            <img id="latest-image" src="" alt="Latest Time-lapse Image">
+        </div>
         <div>
-            <button type="button" >
+            <button type="button" onclick="refreshImage()">
                 Refresh
             </button>
         </div>
