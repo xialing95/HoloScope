@@ -7,6 +7,8 @@ from flask import Flask, Response, render_template, request, jsonify, current_ap
 from os.path import exists
 import multiprocessing
 import signal
+from datetime import datetime
+
 
 import sys
 from picamera2 import Picamera2
@@ -202,7 +204,8 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                             break
                         
                         photo_count_value.value = i + 1
-                        filename_base = settings['filename_base'] + f"_{i:04d}"
+                        timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
+                        filename_base = settings['filename_base'] + f"_{timestamp}"
                         filepath = os.path.join(capture_image_dir, filename_base + ".dng")
                         print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
                         
@@ -210,14 +213,10 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
                         
                         jpg_filepath = filepath.replace('.dng', '.jpg')
-                        print(f"Attempting to save JPG file to: {jpg_filepath}")
                         picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, jpg_filepath)
-
-                        dng_filepath = filepath
-                        print(f"Attempting to save DNG file to: {dng_filepath}")
-                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], dng_filepath)
+                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], filepath)
                         
-                        print(f"Picture taken and saved to {jpg_filepath} and {dng_filepath}.")
+                        print(f"Picture taken and saved to {jpg_filepath} and {filepath}.")
 
                         # Wait for the next interval, accounting for capture time
                         elapsed = time.time() - start_time
@@ -241,58 +240,6 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
             if picam2 and picam2.started:
                 picam2.stop()
             time.sleep(5) # Wait before retrying
-
-def capture_timelapse(duration_minutes, interval_seconds, output_directory):
-    """
-    Captures a timelapse for a specified duration and interval.
-
-    Args:
-        duration_minutes (int): The total duration of the timelapse in minutes.
-        interval_seconds (int): The interval between captures in seconds.
-        output_directory (str): The directory to save the captured images.
-    """
-    picam2 = None
-    try:
-        # Create the output directory if it doesn't exist
-        if not os.path.exists(output_directory):
-            os.makedirs(output_directory)
-            print(f"Created directory: {output_directory}")
-        
-        # Initialize the camera
-        picam2 = Picamera2()
-        config = picam2.create_still_configuration(main={"size": (1920, 1080)})
-        picam2.configure(config)
-        picam2.start()
-        
-        # Give the camera some time to warm up
-        time.sleep(2)
-        
-        total_time_seconds = duration_minutes * 60
-        start_time = time.time()
-        frame_count = 0
-        
-        print(f"Starting timelapse for {duration_minutes} minutes...")
-        
-        # Main capture loop
-        while time.time() - start_time < total_time_seconds:
-            filename = f"image_{frame_count:05d}.jpg"
-            filepath = os.path.join(capture_image_dir, filename)
-            picam2.capture_file(filepath)
-            
-            print(f"Captured {filename}")
-            
-            frame_count += 1
-            time.sleep(interval_seconds)
-            
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        # Always stop the camera safely
-        if picam2:
-            print("Stopping camera...")
-            picam2.stop()
-            picam2.close()
-            print("Timelapse capture finished.")
 
 def get_camera_metadata(picam2):
     if picam2 and picam2.started:
@@ -432,12 +379,12 @@ def shutdown_handler(signum, frame):
     """
     global timelapse_process
     print("Main process received Ctrl-C. Initiating graceful shutdown of timelapse process...")
-    # if timelapse_process and timelapse_process.is_alive():
-    #     timelapse_process.terminate()
-    #     timelapse_process.join()
-    #     print("Timelapse process terminated successfully.")
-    timelapse_process.terminate()
-    timelapse_process.join()
+    if timelapse_process and timelapse_process.is_alive():
+        timelapse_process.terminate()
+        timelapse_process.join()
+        print("Timelapse process terminated successfully.")
+    # timelapse_process.terminate()
+    # timelapse_process.join()
     print("Timelapse process terminated successfully.")
     sys.exit(0)
 
