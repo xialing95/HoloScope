@@ -266,9 +266,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .then(result => {
             const messageBox = document.getElementById('timelapse-message-box');
             if (result.status === 'error') {
-                messageBox.innerText = `result.message`;
+                messageBox.innerText = result.message;
             } else {
-                messageBox.innerText = `result.message`;
+                messageBox.innerText = result.message;
             }
         })
         .catch(error => {
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .then(response => response.json())
         .then(result => {
             const messageBox = document.getElementById('timelapse-message-box');
-            messageBox.innerText = `result.message`;
+            messageBox.innerText = result.message;
         })
         .catch(error => console.error('Error:', error));
     };
