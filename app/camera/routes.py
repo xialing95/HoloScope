@@ -187,6 +187,8 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         status_value.value = -1 # -1: Error
                         print("Initialization of camera failed in timelapse process.")
                         return # Exit if camera initialization fails
+                    
+                    picam2.start()
                         
                     print(f"Starting time-lapse with settings: {settings}")
                     status_value.value = 1  # 1: Running
@@ -202,26 +204,20 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         filename_base = settings['filename_base'] + f"_{i:04d}"
                         filepath = os.path.join(capture_image_dir, filename_base + ".dng")
                         print(f"Capturing photo {i+1} of {settings['num_photos']} as {filepath}")
-                        
-                        picam2.capture_file(filepath.replace('.dng', '.jpg'))
-                        
-                        # try:
-                        #     # Capture and save both DNG and JPG files
-                        #     buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
-                            
-                        #     jpg_filepath = filepath.replace('.dng', '.jpg')
-                        #     print(f"Attempting to save JPG file to: {jpg_filepath}")
-                        #     picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, jpg_filepath)
 
-                        #     dng_filepath = filepath
-                        #     print(f"Attempting to save DNG file to: {dng_filepath}")
-                        #     picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], dng_filepath)
-                            
-                        #     print(f"Picture taken and saved to {jpg_filepath} and {dng_filepath}.")
-                        # except Exception as e:
-                        #     print(f"Error taking picture: {e}")
-                        #     return False
+                        # Capture and save both DNG and JPG files
+                        buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
                         
+                        jpg_filepath = filepath.replace('.dng', '.jpg')
+                        print(f"Attempting to save JPG file to: {jpg_filepath}")
+                        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, jpg_filepath)
+
+                        dng_filepath = filepath
+                        print(f"Attempting to save DNG file to: {dng_filepath}")
+                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], dng_filepath)
+                        
+                        print(f"Picture taken and saved to {jpg_filepath} and {dng_filepath}.")
+
                         # Wait for the next interval, accounting for capture time
                         elapsed = time.time() - start_time
                         if elapsed < settings['interval']:
