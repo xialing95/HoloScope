@@ -23,7 +23,8 @@ button {
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
 }
 
 button:hover {
@@ -153,6 +154,15 @@ option {
 .status-indicator.disconnected {
     background-color: #e74c3c;
     color: white;
+}
+
+.delete-button {
+    background-color: #dc3545; /* Red */
+    color: #fff;
+}
+
+.delete-button:hover {
+    background-color: #c82333; /* Darker red on hover */
 }
 
 /* ================================== */

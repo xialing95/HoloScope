@@ -169,7 +169,7 @@ async function updateImageList() {
                     <span class="filename">${image}</span>
                     <div>
                         <a href="file/download/${image}" download>Download</a>
-                        <button onclick="deleteImage('${image}')">Delete</button>
+                        <button onclick="deleteImage('${image}')" class="delete-button">Delete</button>
                     </div>
                 `;
                 imageList.appendChild(listItem);
