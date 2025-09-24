@@ -6,14 +6,14 @@
             <p>Humidity: <span id="humidity">{{humidity}}%</span></p>
             <p>Pressure: <span id="pressure">{{pressure}}hPa</span></p>
         </div>
-        <form method="POST" action="/">
+        <form method="POST" action="/sensor">
             <input type="submit" name="reset_i2c" value="Refresh Readings">
         </form>
     </div>
     
     <div class="card">
         <h2>Sensor Data Logging</h2>
-        <form id="logging-form" method="POST" action="/startEnvSensor">
+        <form id="logging-form" method="POST" action="sensor/startEnvSensor">
             <div class="form-group">
                 <label for="sensor_duration">Duration (seconds):</label>
                 <input type="number" id="sensor_duration" name="sensor_duration" placeholder="60" required>
