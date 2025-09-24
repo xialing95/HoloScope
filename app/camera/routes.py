@@ -205,8 +205,16 @@ def run_timelapse(command_queue, status_value, photo_count_value, total_photos_v
                         
                         # Capture and save both DNG and JPG files
                         buffers, metadata = picam2.switch_mode_and_capture_buffers(picam2.camera_config, ["main", "raw"])
-                        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, filepath.replace('.dng', '.jpg'))
-                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], filepath)
+                        
+                        jpg_filepath = filepath.replace('.dng', '.jpg')
+                        print(f"Attempting to save JPG file to: {jpg_filepath}")
+                        picam2.helpers.save(picam2.helpers.make_image(buffers[0], picam2.camera_config["main"]), metadata, jpg_filepath)
+
+                        dng_filepath = filepath
+                        print(f"Attempting to save DNG file to: {dng_filepath}")
+                        picam2.helpers.save_dng(buffers[1], metadata, picam2.camera_config["raw"], dng_filepath)
+                        
+                        print(f"Picture taken and saved to {jpg_filepath} and {dng_filepath}.")
                         
                         # Wait for the next interval, accounting for capture time
                         elapsed = time.time() - start_time
