@@ -5,7 +5,10 @@ import glob
 import app
 import time
 
-# Access the directory path from app.config
+# Define the image directory path
+home_dir = os.path.expanduser('~')
+capture_image_dir = os.path.join(home_dir, "capture_image")
+static_dir = os.path.join(home_dir, "HoloScope", "app", "static")
 
 def get_latest_image(directory):
     """
@@ -36,12 +39,12 @@ def latest_image():
     A route that serves the latest image from the capture_images directory.
     This is the URL that the <img> tag will point to.
     """
-    latest_filename = get_latest_image(app.config['CAPTURE_IMAGE_DIR'])
+    latest_filename = get_latest_image(capture_image_dir)
     
     # If a file is found, send it from the directory
     if latest_filename:
         # send_from_directory is the secure way to serve files
-        return send_from_directory(app.config['CAPTURE_IMAGE_DIR'], latest_filename)
+        return send_from_directory(capture_image_dir, latest_filename)
     else:
         # If no image is found, you could serve a placeholder or return a 404
         return "No image found", 404

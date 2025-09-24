@@ -1,4 +1,268 @@
+/* ==========================================================================
+   Base Styles & Typography
+   ========================================================================== */
 body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    color: #2c3e50;
+    min-height: 100vh;
+}
+
+/* ==========================================================================
+   Main Layout & Components
+   ========================================================================== */
+
+.container,
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 2rem;
+    align-items: center;
+    gap: 2rem;
+    flex-grow: 1;
+}
+
+.top-bar {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+.sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background-color: #022245;
+    color: white;
+    padding: 2rem 1rem;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 2rem;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   Forms & Inputs
+   ========================================================================== */
+label {
+    display: block;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+select {
+    width: 100%; /* Changed to 100% for consistency */
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+input[type="number"],
+select {
+    padding: 8px;
+    flex: 1;
+}
+
+input[type="number"]:focus,
+select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+option {
+    padding: 8px;
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+button,
+.main-nav a,
+#image-list a {
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.update-button {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    width: auto; /* Override general button width */
+}
+
+.update-button:hover {
+    background-color: #5a6268;
+}
+
+#image-list a {
+    background-color: #007bff;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+#image-list a:hover {
+    background-color: #0056b3;
+}
+
+#image-list button {
+    background-color: #dc3545;
+    color: #fff;
+    margin-left: 10px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    width: auto; /* Override general button width */
+}
+
+#image-list button:hover {
+    background-color: #c82333;
+}
+
+/* ==========================================================================
+   Image List & Sidebar
+   ========================================================================== */
+
+#imagelist-container {
+    margin-top: 20px;
+}
+
+#image-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#image-list li,
+.main-nav a,
+.status-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+#image-list li {
+    font-size: 16px;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: transparent;
+    border: none;
+}
+
+.main-nav a:hover {
+    background-color: #5f6c81;
+}
+
+.sidebar .logo {
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(216, 216, 216, 0.645);
+    padding-bottom: 1rem;
+}
+
+.status-indicator {
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(216, 216, 216, 0.645);
+}
+
+.status-indicator.connected {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.status-indicator.disconnected {
+    background-color: #e74c3c;
+    color: white;
+}
+
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width: 768px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        padding-bottom: 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    .main-nav {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    .main-nav a {
+        padding: 0.5rem 1rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* body {
     font-family: sans-serif;
     background-color: #f4f4f4;
     margin: 0;
@@ -266,4 +530,4 @@ option {
 
 .update-button:hover {
     background-color: #5a6268;
-}
+} */
