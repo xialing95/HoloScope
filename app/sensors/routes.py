@@ -28,24 +28,32 @@ temp = 0
 humidity = 0
 pressure = 0
 
+# This route serves the initial HTML page
 @sensors_bp.route('/')
 def index():
-    global temp, humidity, pressure
+    # Pass initial values, they will be updated by JavaScript
+    return render_template('sensor.html', temp='...', humidity='...', pressure='...')
     
-    if bme680_initialized:
-        temp = bme680.temperature
-        humidity = bme680.relative_humidity
-        pressure = bme680.pressure
+# @sensors_bp.route('/', methods=['POST'])
+# def handle_post():
+#     if 'reset_i2c' in request.form:
+#         # Code to reset I2C bus can be added here
+#         print("I2C bus reset requested.")
     
-    return render_template('sensors.html', temp=f'{temp:.2f}', humidity=f'{humidity:.2f}', pressure=f'{pressure:.2f}')
+#     return index()
 
-@sensors_bp.route('/', methods=['POST'])
-def handle_post():
-    if 'reset_i2c' in request.form:
-        # Code to reset I2C bus can be added here
-        print("I2C bus reset requested.")
-    
-    return index()
+# This new route provides the sensor data as JSON
+@sensors_bp.route('/sensor_data')
+def get_sensor_data():
+    if not bme680_initialized:
+        return jsonify({"status": "error", "message": "BME680 sensor not initialized."})
+
+    data = {
+        "temperature": f'{bme680.temperature:.2f}',
+        "humidity": f'{bme680.relative_humidity:.2f}',
+        "pressure": f'{bme680.pressure:.2f}'
+    }
+    return jsonify(data)
 
 @sensors_bp.route('/startEnvSensor', methods=['POST'])
 def start_env_sensor():

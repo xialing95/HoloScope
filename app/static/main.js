@@ -399,3 +399,25 @@ function refreshImage() {
     // by adding a unique timestamp to the URL.
     img.src = '/dashboard/latest_image?' + new Date().getTime();
 }
+
+/*
+ * Sensor JavaScript functions
+ * JavaScript function to call the Flask route
+ */
+// This function fetches data from the Flask API and updates the page
+async function updateSensorData() {
+    try {
+        const response = await fetch('/sensors/sensor_data');
+        const data = await response.json();
+
+        // Update the HTML elements with the new data
+        document.getElementById('temp').textContent = data.temperature;
+        document.getElementById('humidity').textContent = data.humidity;
+        document.getElementById('pressure').textContent = data.pressure;
+    } catch (error) {
+        console.error('Failed to fetch sensor data:', error);
+        document.getElementById('temp').textContent = 'Error';
+        document.getElementById('humidity').textContent = 'Error';
+        document.getElementById('pressure').textContent = 'Error';
+    }
+}
