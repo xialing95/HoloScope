@@ -32,7 +32,7 @@ pressure = 0
 @sensors_bp.route('/')
 def index():
     # Pass initial values, they will be updated by JavaScript
-    return render_template('sensor.html', temp='...', humidity='...', pressure='...')
+    return render_template('sensors.html', temp='...', humidity='...', pressure='...')
     
 # @sensors_bp.route('/', methods=['POST'])
 # def handle_post():
