@@ -455,13 +455,13 @@ document.addEventListener('DOMContentLoaded', function() {
             event.preventDefault(); // Prevent the default form submission (page reload)
 
             // Update UI to show logging has started
-            statusMessage.textContent = 'Starting log...';
+            statusMessage.innerText = 'Starting log...';
             statusMessage.style.color = '#007bff';
-            logOutput.textContent = '';
+            logOutput.innerText = '';
             
             const submitButton = loggingForm.querySelector('button[type="submit"]');
             submitButton.disabled = true;
-            submitButton.textContent = 'Logging...';
+            submitButton.innerText= 'Logging...';
 
             // Get form data
             const formData = new FormData(loggingForm);
@@ -480,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
 
                 // Display the status message from the server
-                statusMessage.textContent = result.message;
+                statusMessage.innerText = result.message;
                 if (result.status === 'success') {
                     statusMessage.style.color = 'green';
                 } else {
@@ -489,12 +489,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.error('Error:', error);
-                statusMessage.textContent = `Error: ${error.message}`;
+                statusMessage.innerText = `Error: ${error.message}`;
                 statusMessage.style.color = 'red';
             } finally {
                 // Re-enable the button after the request is complete
                 submitButton.disabled = false;
-                submitButton.textContent = 'Start Log';
+                submitButton.innerText = 'Start Log';
             }
         });
     }
@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 4. Event Listener for I2C Reset Button ---
     if (resetButton) {
         resetButton.addEventListener('click', async function() {
-            statusMessage.textContent = 'Resetting I2C bus...';
+            statusMessage.innerText = 'Resetting I2C bus...';
             statusMessage.style.color = 'orange';
 
             try {
@@ -512,16 +512,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    statusMessage.textContent = result.message;
+                    statusMessage.innerText = result.message;
                     statusMessage.style.color = 'green';
                     // Re-start data updates after a successful reset
                     updateSensorData(); 
                 } else {
-                    statusMessage.textContent = result.message;
+                    statusMessage.innerText = result.message;
                     statusMessage.style.color = 'red';
                 }
             } catch (error) {
-                statusMessage.textContent = 'Network error during reset.';
+                statusMessage.innerText = 'Network error during reset.';
                 statusMessage.style.color = 'red';
                 console.error('Error during I2C reset:', error);
             }
