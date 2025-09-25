@@ -7,7 +7,11 @@ import json
 import os
 
 # Define the directory where logs will be saved
-LOG_DIR = 'sensor_logs'
+# Get the path to the user's home directory.
+home_dir = os.path.expanduser('~')
+# Define the full path for the new directory.
+LOG_DIR = os.path.join(home_dir, "capture_image")
+# Create the directories if they do not exist
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
@@ -40,7 +44,7 @@ def handle_post():
         # Code to reset I2C bus can be added here
         print("I2C bus reset requested.")
     
-    return index()
+    return 
 
 # This new route provides the sensor data as JSON
 @sensors_bp.route('/sensor_data')
