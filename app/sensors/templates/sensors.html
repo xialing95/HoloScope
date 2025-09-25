@@ -7,7 +7,7 @@
             <p>Pressure: <span id="pressure">{{pressure}}hPa</span></p>
         </div>
         <form method="POST" action="/sensors/reset_i2c">
-            <input type="submit" class="button" name="reset_i2c" value="Reset I2C">
+            <button type="submit" name="reset_i2c" value="Reset I2C">
         </form>
     </div>
     
@@ -25,6 +25,6 @@
             <button type="submit">Start Log</button>
         </form>
         <div id="status-message"><p></p></div>
-        <pre id="log-output"><p></p><</pre>
+        <pre id="log-output"><p></p></pre>
     </div>
 </main>
