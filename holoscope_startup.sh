@@ -31,6 +31,15 @@ source "$VENV_DIR/bin/activate"
 # activate the virtual environment and install the BME680 library
 source ~/HoloScope/venv/bin/activate
 
+# Install core dependencies like adafruit-blinka for the 'board' module
+echo "Checking and installing 'adafruit-blinka'..."
+if ! pip list | grep -q "adafruit-blinka"; then
+    pip install adafruit-blinka
+    echo "'adafruit-blinka' installed successfully."
+else
+    echo "'adafruit-blinka' is already installed."
+fi
+
 # Check if the package is already installed
 # The 'pip show' command returns a non-zero exit code if the package is not found.
 # The `>` redirects stdout to /dev/null to keep the output clean.
