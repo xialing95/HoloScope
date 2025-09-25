@@ -1,5 +1,7 @@
 #!/bin/bash
 
+pip install adafruit_circuitpython_bme680-3.7.13-py3-none-any.whl
+
 # Define the target directory path within the home directory
 dir="$HOME/capture_image"
 
