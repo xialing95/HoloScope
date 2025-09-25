@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# create virtual environment and install required packages
+# python3 -m venv --system-site-packages venv
+
 # Define the target directory path within the home directory
 dir="$HOME/capture_image"
 
