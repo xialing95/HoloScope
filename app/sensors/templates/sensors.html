@@ -6,8 +6,8 @@
             <p>Humidity: <span id="humidity">{{humidity}}%</span></p>
             <p>Pressure: <span id="pressure">{{pressure}}hPa</span></p>
         </div>
-        <form method="POST" action="/sensors/sensor_data">
-            <input type="submit" name="reset_i2c" value="Refresh Readings">
+        <form method="POST" action="/sensors/reset_i2c">
+            <input type="submit" name="reset_i2c" value="Reset I2C">
         </form>
     </div>
     

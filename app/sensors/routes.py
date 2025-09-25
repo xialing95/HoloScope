@@ -34,13 +34,13 @@ def index():
     # Pass initial values, they will be updated by JavaScript
     return render_template('sensors.html', temp='...', humidity='...', pressure='...')
     
-# @sensors_bp.route('/', methods=['POST'])
-# def handle_post():
-#     if 'reset_i2c' in request.form:
-#         # Code to reset I2C bus can be added here
-#         print("I2C bus reset requested.")
+@sensors_bp.route('/reset_i2c', methods=['POST'])
+def handle_post():
+    if 'reset_i2c' in request.form:
+        # Code to reset I2C bus can be added here
+        print("I2C bus reset requested.")
     
-#     return index()
+    return index()
 
 # This new route provides the sensor data as JSON
 @sensors_bp.route('/sensor_data')

@@ -421,3 +421,6 @@ async function updateSensorData() {
         document.getElementById('pressure').textContent = 'Error';
     }
 }
+
+// Call the function every 5 seconds to get the latest data
+setInterval(updateSensorData, 5000); 
