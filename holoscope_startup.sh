@@ -1,28 +1,8 @@
 #!/bin/bash
 
 # create virtual environment and install required packages
-# python3 -m venv --system-site-packages venv
-
-# Define the target directory path within the home directory
-dir="$HOME/capture_image"
-
-# Check if the directory does not exist
-if [ ! -d "$dir" ]; then
-    # Create the directory
-    mkdir -p "$dir"
-    echo "Directory '$dir' created successfully."
-else
-    # The directory already exists
-    echo "Directory '$dir' already exists."
-fi
-
-# A bash script to check for and install the libcamera-dev package on Debian-based systems.
-
-# Function to check if a package is installed.
-# We use dpkg-query for this which is a more reliable way than just checking apt.
-is_package_installed() {
-  dpkg-query -W --showformat='${Status}\n' "$1" 2>/dev/null | grep "install ok installed"
-}
+cd ~/HoloScope
+python3 -m venv --system-site-packages venv
 
 # activate the virtual environment and install the BME680 library
 source ~/HoloScope/venv/bin/activate
@@ -42,6 +22,19 @@ if ! pip show "$PACKAGE_NAME" > /dev/null; then
     echo "Successfully installed '$PACKAGE_NAME'."
 else
     echo "Package '$PACKAGE_NAME' is already installed. No action needed."
+fi
+
+# Define the target directory path within the home directory
+dir="$HOME/capture_image"
+
+# Check if the directory does not exist
+if [ ! -d "$dir" ]; then
+    # Create the directory
+    mkdir -p "$dir"
+    echo "Directory '$dir' created successfully."
+else
+    # The directory already exists
+    echo "Directory '$dir' already exists."
 fi
 
 
@@ -73,3 +66,11 @@ else
   nmcli con up "$HOTSPOT_NAME"
   exit 0
 fi
+
+# A bash script to check for and install the libcamera-dev package on Debian-based systems.
+
+# Function to check if a package is installed.
+# We use dpkg-query for this which is a more reliable way than just checking apt.
+is_package_installed() {
+  dpkg-query -W --showformat='${Status}\n' "$1" 2>/dev/null | grep "install ok installed"
+}
