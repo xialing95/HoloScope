@@ -6,9 +6,9 @@
             <p>Humidity: <span id="humidity">{{humidity}}%</span></p>
             <p>Pressure: <span id="pressure">{{pressure}}hPa</span></p>
         </div>
-        <form method="POST" action="/sensors/reset_i2c">
-            <button type="submit" name="reset_i2c" value="Reset I2C">
-        </form>
+            <form id="i2c-reset-form" method="POST" action="/sensors/reset_i2c">
+                <input type="submit" name="reset_i2c" value="Reset I2C">
+            </form>
     </div>
     
     <div class="card">
