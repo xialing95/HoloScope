@@ -1,7 +1,5 @@
 #!/bin/bash
 
-pip install adafruit_circuitpython_bme680-3.7.13-py3-none-any.whl
-
 # Define the target directory path within the home directory
 dir="$HOME/capture_image"
 
@@ -23,30 +21,26 @@ is_package_installed() {
   dpkg-query -W --showformat='${Status}\n' "$1" 2>/dev/null | grep "install ok installed"
 }
 
-# Check if libcamera-dev is already installed.
-if is_package_installed "libcamera-dev"; then
-  echo "libcamera-dev is already installed. No action needed."
+# activate the virtual environment and install the BME680 library
+source ~/HoloScope/venv/bin/activate
+# Define the package name we are checking for
+PACKAGE_NAME="adafruit-circuitpython-bme680"
+
+# Define the filename of the .whl file to install if needed
+WHL_FILE="adafruit_circuitpython_bme680-3.7.13-py3-none-any.whl"
+
+# Check if the package is already installed
+# The 'pip show' command returns a non-zero exit code if the package is not found.
+# The `>` redirects stdout to /dev/null to keep the output clean.
+if ! pip show "$PACKAGE_NAME" > /dev/null; then
+    echo "Package '$PACKAGE_NAME' not found. Installing now..."
+    # The --no-index flag prevents pip from checking PyPI, ensuring it installs the local file
+    pip install --no-index --find-links . "$WHL_FILE"
+    echo "Successfully installed '$PACKAGE_NAME'."
 else
-  # If not installed, prompt the user for confirmation and then install.
-  echo "libcamera-dev is not found. We will now install it."
-  read -p "Do you want to continue with the installation? (y/n) " -n 1 -r
-  echo    # Add a newline for better readability
-  if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Starting installation..."
-
-    # Update package lists
-    echo "Updating package lists..."
-    sudo apt-get update
-
-    # Install the package
-    echo "Installing libcamera-dev..."
-    sudo apt-get install -y libcamera-dev
-
-    echo "Installation complete. The libcamera-dev package is now installed."
-  else
-    echo "Installation aborted."
-  fi
+    echo "Package '$PACKAGE_NAME' is already installed. No action needed."
 fi
+
 
 HOTSPOT_NAME="Hotspot"
 SSID="HoloScopeAP"
