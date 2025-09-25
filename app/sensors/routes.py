@@ -110,3 +110,10 @@ def start_env_sensor():
     logging_thread.start()
     
     return jsonify({"status": "success", "message": "Environmental sensor log started in the background."})
+
+# # This route stops the env sensors
+# @sensors_bp.route('/stopEnvSensor', methods=['POST'])
+# def stop_env_sensor():
+#     global logging_stop_event
+#     logging_stop_event.set() # Signal the thread to stop
+#     return jsonify({"status": "success", "message": "Environmental sensor log stop signal sent."})
