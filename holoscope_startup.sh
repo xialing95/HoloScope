@@ -1,16 +1,35 @@
 #!/bin/bash
 
-# create virtual environment and install required packages
-cd ~/HoloScope
-python3 -m venv --system-site-packages venv
+# Define project-specific variables
+PROJECT_DIR="$HOME/HoloScope"
+VENV_DIR="$PROJECT_DIR/venv"
+WHL_FILE="adafruit_circuitpython_bme680-3.7.13-py3-none-any.whl"
+PACKAGE_NAME="adafruit-circuitpython-bme680"
+SERVICE_NAME="holo-scope.service"
+SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
+
+# Get the current user for the service file
+CURRENT_USER=$(whoami)
+echo "Starting setup for HoloScope project..."
+
+# Check if the virtual environment directory already exists
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Virtual environment not found. Creating a new one..."
+    # Change to the project directory
+    cd "$HOME/HoloScope" || exit
+    # Create the virtual environment with system site packages
+    python3 -m venv --system-site-packages venv
+    echo "Virtual environment created."
+else
+    echo "Virtual environment already exists."
+fi
+
+# Activate the virtual environment
+echo "Activating virtual environment..."
+source "$VENV_DIR/bin/activate"
 
 # activate the virtual environment and install the BME680 library
 source ~/HoloScope/venv/bin/activate
-# Define the package name we are checking for
-PACKAGE_NAME="adafruit-circuitpython-bme680"
-
-# Define the filename of the .whl file to install if needed
-WHL_FILE="adafruit_circuitpython_bme680-3.7.13-py3-none-any.whl"
 
 # Check if the package is already installed
 # The 'pip show' command returns a non-zero exit code if the package is not found.
@@ -23,6 +42,10 @@ if ! pip show "$PACKAGE_NAME" > /dev/null; then
 else
     echo "Package '$PACKAGE_NAME' is already installed. No action needed."
 fi
+
+# Deactivate the virtual environment
+deactivate
+echo "Virtual environment deactivated."
 
 # Define the target directory path within the home directory
 dir="$HOME/capture_image"
@@ -37,13 +60,12 @@ else
     echo "Directory '$dir' already exists."
 fi
 
-
+# Set up hotspot to be use
 HOTSPOT_NAME="Hotspot"
 SSID="HoloScopeAP"
 PASSWORD="fishystuff"
 INTERFACE="wlan0"
 
-# Check if the hotspot connection exists
 nmcli con show "$HOTSPOT_NAME" &> /dev/null
 
 if [ $? -eq 0 ]; then
@@ -67,10 +89,47 @@ else
   exit 0
 fi
 
-# A bash script to check for and install the libcamera-dev package on Debian-based systems.
+# --- Step 2: Create the systemd Service File ---
+echo "Creating systemd service file: $SERVICE_FILE"
 
-# Function to check if a package is installed.
-# We use dpkg-query for this which is a more reliable way than just checking apt.
-is_package_installed() {
-  dpkg-query -W --showformat='${Status}\n' "$1" 2>/dev/null | grep "install ok installed"
-}
+# The command that will be run by systemd
+# NOTE: Replace 'main.py' with the name of your Flask app's entry point file
+EXEC_START_CMD="$VENV_DIR/bin/python $PROJECT_DIR/run.py"
+
+# Use 'tee' with 'sudo' to write to the system directory
+sudo tee "$SERVICE_FILE" > /dev/null <<EOF
+[Unit]
+Description=HoloScope Flask Web Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=$EXEC_START_CMD
+WorkingDirectory=$PROJECT_DIR
+User=$CURRENT_USER
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+echo "Service file created."
+
+# --- Step 3: Enable and Start the Service ---
+echo "Enabling and starting the service..."
+
+# Reload the systemd daemon to recognize the new service file
+sudo systemctl daemon-reload
+
+# Enable the service to start automatically on boot
+sudo systemctl enable "$SERVICE_NAME"
+
+# Start the service immediately
+sudo systemctl start "$SERVICE_NAME"
+
+echo "Service started successfully!"
+
+# --- Step 4: Check Service Status ---
+echo "Checking the status of the service..."
+sudo systemctl status "$SERVICE_NAME" --no-pager
