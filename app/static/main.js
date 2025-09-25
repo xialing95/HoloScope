@@ -405,22 +405,131 @@ function refreshImage() {
  * JavaScript function to call the Flask route
  */
 // This function fetches data from the Flask API and updates the page
-async function updateSensorData() {
-    try {
-        const response = await fetch('/sensors/sensor_data');
-        const data = await response.json();
+document.addEventListener('DOMContentLoaded', function() {
+    // --- 1. Get references to HTML elements ---
+    const loggingForm = document.getElementById('logging-form');
+    const resetButton = document.getElementById('reset-button');
+    const statusMessage = document.getElementById('status-message');
+    const logOutput = document.getElementById('log-output');
 
-        // Update the HTML elements with the new data
-        document.getElementById('temp').textContent = data.temperature;
-        document.getElementById('humidity').textContent = data.humidity;
-        document.getElementById('pressure').textContent = data.pressure;
-    } catch (error) {
-        console.error('Failed to fetch sensor data:', error);
-        document.getElementById('temp').textContent = 'Error';
-        document.getElementById('humidity').textContent = 'Error';
-        document.getElementById('pressure').textContent = 'Error';
+    // --- 2. Function to update sensor data dynamically ---
+    async function updateSensorData() {
+        try {
+            const response = await fetch('/sensors/sensor_data');
+            
+            // Check if the response is successful before proceeding
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // If the server returns an error (e.g., sensor not initialized), display it
+            if (data.status === 'error') {
+                document.getElementById('temp').textContent = 'Error';
+                document.getElementById('humidity').textContent = 'Error';
+                document.getElementById('pressure').textContent = 'Error';
+                statusMessage.textContent = data.message;
+                statusMessage.style.color = 'red';
+                return;
+            }
+
+            // Update the HTML elements with the new data
+            document.getElementById('temp').textContent = data.temperature;
+            document.getElementById('humidity').textContent = data.humidity;
+            document.getElementById('pressure').textContent = data.pressure;
+
+        } catch (error) {
+            console.error('Failed to fetch sensor data:', error);
+            document.getElementById('temp').textContent = 'Error';
+            document.getElementById('humidity').textContent = 'Error';
+            document.getElementById('pressure').textContent = 'Error';
+        }
     }
-}
 
-// Call the function every 5 seconds to get the latest data
-setInterval(updateSensorData, 5000); 
+    // --- 3. Event Listener for Form Submission (Start Log) ---
+    if (loggingForm) {
+        loggingForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Prevent the default form submission (page reload)
+
+            // Update UI to show logging has started
+            statusMessage.textContent = 'Starting log...';
+            statusMessage.style.color = '#007bff';
+            logOutput.textContent = '';
+            
+            const submitButton = loggingForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Logging...';
+
+            // Get form data
+            const formData = new FormData(loggingForm);
+            
+            try {
+                // Send a POST request to the Flask endpoint
+                const response = await fetch('/sensors/startEnvSensor', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Display the status message from the server
+                statusMessage.textContent = result.message;
+                if (result.status === 'success') {
+                    statusMessage.style.color = 'green';
+                } else {
+                    statusMessage.style.color = 'red';
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                statusMessage.textContent = `Error: ${error.message}`;
+                statusMessage.style.color = 'red';
+            } finally {
+                // Re-enable the button after the request is complete
+                submitButton.disabled = false;
+                submitButton.textContent = 'Start Log';
+            }
+        });
+    }
+
+    // --- 4. Event Listener for I2C Reset Button ---
+    if (resetButton) {
+        resetButton.addEventListener('click', async function() {
+            statusMessage.textContent = 'Resetting I2C bus...';
+            statusMessage.style.color = 'orange';
+
+            try {
+                const response = await fetch('/sensors/reset_i2c', {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    statusMessage.textContent = result.message;
+                    statusMessage.style.color = 'green';
+                    // Re-start data updates after a successful reset
+                    updateSensorData(); 
+                } else {
+                    statusMessage.textContent = result.message;
+                    statusMessage.style.color = 'red';
+                }
+            } catch (error) {
+                statusMessage.textContent = 'Network error during reset.';
+                statusMessage.style.color = 'red';
+                console.error('Error during I2C reset:', error);
+            }
+        });
+    }
+
+    // --- 5. Initial Call and Periodic Updates ---
+    // Call the function once when the page loads
+    updateSensorData();
+
+    // Call the function every 5 seconds to get the latest data
+    setInterval(updateSensorData, 5000); 
+});
