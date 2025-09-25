@@ -551,6 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetButton = document.getElementById('reset-button');
     const statusMessage = document.getElementById('status-message');
     const logOutput = document.getElementById('log-output');
+    const sensor_status = document.getElementById('sensor-status');
 
     // --- 2. Function to update sensor data dynamically ---
     async function updateSensorData() {
@@ -591,49 +592,57 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loggingForm) {
         loggingForm.addEventListener('submit', async function(event) {
             event.preventDefault(); // Prevent the default form submission (page reload)
-
-            // Update UI to show logging has started
-            statusMessage.innerText = 'Starting log...';
-            statusMessage.style.color = '#007bff';
-            logOutput.innerText = '';
             
             const submitButton = loggingForm.querySelector('button[type="submit"]');
+            
             submitButton.disabled = true;
             submitButton.innerText= 'Logging...';
+            sensor_status.innterTest = 'Environmental Logging Started'
 
             // Get form data
             const formData = new FormData(loggingForm);
             
-            try {
-                // Send a POST request to the Flask endpoint
-                const response = await fetch('/sensors/startEnvSensor', {
-                    method: 'POST',
-                    body: formData
-                });
-
+            fetch('/sensors/startEnvSensor', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                // Check if the response is okay before parsing
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                return response.json(); 
+            })
+            .then(data => {
+                // Update the innerHTML of the div with the formatted string inside <pre> tags
+                statusMessage.innerHTML = `<p>Sensor Status:</p><pre>${data.status}</pre>`;
+                logOutput.innerHTML = `<p>Sensor Message:</p><pre>${data.message}</pre>`
+            })
 
-                const result = await response.json();
+            // try {
+            //     // Send a POST request to the Flask endpoint
+            //     const response = await fetch('/sensors/startEnvSensor', {
+            //         method: 'POST',
+            //         body: formData
+            //     });
 
-                // Display the status message from the server
-                statusMessage.innerText = result.message;
-                if (result.status === 'success') {
-                    statusMessage.style.color = 'green';
-                } else {
-                    statusMessage.style.color = 'red';
-                }
+            //     if (!response.ok) {
+            //         throw new Error(`HTTP error! status: ${response.status}`);
+            //     }
 
-            } catch (error) {
-                console.error('Error:', error);
-                statusMessage.innerText = `Error: ${error.message}`;
-                statusMessage.style.color = 'red';
-            } finally {
-                // Re-enable the button after the request is complete
-                submitButton.disabled = false;
-                submitButton.innerText = 'Start Log';
-            }
+            //     const result = await response.json();
+
+            //     // Display the status message from the server
+            //     statusMessage.innerText = result.message;
+
+            // } catch (error) {
+            //     console.error('Error:', error);
+            //     statusMessage.innerText = `Error: ${error.message}`;
+            // } finally {
+            //     // Re-enable the button after the request is complete
+            //     submitButton.disabled = false;
+            //     submitButton.innerText = 'Start Log';
+            // }
         });
     }
 
