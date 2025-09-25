@@ -1,8 +1,13 @@
+/* TODO:
+ * get camera and sensor status if connected
+ *
+ * 
+ */
+
 /*
  * Main index page JavaScript
  * Add an ID to your main content element for easy targeting
  */ 
-
 // update main content area when nav link is clicked
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll('.main-nav a');
@@ -35,9 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-// get camera and sensor status if connected
-
 
 /*
  * Network-related JavaScript functions

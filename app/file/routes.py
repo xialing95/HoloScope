@@ -16,10 +16,15 @@ def index():
     """
     Renders the main page and passes the list of images to the template.
     """
-    # Get all files in the directory that are images (e.g., .jpg, .png, .gif).
-    # This list will be passed to the HTML template.
+    # Define a set of valid file extensions
+    VALID_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.gif','.dng', '.json')
+
     try:
-        images = sorted([f for f in os.listdir(CAPTURE_IMAGE_DIR) if os.path.isfile(os.path.join(CAPTURE_IMAGE_DIR, f))])
+        images = sorted([
+            f for f in os.listdir(CAPTURE_IMAGE_DIR)
+            if os.path.isfile(os.path.join(CAPTURE_IMAGE_DIR, f)) and 
+            f.lower().endswith(VALID_EXTENSIONS)
+        ])
     except FileNotFoundError:
         images = []
     return render_template('file.html', images=images)

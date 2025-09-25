@@ -66,12 +66,6 @@ def reset_i2c():
     else:
         return jsonify({"status": "error", "message": f"Failed to reset I2C bus: {message}"})
 
-# ... The rest of your code (log_sensor_data function, startEnvSensor route) remains the same
-# just ensure the initialize_bme680() function is used for setup
-
-# The following parts of your code remain the same:
-# --------------------------------------------------
-
 # This is the function that will run in a separate thread
 def log_sensor_data(duration, interval):
     start_time = time.time()
