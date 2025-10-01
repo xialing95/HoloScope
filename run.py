@@ -6,6 +6,8 @@ import subprocess
 import re
 import platform
 
+PORT = 8080
+
 # --- Platform-Dependent Utility Function ---
 def kill_process_on_port(port):
     """
@@ -81,30 +83,27 @@ def kill_process_on_port(port):
     print(f"No process found listening on port {port}.")
     return True
 
+if not kill_process_on_port():
+    print(f"Failed to ensure port {PORT} is free. Exiting.")
+
 # --- Main Application Logic ---
 if __name__ == '__main__':
-    PORT = 8080
-    
-    # Step 1: Kill the process on the target port
-    if not kill_process_on_port(PORT):
-        print(f"Failed to ensure port {PORT} is free. Exiting.")
-    else:
-        # Step 2: Start the Flask application
-        try:
-            app = create_app()
+    # Start the Flask application
+    try:
+        app = create_app()
 
-            print("-" * 50)
-            print(f"Starting Flask application on http://0.0.0.0:{PORT}")
-            print("Press CTRL+C to stop the server.")
-            print("-" * 50)
-            
-            app.run(
-                host='0.0.0.0', 
-                port=PORT, 
-                debug=False,
-                threaded=True, 
-                processes=1
-            )
-            
-        except Exception as e:
-            print(f"An error occurred during application startup: {e}")
+        print("-" * 50)
+        print(f"Starting Flask application on http://0.0.0.0:{PORT}")
+        print("Press CTRL+C to stop the server.")
+        print("-" * 50)
+        
+        app.run(
+            host='0.0.0.0', 
+            port=PORT, 
+            debug=False,
+            threaded=True, 
+            processes=1
+        )
+        
+    except Exception as e:
+        print(f"An error occurred during application startup: {e}")
