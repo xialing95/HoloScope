@@ -82,11 +82,9 @@ if [ $? -eq 0 ]; then
   ACTIVE=$(nmcli -t -f NAME,TYPE,DEVICE con show --active | grep "^$HOTSPOT_NAME:wifi")
   if [ -n "$ACTIVE" ]; then
     echo "Hotspot '$HOTSPOT_NAME' is already active."
-    exit 0
   else
     echo "Starting existing hotspot..."
     sudo nmcli con up "$HOTSPOT_NAME"
-    exit 0
   fi
 else
   echo "Creating new hotspot..."
@@ -95,7 +93,6 @@ else
   nmcli con modify "$HOTSPOT_NAME" wifi-sec.key-mgmt wpa-psk
   nmcli con modify "$HOTSPOT_NAME" wifi-sec.psk "$PASSWORD"
   nmcli con up "$HOTSPOT_NAME"
-  exit 0
 fi
 
 # --- Step 2: Create the systemd Service File ---

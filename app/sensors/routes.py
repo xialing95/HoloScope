@@ -1,8 +1,8 @@
 from flask import render_template, request, jsonify
 from . import sensors_bp
 import time
-import board
-import adafruit_bme680
+# import board
+# import adafruit_bme680
 import json
 import os
 import threading
@@ -47,7 +47,10 @@ def index():
 @sensors_bp.route('/sensor_data')
 def get_sensor_data():
     if not bme680_initialized:
-        return jsonify({"status": "error", "message": "BME680 sensor not initialized."})
+        return jsonify({
+            "status": "error", 
+            "message": "BME680 sensor not initialized."
+            })
     
     data = {
         "temperature": f'{bme680.temperature:.2f}',
@@ -62,9 +65,15 @@ def reset_i2c():
     print("Resetting I2C bus and BME680 sensor...")
     success, message = initialize_bme680()
     if success:
-        return jsonify({"status": "success", "message": "I2C bus and sensor reset successfully."})
+        return jsonify({
+            "status": "success", 
+            "message": "I2C bus and sensor reset successfully."
+            })
     else:
-        return jsonify({"status": "error", "message": f"Failed to reset I2C bus: {message}"})
+        return jsonify({
+            "status": "error", 
+            "message": f"Failed to reset I2C bus: {message}"
+            })
 
 # This is the function that will run in a separate thread
 def log_sensor_data(duration, interval):
@@ -98,18 +107,27 @@ def log_sensor_data(duration, interval):
 @sensors_bp.route('/startEnvSensor', methods=['POST'])
 def start_env_sensor():
     if not bme680_initialized:
-        return jsonify({"status": "error", "message": "BME680 sensor not initialized."})
+        return jsonify({
+            "status": "error", 
+            "message": "BME680 sensor not initialized."
+            })
     
     try:
         duration = int(request.form.get('sensor_duration', 60))
         interval = int(request.form.get('sensor_interval', 10))
     except (ValueError, TypeError):
-        return jsonify({"status": "error", "message": "Invalid duration or interval values."})
+        return jsonify({
+            "status": "error", 
+            "message": "Invalid duration or interval values."
+            })
 
     logging_thread = threading.Thread(target=log_sensor_data, args=(duration, interval))
     logging_thread.start()
     
-    return jsonify({"status": "success", "message": "Environmental sensor log started in the background."})
+    return jsonify({
+        "status": "success", 
+        "message": "Environmental sensor log started in the background."
+        })
 
 # # This route stops the env sensors
 # @sensors_bp.route('/stopEnvSensor', methods=['POST'])
