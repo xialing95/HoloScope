@@ -90,6 +90,7 @@ if __name__ == '__main__':
         print(f"🚫 Cannot proceed: Port {PORT} is still in use.")
         print(f"--------------------------------------------------")
         sys.exit(1)
+        sleep(5) # Give user a moment to read the message
     
     # 2. Start the Flask application on the now-free port.
     try:
