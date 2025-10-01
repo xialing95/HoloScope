@@ -344,23 +344,14 @@ def camera_init_config():
 
         save_settings(camera_settings)
         
-        # picam2 = initialize_camera(camera_settings)
-        # if picam2 and take_picture(picam2, PREVIEW_FILE):
-        #     return jsonify({
-        #         'camera_settings': camera_settings,
-        #         'image_url': f'/camera/preview.jpg?t={int(time.time())}'
-        #     })
-        # else:
-        #     return jsonify({'error': 'Failed to capture image.'}), 500
-
-        # The main process now uses a self-contained function for preview
-        if take_preview(camera_settings, PREVIEW_FILE): # Pass the settings for configuration
+        picam2 = initialize_camera(camera_settings)
+        if picam2 and take_picture(picam2, PREVIEW_FILE):
             return jsonify({
                 'camera_settings': camera_settings,
                 'image_url': f'/camera/preview.jpg?t={int(time.time())}'
             })
         else:
-            return jsonify({'error': 'Failed to capture preview image.'}), 500
+            return jsonify({'error': 'Failed to capture image.'}), 500
  
     except Exception as e:
         error_message = f"Error: Failed to initialize camera. Reason: {e}"
