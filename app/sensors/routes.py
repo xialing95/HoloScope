@@ -1,8 +1,8 @@
 from flask import render_template, request, jsonify
 from . import sensors_bp
 import time
-# import board
-# import adafruit_bme680
+import board
+import adafruit_bme680
 import json
 import os
 import threading

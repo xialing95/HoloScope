@@ -11,8 +11,8 @@ from datetime import datetime
 
 
 import sys
-# from picamera2 import Picamera2
-# from libcamera import controls
+from picamera2 import Picamera2
+from libcamera import controls
 
 # Get the path to the user's home directory.
 home_dir = os.path.expanduser('~')
@@ -149,6 +149,7 @@ def take_picture(picam2, filename_dir):
         # Always stop the camera after the operation is complete
         if picam2 and picam2.started:
             picam2.stop()
+            picam2 = None
 
 # --- PiCamera Logic (Runs in a separate process) ---
     """
