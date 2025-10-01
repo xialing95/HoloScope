@@ -521,13 +521,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    statusMessage.innerText = result.message;
-                    statusMessage.style.color = 'green';
-                    // Re-start data updates after a successful reset
-                    updateSensorData(); 
+                    // statusMessage.innerText = result.message;
+                    // statusMessage.style.color = 'green';
+                    // // Re-start data updates after a successful reset
+                    // updateSensorData(); 
+                    console.log(result.message);
+
                 } else {
-                    statusMessage.innerText = result.message;
-                    statusMessage.style.color = 'red';
+                    // statusMessage.innerText = result.message;
+                    // statusMessage.style.color = 'red';
+                    console.log(result.message);
                 }
             } catch (error) {
                 statusMessage.innerText = 'Network error during reset.';
