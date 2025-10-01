@@ -9,59 +9,72 @@ from app import create_app
 
 PORT = 8080
 
-# --- Platform-Dependent Utility Function (Revised for safety) ---
+# --- Platform-Dependent Utility Function ---
 def kill_process_on_port(port):
     """
     Finds and kills the process running on the specified port using native OS commands.
-    Returns True if no process was found or if it was successfully killed.
-    Returns False if an unrecoverable error occurred (e.g., permission denied).
+    Returns True if the port is free OR successfully freed.
+    Returns False if an unrecoverable error occurred (e.g., persistent permission denied).
     """
     print(f"Checking for existing processes on port {port}...")
     
     system = platform.system()
     
     if system in ["Linux", "Darwin"]: # Darwin is macOS
-        # Use lsof to get PIDs
+        # Command to get PIDs using lsof
         command = f"lsof -t -i:{port}"
         
         try:
-            # Execute command to get PIDs
+            # Execute command to get PIDs (no sudo initially)
             result = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
             pids = result.stdout.strip().split()
             
             if not pids:
-                print(f"Port {port} is free. Proceeding.")
+                print(f"✅ Port {port} is free. Proceeding.")
                 return True
             
             # Found one or more PIDs
-            print(f"Found existing process(es) with PID(s): {', '.join(pids)}. Killing...")
+            print(f"\n🚨 Port {port} is IN USE by PID(s): {', '.join(pids)}. Attempting to kill...")
 
-            success = True
+            all_killed_successfully = True
             for pid in pids:
                 try:
-                    # Attempt a forceful kill (kill -9) for existing processes
+                    # Attempt a forceful kill (kill -9) 
                     subprocess.run(f"kill -9 {pid}", shell=True, check=True, capture_output=True)
-                    print(f"Process PID {pid} forcefully killed.")
+                    print(f"   - Process PID {pid} forcefully killed.")
                 except subprocess.CalledProcessError as e:
-                    # Check for permission errors, which often require 'sudo'
-                    if "Operation not permitted" in e.stderr.strip() and pid != '0':
-                        print(f"CRITICAL: Permission denied to kill PID {pid}. Try running script with 'sudo'.")
-                        success = False
-                    else:
-                        print(f"Warning: Failed to kill PID {pid}. {e.stderr.strip()}")
+                    all_killed_successfully = False
+                    
+                    # This check is tricky, as 'kill' errors differ, but permission is the main issue
+                    print(f"   - ❌ Failed to kill PID {pid} (Error: {e.stderr.strip().splitlines()[-1]}).")
+                    
             
-            # Give the OS a moment to release the port socket
-            if success:
-                 time.sleep(1)
-            return success
-                
+            if all_killed_successfully:
+                # Give the OS a moment to release the port socket
+                time.sleep(1)
+                # Quick re-check to confirm
+                recheck = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
+                if not recheck.stdout.strip().split():
+                    print(f"\n✅ Port {port} is now successfully freed.")
+                    return True
+                else:
+                    # Port still held, likely by a process that refused to die
+                    print("\n❌ CRITICAL: Process killed but port is still held. Permission issue suspected.")
+                    print("   If this issue persists, you must run the entire script with 'sudo'.")
+                    return False
+            else:
+                print("\n❌ CRITICAL: Failed to kill one or more processes.")
+                print("   The processes are likely owned by 'root' or another user.")
+                print(f"   RECOMMENDATION: Stop the app manually, or run this script using: 'sudo python3 {sys.argv[0]}'")
+                return False
+
         except Exception as e:
-            print(f"An unexpected error occurred during port check: {e}")
+            print(f"\nAn unexpected error occurred during port check: {e}")
             return False
 
     elif system == "Windows":
-        # Windows port check logic would go here, but is omitted for Linux focus
-        print("Warning: Windows port killing logic is not implemented.")
+        # Simplified placeholder for Windows
+        print("Warning: Windows port killing logic is not implemented. Please check manually.")
         return True
     
     else:
@@ -73,7 +86,9 @@ if __name__ == '__main__':
     
     # 1. Kill any *pre-existing* processes on the port.
     if not kill_process_on_port(PORT):
-        print(f"Failed to free port {PORT}. Exiting to prevent issues.")
+        print(f"--------------------------------------------------")
+        print(f"🚫 Cannot proceed: Port {PORT} is still in use.")
+        print(f"--------------------------------------------------")
         sys.exit(1)
     
     # 2. Start the Flask application on the now-free port.
@@ -86,12 +101,17 @@ if __name__ == '__main__':
         print("-" * 50)
         
         # NOTE: app.run() is a BLOCKING call. The script waits here.
+        # Ensure the port is set on the app instance if create_app doesn't handle it
+        app.config['PORT'] = PORT
+        
         app.run(
             host='0.0.0.0', 
             port=PORT, 
-            debug=False,
+            debug=True,
+            # It's generally better to let the development server manage these settings
+            # Using 'threaded=True' is fine, but Flask/Werkzeug may ignore 'processes=1'
             threaded=True, 
-            processes=1
+            # processes=1 # Removed, as it's not a standard app.run() argument in recent Flask versions
         )
         
     except Exception as e:

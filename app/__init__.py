@@ -38,5 +38,8 @@ def create_app(config_class=None):
     @app.route('/')
     def index():
         return render_template('index.html')
+    
+    # Store port in config for the index route to show
+    app.config['PORT'] = 8080 
 
     return app
