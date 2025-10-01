@@ -29,6 +29,10 @@ PREVIEW_FILE = os.path.join(capture_image_dir, 'preview.jpg')
 
 # # Global variable for the camera object
 # picam2 = None
+# The global picam2 variable is now only for cleanup of any old state
+# or to signal to other functions that the camera is NOT available
+global picam2
+picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
 
 # --- Multiprocessing Setup ---
 # A queue to send commands to the timelapse process
@@ -187,14 +191,20 @@ def take_preview(settings, filename_dir):
         picam2_local.set_controls(camera_controls)
         
         picam2_local.start()
+
+        # Capture buffers from both main (JPG) and raw (DNG) streams
+        buffers, metadata = picam2_local.switch_mode_and_capture_buffers(picam2_local.camera_config, ["main", "raw"])
         
-        # Capture only the main (JPG) stream
-        # You need to capture a buffer to save
-        buffer, metadata = picam2_local.capture_buffer("main")
+        # Save the main (JPG) stream
+        jpg_filepath = filename_dir.replace('.dng', '.jpg')
+        # Use the camera's configured stream to save the image
+        picam2_local.helpers.save(picam2_local.helpers.make_image(buffers[0], picam2_local.camera_config["main"]), metadata, jpg_filepath)
         
-        # Save the image using Picamera2's helpers
-        picam2_local.helpers.save(picam2_local.helpers.make_image(buffer, picam2_local.camera_config["main"]), metadata, filename_dir)
-        
+        # Save the raw (DNG) stream
+        dng_filepath = filename_dir.replace('.jpg', '.dng')
+        # Use the camera's configured stream to save the DNG file
+        picam2_local.helpers.save_dng(buffers[1], metadata, picam2_local.camera_config["raw"], dng_filepath)
+
         print(f"Preview taken and saved to {filename_dir}.")
         return True
     except Exception as e:
@@ -206,11 +216,6 @@ def take_preview(settings, filename_dir):
             if picam2_local.started:
                 picam2_local.stop()
             picam2_local.close()
-
-# The global picam2 variable is now only for cleanup of any old state
-# or to signal to other functions that the camera is NOT available
-# global picam2
-# picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
 
 # --- PiCamera Logic (Runs in a separate process) ---
 def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value):
