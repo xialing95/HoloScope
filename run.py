@@ -82,7 +82,7 @@ def kill_process_on_port(port):
         return True
     
 # Define the name of your Systemd unit file
-SYSTEMD_SERVICE_NAME = "holoscope.service"
+SYSTEMD_SERVICE_NAME = "holo-scope.service"
 
 def stop_systemd_service():
     """

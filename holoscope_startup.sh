@@ -5,7 +5,7 @@ PROJECT_DIR="$HOME/HoloScope"
 VENV_DIR="$PROJECT_DIR/venv"
 WHL_FILE="adafruit_circuitpython_bme680-3.7.13-py3-none-any.whl"
 PACKAGE_NAME="adafruit-circuitpython-bme680"
-SERVICE_NAME="holoscope.service"
+SERVICE_NAME="holo-scope.service"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
 
 # Get the current user for the service file
