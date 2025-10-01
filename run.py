@@ -1,94 +1,82 @@
+import subprocess
+import signal
+import sys
+import platform
+import time
 from flask import Flask
 # Assuming 'app' is a folder and 'create_app' is a function inside 'app/__init__.py'
 from app import create_app 
-import os
-import subprocess
-import re
-import platform
 
 PORT = 8080
 
-# --- Platform-Dependent Utility Function ---
+# --- Platform-Dependent Utility Function (Revised for safety) ---
 def kill_process_on_port(port):
     """
     Finds and kills the process running on the specified port using native OS commands.
-    This method is platform-dependent (Windows vs. Linux/macOS).
+    Returns True if no process was found or if it was successfully killed.
+    Returns False if an unrecoverable error occurred (e.g., permission denied).
     """
-    print(f"Checking for processes on port {port}...")
+    print(f"Checking for existing processes on port {port}...")
     
     system = platform.system()
-    pid = None
-
-    if system == "Windows":
-        # Windows command: netstat -ano lists all connections and PIDs
-        command = f"netstat -ano | findstr LISTENING | findstr :{port}"
-        
-        try:
-            # Use run with capture_output=True to get the output
-            result = subprocess.run(command, shell=True, capture_output=True, text=True, check=True)
-            output = result.stdout
-            
-            # The PID is the last number on the line
-            if output:
-                # Regex to find the PID which is the last token on the line
-                # It accounts for multiple spaces and line endings
-                match = re.search(r"LISTENING\s+(\d+)\s*$", output.strip(), re.MULTILINE)
-                if match:
-                    pid = match.group(1)
-            
-            if pid:
-                print(f"Found process with PID {pid} listening on port {port}. Killing...")
-                # Windows command: taskkill /F /PID <pid>
-                subprocess.run(f"taskkill /F /PID {pid}", shell=True, check=True, capture_output=True)
-                print(f"Process PID {pid} forcefully killed.")
-                return True
-            
-        except subprocess.CalledProcessError as e:
-            # This is okay if the commands fail to find anything or taskkill fails (e.g., permission)
-            print(f"Subprocess error (Port Check): {e.stderr.strip()}")
-        except Exception as e:
-            print(f"An unexpected error occurred on Windows: {e}")
-
-    elif system in ["Linux", "Darwin"]: # Darwin is macOS
-        # Linux/macOS command: lsof -t -i:<port> returns only the PIDs
+    
+    if system in ["Linux", "Darwin"]: # Darwin is macOS
+        # Use lsof to get PIDs
         command = f"lsof -t -i:{port}"
         
         try:
-            # Use run with check=False in case lsof returns no PIDs (exit code 1)
+            # Execute command to get PIDs
             result = subprocess.run(command, shell=True, capture_output=True, text=True, check=False)
-            output = result.stdout.strip()
+            pids = result.stdout.strip().split()
             
-            # Output is a string of PIDs separated by newlines
-            if output:
-                pids = output.split()
-                
-                for pid in pids:
-                    print(f"Found process with PID {pid} listening on port {port}. Killing...")
-                    # POSIX command: kill -9 <pid> (force kill)
-                    # NOTE: kill -9 is a hard kill, kill -TERM (default) is graceful
+            if not pids:
+                print(f"Port {port} is free. Proceeding.")
+                return True
+            
+            # Found one or more PIDs
+            print(f"Found existing process(es) with PID(s): {', '.join(pids)}. Killing...")
+
+            success = True
+            for pid in pids:
+                try:
+                    # Attempt a forceful kill (kill -9) for existing processes
                     subprocess.run(f"kill -9 {pid}", shell=True, check=True, capture_output=True)
                     print(f"Process PID {pid} forcefully killed.")
-                return True
+                except subprocess.CalledProcessError as e:
+                    # Check for permission errors, which often require 'sudo'
+                    if "Operation not permitted" in e.stderr.strip() and pid != '0':
+                        print(f"CRITICAL: Permission denied to kill PID {pid}. Try running script with 'sudo'.")
+                        success = False
+                    else:
+                        print(f"Warning: Failed to kill PID {pid}. {e.stderr.strip()}")
+            
+            # Give the OS a moment to release the port socket
+            if success:
+                 time.sleep(1)
+            return success
                 
-        except subprocess.CalledProcessError as e:
-            # This is okay if the commands fail to find anything or kill fails (e.g., permission)
-            print(f"Subprocess error (Port Check): {e.stderr.strip()}")
         except Exception as e:
-            print(f"An unexpected error occurred on Linux/macOS: {e}")
+            print(f"An unexpected error occurred during port check: {e}")
+            return False
 
+    elif system == "Windows":
+        # Windows port check logic would go here, but is omitted for Linux focus
+        print("Warning: Windows port killing logic is not implemented.")
+        return True
+    
     else:
-        print(f"Unsupported OS: {system}. Cannot check/kill port.")
-        return False
-
-    print(f"No process found listening on port {port}.")
-    return True
-
-if not kill_process_on_port(PORT):
-    print(f"Failed to ensure port {PORT} is free. Exiting.")
+        print(f"Unsupported OS: {system}. Skipping port check/kill.")
+        return True
 
 # --- Main Application Logic ---
 if __name__ == '__main__':
-    # Start the Flask application
+    
+    # 1. Kill any *pre-existing* processes on the port.
+    if not kill_process_on_port(PORT):
+        print(f"Failed to free port {PORT}. Exiting to prevent issues.")
+        sys.exit(1)
+    
+    # 2. Start the Flask application on the now-free port.
     try:
         app = create_app()
 
@@ -97,6 +85,7 @@ if __name__ == '__main__':
         print("Press CTRL+C to stop the server.")
         print("-" * 50)
         
+        # NOTE: app.run() is a BLOCKING call. The script waits here.
         app.run(
             host='0.0.0.0', 
             port=PORT, 
