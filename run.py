@@ -108,11 +108,12 @@ if __name__ == '__main__':
         app.run(
             host='0.0.0.0', 
             port=PORT, 
-            debug=True,
+            debug=False,         # This implicitly disables the reloader
+            use_reloader=False,   # Explicitly disable the reloader
             # It's generally better to let the development server manage these settings
             # Using 'threaded=True' is fine, but Flask/Werkzeug may ignore 'processes=1'
             threaded=True, 
-            # processes=1 # Removed, as it's not a standard app.run() argument in recent Flask versions
+            processes=1 # Removed, as it's not a standard app.run() argument in recent Flask versions
         )
         
     except Exception as e:
