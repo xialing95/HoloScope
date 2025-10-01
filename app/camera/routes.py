@@ -209,8 +209,8 @@ def take_preview(settings, filename_dir):
 
 # The global picam2 variable is now only for cleanup of any old state
 # or to signal to other functions that the camera is NOT available
-global picam2
-picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
+# global picam2
+# picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
 
 # --- PiCamera Logic (Runs in a separate process) ---
 def run_timelapse(command_queue, status_value, photo_count_value, total_photos_value):
