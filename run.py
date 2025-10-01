@@ -83,7 +83,7 @@ def kill_process_on_port(port):
     print(f"No process found listening on port {port}.")
     return True
 
-if not kill_process_on_port():
+if not kill_process_on_port(PORT):
     print(f"Failed to ensure port {PORT} is free. Exiting.")
 
 # --- Main Application Logic ---
