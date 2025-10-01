@@ -306,12 +306,12 @@ def get_camera_controls():
     return {}
 
 # # Global variable for the camera object
-# picam2 = None
+picam2 = None
 # The global picam2 variable is now only for cleanup of any old state
 # or to signal to other functions that the camera is NOT available
 # picam2 = None
 # global picam2
-# picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
+picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
 
 # --- Flask routes for camera settings ---
 @camera_bp.route('/')
