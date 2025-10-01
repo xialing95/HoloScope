@@ -80,6 +80,36 @@ def kill_process_on_port(port):
     else:
         print(f"Unsupported OS: {system}. Skipping port check/kill.")
         return True
+    
+# Define the name of your Systemd unit file
+SYSTEMD_SERVICE_NAME = "holoscope.service"
+
+def stop_systemd_service():
+    """
+    Attempts to stop the Systemd service unit.
+    Requires the current user (or script) to have sudo privileges 
+    or be configured via visudo for passwordless execution of this command.
+    """
+    print(f"\nAttempting to stop Systemd service: {SYSTEMD_SERVICE_NAME}...")
+    try:
+        # Run the stop command using sudo
+        # NOTE: This will require a password if the script is not already run with sudo.
+        subprocess.run(
+            ["sudo", "systemctl", "stop", SYSTEMD_SERVICE_NAME], 
+            check=True, 
+            capture_output=True, 
+            text=True
+        )
+        print(f"✅ Successfully requested Systemd to stop {SYSTEMD_SERVICE_NAME}.")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Failed to stop Systemd service {SYSTEMD_SERVICE_NAME}.")
+        print("   This is often due to insufficient permissions or the service not existing.")
+        print(f"   Error: {e.stderr.strip()}")
+    except FileNotFoundError:
+        print("❌ Error: 'sudo' or 'systemctl' command not found.")
+    except Exception as e:
+        print(f"❌ An unexpected error occurred while calling systemctl: {e}")
 
 # --- Main Application Logic ---
 if __name__ == '__main__':
