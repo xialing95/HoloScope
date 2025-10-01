@@ -27,13 +27,6 @@ os.makedirs(static_dir, exist_ok=True)
 SETTINGS_FILE = os.path.join(static_dir, 'camera_settings.json')
 PREVIEW_FILE = os.path.join(capture_image_dir, 'preview.jpg')
 
-# # Global variable for the camera object
-# picam2 = None
-# The global picam2 variable is now only for cleanup of any old state
-# or to signal to other functions that the camera is NOT available
-global picam2
-picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
-
 # --- Multiprocessing Setup ---
 # A queue to send commands to the timelapse process
 command_queue = multiprocessing.Queue()
@@ -311,6 +304,13 @@ def get_camera_controls():
     if picam2 and picam2.started:
         return picam2.camera_controls
     return {}
+
+# # Global variable for the camera object
+# picam2 = None
+# The global picam2 variable is now only for cleanup of any old state
+# or to signal to other functions that the camera is NOT available
+global picam2
+picam2 = delete_camera_object(picam2) # Ensure the global is clean at startup.
 
 # --- Flask routes for camera settings ---
 @camera_bp.route('/')
