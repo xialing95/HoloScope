@@ -511,8 +511,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- 4. Event Listener for I2C Reset Button ---
     if (resetButton) {
         resetButton.addEventListener('click', async function() {
-            statusMessage.innerText = 'Resetting I2C bus...';
-            statusMessage.style.color = 'orange';
+            // statusMessage.innerText = 'Resetting I2C bus...';
+            // statusMessage.style.color = 'orange';
 
             try {
                 const response = await fetch('/sensors/reset_i2c', {
@@ -533,9 +533,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log(result.message);
                 }
             } catch (error) {
-                statusMessage.innerText = 'Network error during reset.';
-                statusMessage.style.color = 'red';
+                // statusMessage.innerText = 'Network error during reset.';
+                // statusMessage.style.color = 'red';
                 console.error('Error during I2C reset:', error);
+                console.log(result.message);
             }
         });
     }
