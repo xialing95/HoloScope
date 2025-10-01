@@ -83,16 +83,6 @@ def kill_process_on_port(port):
 
 # --- Main Application Logic ---
 if __name__ == '__main__':
-    
-    # 1. Kill any *pre-existing* processes on the port.
-    if not kill_process_on_port(PORT):
-        print(f"--------------------------------------------------")
-        print(f"🚫 Cannot proceed: Port {PORT} is still in use.")
-        print(f"--------------------------------------------------")
-        sys.exit(1)
-        sleep(5) # Give user a moment to read the message
-    
-    # 2. Start the Flask application on the now-free port.
     try:
         app = create_app()
 
