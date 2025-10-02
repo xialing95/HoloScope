@@ -450,71 +450,73 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- 3. Event Listener for Form Submission (Start Log) ---
-    if (loggingForm) {
-        loggingForm.addEventListener('submit', async function(event) {
-            event.preventDefault(); // Prevent the default form submission (page reload)
+    // // --- 3. Event Listener for Form Submission (Start Log) ---
+    // if (loggingForm) {
+    //     loggingForm.addEventListener('submit', async function(event) {
+    //         event.preventDefault(); // Prevent the default form submission (page reload)
             
-            const submitButton = loggingForm.querySelector('button[type="submit"]');
+    //         const submitButton = loggingForm.querySelector('button[type="submit"]');
             
-            submitButton.disabled = true;
-            submitButton.innerText= 'Logging...';
-            sensor_status.innterTest = 'Environmental Logging Started'
+    //         submitButton.disabled = true;
+    //         submitButton.innerText= 'Logging...';
+    //         sensor_status.innterTest = 'Environmental Logging Started'
 
-            // Get form data
-            const formData = new FormData(loggingForm);
+    //         // Get form data
+    //         const formData = new FormData(loggingForm);
             
-            fetch('/sensors/startEnvSensor', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => {
-                // Check if the response is okay before parsing
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json(); 
-            })
-            .then(data => {
-                // Update the innerHTML of the div with the formatted string inside <pre> tags
-                statusMessage.innerHTML = `<p>Sensor Status:</p><pre>${data.status}</pre>`;
-                logOutput.innerHTML = `<p>Sensor Message:</p><pre>${data.message}</pre>`
-            })
+    //         fetch('/sensors/startEnvSensor', {
+    //             method: 'POST',
+    //             body: formData,
+    //         })
+    //         .then(response => {
+    //             // Check if the response is okay before parsing
+    //             if (!response.ok) {
+    //                 throw new Error(`HTTP error! status: ${response.status}`);
+    //             }
+    //             return response.json(); 
+    //         })
+    //         .then(data => {
+    //             // Update the innerHTML of the div with the formatted string inside <pre> tags
+    //             statusMessage.innerHTML = `<p>Sensor Status:</p><pre>${data.status}</pre>`;
+    //             logOutput.innerHTML = `<p>Sensor Message:</p><pre>${data.message}</pre>`
+    //         })
 
-            // try {
-            //     // Send a POST request to the Flask endpoint
-            //     const response = await fetch('/sensors/startEnvSensor', {
-            //         method: 'POST',
-            //         body: formData
-            //     });
+    //         // try {
+    //         //     // Send a POST request to the Flask endpoint
+    //         //     const response = await fetch('/sensors/startEnvSensor', {
+    //         //         method: 'POST',
+    //         //         body: formData
+    //         //     });
 
-            //     if (!response.ok) {
-            //         throw new Error(`HTTP error! status: ${response.status}`);
-            //     }
+    //         //     if (!response.ok) {
+    //         //         throw new Error(`HTTP error! status: ${response.status}`);
+    //         //     }
 
-            //     const result = await response.json();
+    //         //     const result = await response.json();
 
-            //     // Display the status message from the server
-            //     statusMessage.innerText = result.message;
+    //         //     // Display the status message from the server
+    //         //     statusMessage.innerText = result.message;
 
-            // } catch (error) {
-            //     console.error('Error:', error);
-            //     statusMessage.innerText = `Error: ${error.message}`;
-            // } finally {
-            //     // Re-enable the button after the request is complete
-            //     submitButton.disabled = false;
-            //     submitButton.innerText = 'Start Log';
-            // }
-        });
-    }
+    //         // } catch (error) {
+    //         //     console.error('Error:', error);
+    //         //     statusMessage.innerText = `Error: ${error.message}`;
+    //         // } finally {
+    //         //     // Re-enable the button after the request is complete
+    //         //     submitButton.disabled = false;
+    //         //     submitButton.innerText = 'Start Log';
+    //         // }
+    //     });
+    // }
 
     // 4a. Delegation for I2C Reset Button ('reset-button')
     document.addEventListener('click', async function(event) {
         // Check if the clicked element has the ID 'reset-button'
         if (event.target.id === 'reset-button') {
             
-            // event.preventDefault() isn't strictly needed here unless the button is 
+            event.preventDefault()
             // inside a form, but it's good practice.
+            const statusMessage = document.getElementById('status-message');
+            const logOutput = document.getElementById('log-output');
             
             // Provide immediate user feedback
             statusMessage.innerText = 'Resetting I2C bus...';
