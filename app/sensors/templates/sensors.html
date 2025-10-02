@@ -26,7 +26,19 @@
             </div>
             <button type="submit">Start Log</button>
         </form>
-        <div id="status-message"><p></p></div>
-        <pre id="log-output"><p></p></pre>
+
+        <div id="status-area">
+            <h2>System Status</h2>
+            
+            <p id="status-message" style="color: blue;">Initializing sensors...</p>
+            
+            <p><strong>Sensor State:</strong> <span id="sensor-status">Waiting for user input</span></p>
+            
+            <br>
+            
+            <h3>API Response Log</h3>
+            <div id="log-output">
+                </div>
+        </div>
     </div>
 </main>
