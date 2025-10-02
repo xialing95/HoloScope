@@ -508,38 +508,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- 4. Event Listener for I2C Reset Button ---
-    if (resetButton) {
-        resetButton.addEventListener('click', async function() {
-            // statusMessage.innerText = 'Resetting I2C bus...';
-            // statusMessage.style.color = 'orange';
+    // 4a. Delegation for I2C Reset Button ('reset-button')
+    document.addEventListener('click', async function(event) {
+        // Check if the clicked element has the ID 'reset-button'
+        if (event.target.id === 'reset-button') {
+            
+            // event.preventDefault() isn't strictly needed here unless the button is 
+            // inside a form, but it's good practice.
+            
+            // Provide immediate user feedback
+            statusMessage.innerText = 'Resetting I2C bus...';
+            statusMessage.style.color = 'orange';
 
             try {
                 const response = await fetch('/sensors/reset_i2c', {
                     method: 'POST'
                 });
+
+                // Check for HTTP errors before reading the body
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const result = await response.json();
 
                 if (result.status === 'success') {
-                    // statusMessage.innerText = result.message;
-                    // statusMessage.style.color = 'green';
-                    // // Re-start data updates after a successful reset
-                    // updateSensorData(); 
-                    console.log(result.message);
-
+                    statusMessage.innerText = result.message;
+                    statusMessage.style.color = 'green';
+                    updateSensorData(); // Re-start data updates after a successful reset
                 } else {
-                    // statusMessage.innerText = result.message;
-                    // statusMessage.style.color = 'red';
-                    console.log(result.message);
+                    // Handle server-side errors (e.g., status is 'error')
+                    statusMessage.innerText = result.message;
+                    statusMessage.style.color = 'red';
                 }
             } catch (error) {
-                // statusMessage.innerText = 'Network error during reset.';
-                // statusMessage.style.color = 'red';
+                // Handle network errors or errors thrown above
                 console.error('Error during I2C reset:', error);
-                console.log(result.message);
+                statusMessage.innerText = `I2C Reset Failed: ${error.message}.`;
+                statusMessage.style.color = 'red';
             }
-        });
-    }
+        }
+    });
 
     // --- 5. Initial Call and Periodic Updates ---
     // Call the function once when the page loads
