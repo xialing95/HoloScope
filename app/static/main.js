@@ -409,10 +409,7 @@ function refreshImage() {
 // This function fetches data from the Flask API and updates the page
 document.addEventListener('DOMContentLoaded', function() {
     // --- 1. Get references to HTML elements ---
-    const loggingForm = document.getElementById('logging-form');
-    const resetButton = document.getElementById('reset-button');
     const statusMessage = document.getElementById('status-message');
-    const logOutput = document.getElementById('log-output');
     const sensor_status = document.getElementById('sensor-status');
 
     // --- 2. Function to update sensor data dynamically ---
@@ -450,63 +447,50 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // // --- 3. Event Listener for Form Submission (Start Log) ---
-    // if (loggingForm) {
-    //     loggingForm.addEventListener('submit', async function(event) {
-    //         event.preventDefault(); // Prevent the default form submission (page reload)
+    // 3a. Delegation for Form Submission ('logging-form')
+    document.addEventListener('submit', async function(event) {
+        // Check if the submitted element is our logging form
+        if (event.target.id === 'logging-form') {
+            event.preventDefault(); // Stop page reload
+            const logOutput = document.getElementById('log-output');
+
+            const loggingForm = event.target;
+            const submitButton = loggingForm.querySelector('button[type="submit"]');
             
-    //         const submitButton = loggingForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerText = 'Logging...';
+            // FIX: Typo 'innterTest' corrected to 'innerText'
+            logOutput.innerText = 'Environmental Logging Started...'; 
+
+            const formData = new FormData(loggingForm);
             
-    //         submitButton.disabled = true;
-    //         submitButton.innerText= 'Logging...';
-    //         sensor_status.innterTest = 'Environmental Logging Started'
+            try {
+                const response = await fetch('/sensors/startEnvSensor', {
+                    method: 'POST',
+                    body: formData
+                });
 
-    //         // Get form data
-    //         const formData = new FormData(loggingForm);
-            
-    //         fetch('/sensors/startEnvSensor', {
-    //             method: 'POST',
-    //             body: formData,
-    //         })
-    //         .then(response => {
-    //             // Check if the response is okay before parsing
-    //             if (!response.ok) {
-    //                 throw new Error(`HTTP error! status: ${response.status}`);
-    //             }
-    //             return response.json(); 
-    //         })
-    //         .then(data => {
-    //             // Update the innerHTML of the div with the formatted string inside <pre> tags
-    //             statusMessage.innerHTML = `<p>Sensor Status:</p><pre>${data.status}</pre>`;
-    //             logOutput.innerHTML = `<p>Sensor Message:</p><pre>${data.message}</pre>`
-    //         })
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-    //         // try {
-    //         //     // Send a POST request to the Flask endpoint
-    //         //     const response = await fetch('/sensors/startEnvSensor', {
-    //         //         method: 'POST',
-    //         //         body: formData
-    //         //     });
+                const result = await response.json();
 
-    //         //     if (!response.ok) {
-    //         //         throw new Error(`HTTP error! status: ${response.status}`);
-    //         //     }
+                // Display the status and message from the server
+                logOutput.innerHTML = `<p>Sensor Status:</p><pre>${result.status}</pre>
+               <br> <p>Sensor Message:</p><pre>${result.message}</pre>`;
 
-    //         //     const result = await response.json();
-
-    //         //     // Display the status message from the server
-    //         //     statusMessage.innerText = result.message;
-
-    //         // } catch (error) {
-    //         //     console.error('Error:', error);
-    //         //     statusMessage.innerText = `Error: ${error.message}`;
-    //         // } finally {
-    //         //     // Re-enable the button after the request is complete
-    //         //     submitButton.disabled = false;
-    //         //     submitButton.innerText = 'Start Log';
-    //         // }
-    //     });
-    // }
+            } catch (error) {
+                console.error('Error:', error);
+                logOutput.innerHTML = `<p>Sensor Message:</p><pre>Failed to start log.</pre>
+                <br> Error: ${error.message}`;
+            } finally {
+                // Re-enable the button after the request is complete
+                submitButton.disabled = false;
+                submitButton.innerText = 'Start Log';
+            }
+        }
+    });
 
     // 4a. Delegation for I2C Reset Button ('reset-button')
     document.addEventListener('click', async function(event) {
