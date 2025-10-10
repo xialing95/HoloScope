@@ -156,10 +156,7 @@ def update_epaper_display(
     draw_ip_hostname(drawblack, font_section, ip, hostname, 0)
     draw_wifi_ssid(drawblack, font_section, ssid, y_section_pos * 1)
     
-    # Example of using the third section for something new/empty (not implemented in original)
-    # draw_static_info(drawblack, font_section, "Status: OK", y_section_pos * 2)
-
-    draw_dynamic_message(drawblack, font_section, dynamic_message, y_section_pos * 3)
+    draw_dynamic_message(drawblack, font_section, dynamic_message, y_section_pos * 2)
     
     # 3. Send the complete image buffer to the display
     epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
