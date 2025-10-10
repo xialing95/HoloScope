@@ -6,6 +6,7 @@ import time
 from flask import Flask
 # Assuming 'app' is a folder and 'create_app' is a function inside 'app/__init__.py'
 from app import create_app 
+from epaper_display.epaper_service import 
 
 PORT = 8080
 
