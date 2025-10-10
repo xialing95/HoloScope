@@ -7,20 +7,26 @@ import time
 import socket
 import subprocess
 from datetime import datetime
+from typing import Optional, Tuple
 
 # --- Configuration & Setup ---
 
 FONTDIC = "/home/pi/HoloScope/app/epaper_display/Font.ttc"
-SECTION_HEIGHT = 40  # Height allocated for each of the four sections (3 * 40 = 120, screen height is 122)
+SECTION_HEIGHT = 40
 
-# Try to import the EPD driver
+# Try to import the EPD driver (Keep existing mock logic)
 try:
     import epd2in13b_V4
     from PIL import Image, ImageDraw, ImageFont
     EPD_DRIVER_LOADED = True
+    # Define type hints for the imported classes
+    EPD_Type = epd2in13b_V4.EPD
+    Image_Type = Image.Image
+    ImageDraw_Type = ImageDraw.ImageDraw
+    ImageFont_Type = ImageFont.FreeTypeFont
 except ImportError:
     logging.warning("EPD driver 'epd2in13b_V4' or PIL not found. Display functions will be skipped.")
-    # Mock classes to allow code structure validation without hardware
+    # Mock classes... (as in your original code)
     class MockEPD:
         def __init__(self): pass
         def init(self): pass
@@ -32,10 +38,15 @@ except ImportError:
         width = 122
     epd2in13b_V4 = type('MockEPDModule', (object,), {'EPD': MockEPD, 'epdconfig': type('MockConfig', (object,), {'module_exit': lambda cleanup: None})})
     EPD_DRIVER_LOADED = False
+    EPD_Type = MockEPD
+    Image_Type = type('MockImage', (object,), {})
+    ImageDraw_Type = type('MockImageDraw', (object,), {})
+    ImageFont_Type = type('MockImageFont', (object,), {})
 
 logging.basicConfig(level=logging.INFO)
 
-# --- Network Utilities ---
+# --- Network Utilities (Keep as-is) ---
+# ... (get_ip_address, get_hostname, get_wifi_name) ...
 
 def get_ip_address():
     """Retrieves the local machine's primary IP address."""
@@ -63,46 +74,44 @@ def get_wifi_name():
     except subprocess.CalledProcessError:
         return "NA"
 
-# --- Drawing Functions for Each Section ---
+# --- Drawing Functions for Each Section (Keep as-is - they are modular) ---
 
-def draw_ip_hostname(draw, font, ip, hostname, y_pos):
+def draw_ip_hostname(draw: ImageDraw_Type, font: ImageFont_Type, ip: str, hostname: str, y_pos: int):
     """Draws the IP Address and Hostname in the first section (Y=0)."""
     text = f"Host: {hostname}"
     draw.text((5, y_pos), text, font=font, fill=0)
-    # Add IP on a new line or slightly offset if space allows, or simplify the host line
     text_ip = f"IP: {ip}"
-    draw.text((5, y_pos + 15), text_ip, font=font, fill=0) # Using a slightly larger font for primary info
+    draw.text((5, y_pos + 15), text_ip, font=font, fill=0)
 
-def draw_wifi_ssid(draw, font, ssid, y_pos):
-    """Draws the Wi-Fi SSID in the second section (Y=30)."""
+def draw_wifi_ssid(draw: ImageDraw_Type, font: ImageFont_Type, ssid: str, y_pos: int):
+    """Draws the Wi-Fi SSID in the second section (Y=SECTION_HEIGHT * 1)."""
     text = f"SSID: {ssid}"
     draw.text((5, y_pos), text, font=font, fill=0)
 
-def draw_dynamic_message(draw, font, message, y_pos):
-    """Draws a dynamic/updateable message (like time) in the fourth section (Y=90)."""
+def draw_dynamic_message(draw: ImageDraw_Type, font: ImageFont_Type, message: str, y_pos: int):
+    """Draws a dynamic/updateable message (like time) in the fourth section (Y=SECTION_HEIGHT * 3)."""
     text = f"Time: {message}"
     draw.text((5, y_pos), text, font=font, fill=0)
 
-# --- Main Execution Logic ---
+# --- New Initialization Function for External Use ---
 
-def main():
+def initialize_epd_and_fonts() -> Optional[Tuple[EPD_Type, Image_Type, Image_Type, ImageFont_Type]]:
     """
-    Main execution loop that orchestrates the data fetching and drawing.
+    Initializes the EPD hardware, loads fonts, and creates image buffers.
+    Returns: A tuple (epd, HBlackimage, HRYimage, font_section) or None on failure.
     """
     if not EPD_DRIVER_LOADED:
-        logging.error("Cannot run display script: EPD driver or PIL missing.")
-        return
+        logging.error("Cannot initialize: EPD driver or PIL missing.")
+        return None
 
-    # 1. Initialize EPD and Fonts
     try:
         epd = epd2in13b_V4.EPD()
         epd.init()
         epd.Clear()
         time.sleep(0.5)
 
-        # Load Fonts (Using one size for simplicity in four tight sections)
+        # Load Fonts
         try:
-            # We'll use a slightly smaller font for better fit, assuming 18pt is available
             font_section = ImageFont.truetype(FONTDIC, 16) 
         except IOError:
             logging.error(f"Font file not found at {FONTDIC}. Using default font.")
@@ -112,40 +121,87 @@ def main():
         HBlackimage = Image.new('1', (epd.height, epd.width), 255)
         HRYimage = Image.new('1', (epd.height, epd.width), 255)
         
+        return epd, HBlackimage, HRYimage, font_section
+        
     except Exception as e:
         logging.error(f"Failed to initialize EPD or Fonts: {e}")
+        return None
+
+
+# --- New Update Function for External Use ---
+
+def update_epaper_display(
+    epd: EPD_Type,
+    HBlackimage: Image_Type,
+    HRYimage: Image_Type,
+    font_section: ImageFont_Type,
+    ip: str,
+    hostname: str,
+    ssid: str,
+    dynamic_message: str,
+    y_section_pos: int = SECTION_HEIGHT
+):
+    """
+    Clears the buffer, draws all sections with provided data, and updates the display.
+    """
+    # 1. Clear the drawing buffer
+    HBlackimage.paste(255, [0, 0, epd.height, epd.width])
+    drawblack = ImageDraw.Draw(HBlackimage)
+
+    # 2. Call each drawing function with the external data
+    draw_ip_hostname(drawblack, font_section, ip, hostname, 0)
+    draw_wifi_ssid(drawblack, font_section, ssid, y_section_pos * 1)
+    
+    # Example of using the third section for something new/empty (not implemented in original)
+    # draw_static_info(drawblack, font_section, "Status: OK", y_section_pos * 2)
+
+    draw_dynamic_message(drawblack, font_section, dynamic_message, y_section_pos * 3)
+    
+    # 3. Send the complete image buffer to the display
+    epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
+
+
+# --- Main Execution Logic (Now acts as a demonstration/test loop) ---
+
+def main():
+    """
+    Main execution loop that orchestrates the data fetching and drawing.
+    """
+    init_result = initialize_epd_and_fonts()
+    if init_result is None:
         return
 
-    # 2. Fetch Static Network Info (These won't change often)
+    epd, HBlackimage, HRYimage, font_section = init_result
+
+    # 1. Fetch Static Network Info (These won't change often)
     ip = get_ip_address()
     hostname = get_hostname()
     ssid = get_wifi_name()
     logging.info(f"Network Info | IP: {ip} | Host: {hostname} | SSID: {ssid}")
 
-    # 3. Main Update Loop (Update every 10 seconds)
+    # 2. Main Update Loop (Update every 10 seconds)
     try:
         # We will demonstrate 3 updates before sleeping
         for i in range(3):
             # Calculate the current dynamic content
             now_str = datetime.now().strftime("%H:%M:%S")
             
-            # --- Drawing Orchestration ---
+            # --- Drawing Orchestration using the new reusable function ---
+            update_epaper_display(
+                epd,
+                HBlackimage,
+                HRYimage,
+                font_section,
+                ip,
+                hostname,
+                ssid,
+                now_str
+            )
             
-            # Reset (Clear) the drawing buffer before redrawing all sections
-            HBlackimage.paste(255, [0, 0, epd.height, epd.width])
-            drawblack = ImageDraw.Draw(HBlackimage)
-
-            # Call each function to update its dedicated section
-            draw_ip_hostname(drawblack, font_section, ip, hostname, 0)
-            draw_wifi_ssid(drawblack, font_section, ssid, SECTION_HEIGHT * 1)
-            draw_dynamic_message(drawblack, font_section, now_str, SECTION_HEIGHT * 3)
-            
-            # Send the complete image buffer to the display
-            epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
             logging.info(f"Display refreshed with time: {now_str}")
             time.sleep(10)
 
-        # 4. Sleep
+        # 3. Sleep
         logging.info("Goto Sleep...")
         epd.sleep()
         
