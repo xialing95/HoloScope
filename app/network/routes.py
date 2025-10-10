@@ -3,6 +3,8 @@ import os
 from . import network_bp
 import subprocess
 from pathlib import Path
+import app.epaper_display.epaper_service as epd_service
+
 
 # # Get the absolute path to the directory containing the current script
 # Get the directory of the currently executing script

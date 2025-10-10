@@ -8,7 +8,7 @@ from os.path import exists
 import multiprocessing
 import signal
 from datetime import datetime
-
+import app.epaper_display.epaper_service as epd_service
 
 import sys
 from picamera2 import Picamera2
@@ -412,6 +412,7 @@ def camera_start_timelapse():
             'camera_settings': settings # Explicitly pass the full settings dictionary
         }})
         
+        epd_service.main() # Update the e-paper display when starting a timelapse
         return jsonify({'status': 'success', 'message': f'Time-lapse started. Capturing {num_photos} photos.'})
     
     except Exception as e:
