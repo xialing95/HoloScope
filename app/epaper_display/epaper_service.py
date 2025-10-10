@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding:utf-8 -*-
-
 import sys
 import os
 import logging
@@ -12,7 +11,7 @@ from datetime import datetime
 # --- Configuration & Setup ---
 
 FONTDIC = "/home/pi/HoloScope/app/epaper_display/Font.ttc"
-SECTION_HEIGHT = 30  # Height allocated for each of the four sections (4 * 30 = 120, screen height is 122)
+SECTION_HEIGHT = 40  # Height allocated for each of the four sections (3 * 40 = 120, screen height is 122)
 
 # Try to import the EPD driver
 try:
@@ -79,11 +78,6 @@ def draw_wifi_ssid(draw, font, ssid, y_pos):
     text = f"SSID: {ssid}"
     draw.text((5, y_pos), text, font=font, fill=0)
 
-def draw_static_status(draw, font, y_pos):
-    """Draws a static System Status message in the third section (Y=60)."""
-    text = "Status: READY"
-    draw.text((5, y_pos), text, font=font, fill=0)
-
 def draw_dynamic_message(draw, font, message, y_pos):
     """Draws a dynamic/updateable message (like time) in the fourth section (Y=90)."""
     text = f"Time: {message}"
@@ -144,7 +138,6 @@ def main():
             # Call each function to update its dedicated section
             draw_ip_hostname(drawblack, font_section, ip, hostname, 0)
             draw_wifi_ssid(drawblack, font_section, ssid, SECTION_HEIGHT * 1)
-            draw_static_status(drawblack, font_section, SECTION_HEIGHT * 2)
             draw_dynamic_message(drawblack, font_section, now_str, SECTION_HEIGHT * 3)
             
             # Send the complete image buffer to the display
