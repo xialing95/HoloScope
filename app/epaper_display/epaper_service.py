@@ -163,11 +163,18 @@ def update_epaper_display(
 
 
 # --- Main Execution Logic (Now acts as a demonstration/test loop) ---
-
-def main():
+def main(now_str: Optional[str] = None):
     """
     Main execution loop that orchestrates the data fetching and drawing.
+    
+    Args:
+        now_str (Optional[str]): The message to display in the dynamic 
+                                 section. If None, the current time is used.
     """
+    # FIX: Determine the final value of now_str only ONCE at the start.
+    if now_str is None:
+        now_str = datetime.now().strftime("%H:%M:%S")
+
     init_result = initialize_epd_and_fonts()
     if init_result is None:
         return
@@ -180,10 +187,11 @@ def main():
     ssid = get_wifi_name()
     logging.info(f"Network Info | IP: {ip} | Host: {hostname} | SSID: {ssid}")
 
-    # 2. Main Update Loop (Update every 10 seconds)
+    # 2. Main Update Loop (Performs one full update)
     try:
-        # Calculate the current dynamic content
-        now_str = datetime.now().strftime("%H:%M:%S")
+        # --- REMOVE THIS REDUNDANT LINE (It was the source of confusion) ---
+        # now_str = now_str if now_str else datetime.now().strftime("%H:%M:%S") 
+        # -------------------------------------------------------------------
         
         # --- Drawing Orchestration using the new reusable function ---
         update_epaper_display(
@@ -194,7 +202,7 @@ def main():
             ip,
             hostname,
             ssid,
-            now_str
+            now_str # Use the value determined at the top
         )
 
         # 3. Sleep
@@ -202,12 +210,14 @@ def main():
         epd.sleep()
         
     except Exception as e:
-        logging.error(f"An error occurred during the update loop: {e}")
+        # Log the full traceback for any unhandled exception in the try block
+        logging.exception(f"An error occurred during the update loop: {e}")
         
     except KeyboardInterrupt:    
         logging.info("Ctrl + C detected: Exiting and cleaning up EPD module.")
+        # Ensure cleanup on interrupt
         epd2in13b_V4.epdconfig.module_exit(cleanup=True)
         sys.exit()
-
+        
 if __name__ == "__main__":
     main()
