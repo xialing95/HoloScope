@@ -167,10 +167,18 @@ def update_epaper_display(
 
 # --- Main Execution Logic (Now acts as a demonstration/test loop) ---
 
-def main():
+def main(now_str: Optional[str] = None):
     """
     Main execution loop that orchestrates the data fetching and drawing.
+    
+    Args:
+        now_str (Optional[str]): The message to display in the dynamic 
+                                 section. If None, the current time is used.
     """
+    # Use the current date/time as a default if the argument is not provided (or is None)
+    if now_str is None:
+        now_str = datetime.now().strftime("%H:%M:%S")
+
     init_result = initialize_epd_and_fonts()
     if init_result is None:
         return
@@ -183,12 +191,10 @@ def main():
     ssid = get_wifi_name()
     logging.info(f"Network Info | IP: {ip} | Host: {hostname} | SSID: {ssid}")
 
-    # 2. Main Update Loop (Update every 10 seconds)
+    # 2. Main Update Loop (Performs one full update)
     try:
-        # Calculate the current dynamic content
-        now_str = datetime.now().strftime("%H:%M:%S")
-        
         # --- Drawing Orchestration using the new reusable function ---
+        # The 'now_str' variable is now guaranteed to have a string value
         update_epaper_display(
             epd,
             HBlackimage,
@@ -197,7 +203,7 @@ def main():
             ip,
             hostname,
             ssid,
-            now_str
+            now_str # Use the provided or default message
         )
 
         # 3. Sleep
@@ -205,12 +211,22 @@ def main():
         epd.sleep()
         
     except Exception as e:
-        logging.error(f"An error occurred during the update loop: {e}")
+        # Log the full traceback for any unhandled exception in the try block
+        logging.exception(f"An error occurred during the update loop: {e}")
         
     except KeyboardInterrupt:    
         logging.info("Ctrl + C detected: Exiting and cleaning up EPD module.")
+        # Ensure cleanup on interrupt
         epd2in13b_V4.epdconfig.module_exit(cleanup=True)
         sys.exit()
 
 if __name__ == "__main__":
-    main()
+    # Example usage:
+    # 1. Running with the default argument (will display the current time)
+    # main()
+    
+    # 2. Running with a custom message
+    # main("Hello World!")
+    
+    # The final action will depend on how you call main() from your run script
+    main() # Call with default message when run directly
