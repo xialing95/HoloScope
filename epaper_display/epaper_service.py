@@ -29,7 +29,7 @@ try:
     Image_Type = Image.Image
     ImageDraw_Type = ImageDraw.ImageDraw
     ImageFont_Type = ImageFont.FreeTypeFont
-except ImportError:
+except:
     logging.warning("import is fine something else is wrong. Display functions will be skipped.")
     # Mock classes... (as in your original code)
     class MockEPD:
