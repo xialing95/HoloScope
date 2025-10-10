@@ -167,7 +167,7 @@ def update_epaper_display(
 
 # --- Main Execution Logic (Now acts as a demonstration/test loop) ---
 
-def main(now_str: Optional[str] = None):
+def main():
     """
     Main execution loop that orchestrates the data fetching and drawing.
     
