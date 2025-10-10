@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import sys
 import os
-FONTDIC = "/home/pi/Soil_monitoring_azure/Font.ttc"
+FONTDIC = "/home/pi/HoloScope/app/epaper_display/Font.ttc"
 
 import logging
 import epd2in13b_V4
