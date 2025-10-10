@@ -190,11 +190,10 @@ def main(now_str: Optional[str] = None):
     hostname = get_hostname()
     ssid = get_wifi_name()
     logging.info(f"Network Info | IP: {ip} | Host: {hostname} | SSID: {ssid}")
+    now_str = now_str if now_str else datetime.now().strftime("%H:%M:%S")
 
     # 2. Main Update Loop (Performs one full update)
-    try:
-        now_str = now_str if now_str else datetime.now().strftime("%H:%M:%S")
-        
+    try:        
         # --- Drawing Orchestration using the new reusable function ---
         # The 'now_str' variable is now guaranteed to have a string value
         update_epaper_display(
