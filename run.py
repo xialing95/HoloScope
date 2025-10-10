@@ -112,6 +112,9 @@ def stop_systemd_service():
     except Exception as e:
         print(f"❌ An unexpected error occurred while calling systemctl: {e}")
 
+# update epaper display 
+epd_service.main()
+
 # --- Main Application Logic ---
 if __name__ == '__main__':
     try:
@@ -139,6 +142,3 @@ if __name__ == '__main__':
         
     except Exception as e:
         print(f"An error occurred during application startup: {e}")
-    
-    # update epaper display 
-    epd_service.main()
