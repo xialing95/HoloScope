@@ -190,7 +190,7 @@ def main():
     hostname = get_hostname()
     ssid = get_wifi_name()
     logging.info(f"Network Info | IP: {ip} | Host: {hostname} | SSID: {ssid}")
-    now_str = now_str if now_str else datetime.now().strftime("%H:%M:%S")
+    now_str = datetime.now().strftime("%H:%M:%S")
 
     # 2. Main Update Loop (Performs one full update)
     try:        
