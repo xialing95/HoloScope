@@ -16,18 +16,11 @@ SECTION_HEIGHT = 40
 # Try to import the EPD driver (Keep existing mock logic)
 try:
     from . import epd2in13b_V4
+    from PIL import Image, ImageDraw, ImageFont
 except ImportError as e:
     # 1. Log the full traceback using the 'exception' level/method.
     #    The .exception() method is a shortcut for calling .error(..., exc_info=True).
     logging.exception(f"Failed to import EPD driver 'epd2in13b_V4'.")
-    
-    # 2. You can still include the user-friendly warning if you wish, 
-    #    but the .exception() call above contains all the necessary detail.
-    logging.warning("Display functions will be skipped due to missing driver.")
-try:
-    from PIL import Image, ImageDraw, ImageFont
-except ImportError:
-    logging.warning("PIL not found. Display functions will be skipped.")
 try:
     EPD_DRIVER_LOADED = True
     # Define type hints for the imported classes
