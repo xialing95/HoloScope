@@ -10,12 +10,12 @@ from typing import Optional, Tuple
 
 # --- Configuration & Setup ---
 
-FONTDIC = "/home/pi/HoloScope/epaper_display/Font.ttc"
+FONTDIC = "/home/pi/HoloScope/app/epaper_display/Font.ttc"
 SECTION_HEIGHT = 40
 
 # Try to import the EPD driver (Keep existing mock logic)
 try:
-    from epaper_display import epd2in13b_V4
+    from . import epd2in13b_V4
 except ImportError:
     logging.warning("EPD driver 'epd2in13b_V4' not found. Display functions will be skipped.")
 try:
