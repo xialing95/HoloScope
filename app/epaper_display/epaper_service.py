@@ -134,6 +134,83 @@ def initialize_epd_and_fonts() -> Optional[Tuple[EPD_Type, Image_Type, Image_Typ
 
 # --- New Update Function for External Use ---
 
+def draw_dynamic_message_partial(
+    draw: ImageDraw_Type, 
+    font: ImageFont_Type, 
+    message: str, 
+    y_pos: int, 
+    section_width: int, 
+    section_height: int
+):
+    """
+    Clears ONLY the section designated for the dynamic message and draws the new text.
+    
+    NOTE: This must be called with a *pre-existing* ImageDraw object 
+    that operates on the HBlackimage buffer.
+    """
+    # 1. White out the specific section (Partial Clear)
+    # The bounding box is: [x_start, y_start, x_end, y_end]
+    x_start = 0
+    y_start = y_pos
+    x_end = section_width
+    y_end = y_pos + section_height
+    
+    # Fill the rectangular area with white (color 255)
+    draw.rectangle([x_start, y_start, x_end, y_end], fill=255)
+    
+    # 2. Draw the new dynamic text
+    text = f"Time: {message}"
+    draw.text((5, y_pos), text, font=font, fill=0)
+
+
+def update_dynamic_section_only(
+    epd: EPD_Type,
+    HBlackimage: Image_Type,
+    font_section: ImageFont_Type,
+    dynamic_message: str,
+    y_section_index: int = 3, # The 4th section (0, 1, 2, 3)
+    y_section_pos: int = SECTION_HEIGHT
+):
+    """
+    Performs a partial refresh of only the dynamic message section.
+    Requires HBlackimage to hold the current *static* content.
+    """
+    if not EPD_DRIVER_LOADED:
+        logging.error("Cannot perform partial update: EPD driver not loaded.")
+        return
+
+    # Calculate the Y position for the section
+    y_pos = y_section_pos * y_section_index
+    
+    # 1. Draw the new message (including partial clear of the buffer)
+    drawblack = ImageDraw.Draw(HBlackimage)
+    draw_dynamic_message_partial(
+        drawblack, 
+        font_section, 
+        dynamic_message, 
+        y_pos, 
+        epd.height, 
+        y_section_pos
+    )
+    
+    # 2. Use Partial Display function (requires EPD object to be initialised for partial)
+    # Note: epd.display() is usually for a full update. 
+    # For partial update, you typically call a specific method like epd.displayPartial()
+    # or pass a specific command/buffer region. Assuming a generic 'display' call 
+    # will handle the partial logic if the driver is initialized correctly.
+    try:
+        # **Crucial step for partial refresh**
+        epd.display_partial(epd.getbuffer(HBlackimage))
+        logging.info(f"Partial update successful: {dynamic_message}")
+    except AttributeError:
+        # Fallback if the driver doesn't have a display_partial method
+        logging.warning("EPD driver does not support display_partial(). Falling back to full update.")
+        epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
+        
+# ----------------------------------------------------------------------
+
+# ... (New Update Function for External Use - Keep as-is) ...
+
 def update_epaper_display(
     epd: EPD_Type,
     HBlackimage: Image_Type,
