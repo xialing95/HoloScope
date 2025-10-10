@@ -193,6 +193,8 @@ def main(now_str: Optional[str] = None):
 
     # 2. Main Update Loop (Performs one full update)
     try:
+        now_str = now_str if now_str else datetime.now().strftime("%H:%M:%S")
+        
         # --- Drawing Orchestration using the new reusable function ---
         # The 'now_str' variable is now guaranteed to have a string value
         update_epaper_display(
