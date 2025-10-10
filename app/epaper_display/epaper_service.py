@@ -181,25 +181,20 @@ def main():
 
     # 2. Main Update Loop (Update every 10 seconds)
     try:
-        # We will demonstrate 3 updates before sleeping
-        for i in range(3):
-            # Calculate the current dynamic content
-            now_str = datetime.now().strftime("%H:%M:%S")
-            
-            # --- Drawing Orchestration using the new reusable function ---
-            update_epaper_display(
-                epd,
-                HBlackimage,
-                HRYimage,
-                font_section,
-                ip,
-                hostname,
-                ssid,
-                now_str
-            )
-            
-            logging.info(f"Display refreshed with time: {now_str}")
-            time.sleep(10)
+        # Calculate the current dynamic content
+        now_str = datetime.now().strftime("%H:%M:%S")
+        
+        # --- Drawing Orchestration using the new reusable function ---
+        update_epaper_display(
+            epd,
+            HBlackimage,
+            HRYimage,
+            font_section,
+            ip,
+            hostname,
+            ssid,
+            now_str
+        )
 
         # 3. Sleep
         logging.info("Goto Sleep...")
