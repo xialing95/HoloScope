@@ -411,7 +411,6 @@ def camera_start_timelapse():
             'image_dir': capture_image_dir,
             'camera_settings': settings # Explicitly pass the full settings dictionary
         }})
-        
         return jsonify({'status': 'success', 'message': f'Time-lapse started. Capturing {num_photos} photos.'})
     
     except Exception as e:
@@ -436,6 +435,9 @@ def timelapse_status():
     """Returns the current status of the time-lapse."""
     status_map = {0: 'Idle', 1: 'Running', -1: 'Error'}
     current_status = status_map.get(status_value.value, 'Unknown')
+    
+    epd_message = f"Time-lapse {photo_count_value.value}/{total_photos_value.value}"
+    epd_service.main(epd_message)
     
     return jsonify({
         'status': current_status,
