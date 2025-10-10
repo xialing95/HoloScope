@@ -6,7 +6,7 @@ import time
 from flask import Flask
 # Assuming 'app' is a folder and 'create_app' is a function inside 'app/__init__.py'
 from app import create_app 
-import epaper_display.epaper_service as epd_service
+import app.epaper_display.epaper_service as epd_service
 
 PORT = 8080
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
             threaded=True, 
             processes=1 # Removed, as it's not a standard app.run() argument in recent Flask versions
         )
-        
+
         epd_service.main()
         
     except Exception as e:
