@@ -20,7 +20,7 @@ try:
 except ImportError as e:
     # 1. Log the full traceback using the 'exception' level/method.
     #    The .exception() method is a shortcut for calling .error(..., exc_info=True).
-    logging.exception(f"Failed to import EPD driver 'epd2in13b_V4'.")
+    logging.exception(f"Failed to import EPD driver 'epd2in13b_V4'.: {e}")
 try:
     EPD_DRIVER_LOADED = True
     # Define type hints for the imported classes
