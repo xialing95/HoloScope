@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding:utf-8 -*-
 import sys
 import os
 import logging
@@ -214,5 +213,5 @@ def main():
         epd2in13b_V4.epdconfig.module_exit(cleanup=True)
         sys.exit()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
