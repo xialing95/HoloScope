@@ -7,6 +7,8 @@ from flask import Flask
 # Assuming 'app' is a folder and 'create_app' is a function inside 'app/__init__.py'
 from app import create_app 
 import app.epaper_display.epaper_service as epd_service
+import app.epaper_display.epd2in13b_V4
+import app.epaper_display.epdconfig
 
 PORT = 8080
 
@@ -112,8 +114,7 @@ def stop_systemd_service():
     except Exception as e:
         print(f"❌ An unexpected error occurred while calling systemctl: {e}")
 
-# update epaper display 
-epd_service.main()
+
 
 # --- Main Application Logic ---
 if __name__ == '__main__':
