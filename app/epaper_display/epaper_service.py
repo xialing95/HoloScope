@@ -188,11 +188,7 @@ def main(now_str: Optional[str] = None):
     logging.info(f"Network Info | IP: {ip} | Host: {hostname} | SSID: {ssid}")
 
     # 2. Main Update Loop (Performs one full update)
-    try:
-        # --- REMOVE THIS REDUNDANT LINE (It was the source of confusion) ---
-        # now_str = now_str if now_str else datetime.now().strftime("%H:%M:%S") 
-        # -------------------------------------------------------------------
-        
+    try:        
         # --- Drawing Orchestration using the new reusable function ---
         update_epaper_display(
             epd,
@@ -218,6 +214,6 @@ def main(now_str: Optional[str] = None):
         # Ensure cleanup on interrupt
         epd2in13b_V4.epdconfig.module_exit(cleanup=True)
         sys.exit()
-        
+
 if __name__ == "__main__":
     main()

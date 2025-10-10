@@ -412,16 +412,10 @@ def camera_start_timelapse():
             'camera_settings': settings # Explicitly pass the full settings dictionary
         }})
 
-        epd_message = f"Time-lapse Running: {num_photos} photos every {interval}s"
-        epd_service.main(epd_message)
-
         return jsonify({'status': 'success', 'message': f'Time-lapse started. Capturing {num_photos} photos.'})
     
     except Exception as e:
         print(f"Error starting time-lapse: {e}")
-
-        epd_message = "Error starting time-lapse!"
-        epd_service.main(epd_message)
 
         return jsonify({'status': 'error', 'message': str(e)})
 
@@ -435,11 +429,9 @@ def camera_stop_timelapse():
         if timelapse_process.is_alive():
             timelapse_process.terminate()
             timelapse_process = None
-        epd_message = "Time-lapse Stopped"
-        epd_service.main(epd_message)
+
         return jsonify({'status': 'success', 'message': 'Time-lapse has been stopped.'})
-    epd_message = "No Time-lapse Running"
-    epd_service.main(epd_message)
+
     return jsonify({'status': 'info', 'message': 'No time-lapse is currently running.'})
 
 @camera_bp.route('/timelapse_status')
