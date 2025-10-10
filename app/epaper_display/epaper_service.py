@@ -16,7 +16,7 @@ SECTION_HEIGHT = 40
 
 # Try to import the EPD driver (Keep existing mock logic)
 try:
-    from . import epd2in13b_V4
+    from app.epaper_display import epd2in13b_V4
 except ImportError:
     logging.warning("EPD driver 'epd2in13b_V4' not found. Display functions will be skipped.")
 try:
