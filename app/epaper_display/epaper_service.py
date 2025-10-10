@@ -17,7 +17,13 @@ SECTION_HEIGHT = 40
 # Try to import the EPD driver (Keep existing mock logic)
 try:
     from . import epd2in13b_V4
+except ImportError:
+    logging.warning("EPD driver 'epd2in13b_V4' not found. Display functions will be skipped.")
+try:
     from PIL import Image, ImageDraw, ImageFont
+except ImportError:
+    logging.warning("PIL not found. Display functions will be skipped.")
+try:
     EPD_DRIVER_LOADED = True
     # Define type hints for the imported classes
     EPD_Type = epd2in13b_V4.EPD
@@ -25,7 +31,7 @@ try:
     ImageDraw_Type = ImageDraw.ImageDraw
     ImageFont_Type = ImageFont.FreeTypeFont
 except ImportError:
-    logging.warning("EPD driver 'epd2in13b_V4' or PIL not found. Display functions will be skipped.")
+    logging.warning("import is fine something else is wrong. Display functions will be skipped.")
     # Mock classes... (as in your original code)
     class MockEPD:
         def __init__(self): pass
