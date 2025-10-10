@@ -7,8 +7,6 @@ from flask import Flask
 # Assuming 'app' is a folder and 'create_app' is a function inside 'app/__init__.py'
 from app import create_app 
 import app.epaper_display.epaper_service as epd_service
-import app.epaper_display.epd2in13b_V4
-import app.epaper_display.epdconfig
 
 PORT = 8080
 
