@@ -411,25 +411,7 @@ def camera_start_timelapse():
             'image_dir': capture_image_dir,
             'camera_settings': settings # Explicitly pass the full settings dictionary
         }})
-
-        init_result = epd_service.initialize_epd_and_fonts()
-        if init_result is None:
-            return # Exit if initialization failed
-
-        epd, HBlackimage, HRYimage, font_section = init_result
         
-        now_str = f'Time-lapse started. Capturing {num_photos} photos.'
-        try:
-            # Attempt to perform the partial display update
-            epd_service.update_dynamic_section_only(
-                epd,
-                HBlackimage,
-                font_section,
-                now_str
-            )
-        except Exception as e:
-            print(f"Error during e-paper display update: {e}")
-            # Continue execution even if the display update fails
         return jsonify({'status': 'success', 'message': f'Time-lapse started. Capturing {num_photos} photos.'})
     
     except Exception as e:
