@@ -136,8 +136,9 @@ if __name__ == '__main__':
             threaded=True, 
             processes=1 # Removed, as it's not a standard app.run() argument in recent Flask versions
         )
-
-        epd_service.main()
         
     except Exception as e:
         print(f"An error occurred during application startup: {e}")
+    
+    # update epaper display 
+    epd_service.main()
