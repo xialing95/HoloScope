@@ -17,7 +17,7 @@ def index():
     Renders the main page and passes the list of images to the template.
     """
     # Define a set of valid file extensions
-    VALID_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.gif','.dng', '.json')
+    VALID_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.gif','.dng', '.json', 'csv')
 
     try:
         images = sorted([

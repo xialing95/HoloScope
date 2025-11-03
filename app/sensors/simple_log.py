@@ -6,7 +6,9 @@ import os
 from datetime import datetime
 
 # --- Configuration ---
-LOG_FILE = "bme680_data.csv"
+# This finds the user's home directory and appends 'capture_image'.
+LOG_DIR = os.path.join(os.path.expanduser('~'), 'capture_image')
+LOG_FILE = os.path.join(LOG_DIR, 'bme680_data.csv')
 LOG_INTERVAL_SECONDS = 10  # Log data every 10 seconds
 
 # The sensor compensates for altitude using sea-level pressure.
