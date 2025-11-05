@@ -32,6 +32,7 @@ def enable_hotspot():
         
         # If the script runs without error, return a success message
         status_message = "AP successfully!"
+        epd_service.main()
         
     except subprocess.CalledProcessError as e:
         # If the script fails, capture the error output and return a failure message
@@ -57,6 +58,7 @@ def connect_to_wifi():
         )
         # If the script runs without error, return a success message
         print("Script executed successfully with arguments.")
+        epd_service.main()
         
     except subprocess.CalledProcessError as e:
         # If the script fails, capture the error output and return a failure message

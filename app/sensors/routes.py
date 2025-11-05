@@ -5,6 +5,7 @@ import board
 import adafruit_bme680
 import json
 import os
+import csv
 import threading
 
 # Define the directory where logs will be saved
@@ -81,6 +82,7 @@ def log_sensor_data(duration, interval):
     log_data = []
     
     while (time.time() - start_time) < duration:
+        # Read sensor data and format it
         log_entry = {
             "timestamp": time.strftime('%Y-%m-%d %H:%M:%S'),
             "temperature": f'{bme680.temperature:.2f}',
@@ -91,17 +93,32 @@ def log_sensor_data(duration, interval):
         print(f"Logging data: {log_entry}")
         time.sleep(interval)
 
-    # Generate a filename with a timestamp
-    filename = f"sensor_log_{time.strftime('%Y%m%d_%H%M%S')}.json"
+    # Generate a filename with a timestamp and the .csv extension
+    filename = f"sensor_log_{time.strftime('%Y%m%d_%H%M%S')}.csv"
     filepath = os.path.join(LOG_DIR, filename)
     
-    # Save the log data to a JSON file
-    try:
-        with open(filepath, 'w') as f:
-            json.dump(log_data, f, indent=4)
-        print(f"Environmental sensor log saved to {filepath}")
-    except IOError as e:
-        print(f"Error saving log file: {e}")
+    # Save the log data to a CSV file
+    if log_data:
+        # Use the keys from the first entry as the CSV header
+        fieldnames = log_data[0].keys() 
+        
+        try:
+            # `newline=''` prevents extra blank rows in Windows
+            with open(filepath, 'w', newline='') as csvfile:
+                # Initialize the DictWriter
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+                # Write the header row
+                writer.writeheader()
+                # Write all the data rows
+                writer.writerows(log_data)
+                
+            print(f"Environmental sensor log saved to CSV file: {filepath}")
+        except IOError as e:
+            print(f"Error saving CSV log file: {e}")
+    else:
+        print("No data collected to save.")
+
 
 # This route now starts the logging in a separate thread and returns immediately
 @sensors_bp.route('/startEnvSensor', methods=['POST'])
@@ -128,10 +145,3 @@ def start_env_sensor():
         "status": "success", 
         "message": "Environmental sensor log started in the background."
         })
-
-# # This route stops the env sensors
-# @sensors_bp.route('/stopEnvSensor', methods=['POST'])
-# def stop_env_sensor():
-#     global logging_stop_event
-#     logging_stop_event.set() # Signal the thread to stop
-#     return jsonify({"status": "success", "message": "Environmental sensor log stop signal sent."})
