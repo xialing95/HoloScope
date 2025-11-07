@@ -3,45 +3,42 @@ import board
 import adafruit_bme680
 import csv
 import os
+import sys
+import logging
 from datetime import datetime
+import app.epaper_display.epd_module as epd_module
+
+
+# Import the display module
+try:
+    import epd_module as epd_display
+except ImportError as e:
+    print(f"Failed to import epd_module.py. Display will be disabled. Error: {e}")
+    epd_display = None # Set to None if import fails
 
 # --- Configuration ---
-# This finds the user's home directory and appends 'capture_image'.
 LOG_DIR = os.path.join(os.path.expanduser('~'), 'capture_image')
 LOG_FILE = os.path.join(LOG_DIR, 'bme680_data.csv')
-LOG_INTERVAL_SECONDS = 10  # Log data every 10 seconds
-
-# The sensor compensates for altitude using sea-level pressure.
-# Change this to match the location's pressure (hPa) at sea level for your location.
-# Default is 1013.25 hPa.
+LOG_INTERVAL_SECONDS = 10 
 SEA_LEVEL_HPA = 1013.25 
 
 # --- Sensor Setup ---
-
-# Create sensor object, communicating over the board's default I2C bus
 try:
     i2c = board.I2C()
     bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c)
-except ValueError as e:
+except Exception as e:
     print(f"Error initializing BME680 sensor: {e}")
-    print("Ensure the sensor is correctly wired and I2C is enabled.")
-    exit()
+    sys.exit(1)
 
 bme680.sea_level_pressure = SEA_LEVEL_HPA
-
-# Set the gas heater configuration (recommended for VOC measurement)
-# (Temperature in deg C, duration in ms)
 bme680.set_gas_heater(320, 150)
 
-
-# --- File Setup ---
-
+# --- File Setup (unchanged) ---
 def initialize_log_file(filename):
-    """Checks if the log file exists and writes the header if it doesn't."""
+    os.makedirs(LOG_DIR, exist_ok=True)
     if not os.path.exists(filename):
         with open(filename, 'w', newline='') as f:
             writer = csv.writer(f)
-            # Write the header row
             header = ['Timestamp', 'Temperature_C', 'Humidity_perc', 'Pressure_hPa', 'Altitude_m', 'Gas_resistance_ohms']
             writer.writerow(header)
             print(f"Created new log file: {filename} with header.")
@@ -51,54 +48,59 @@ def initialize_log_file(filename):
 initialize_log_file(LOG_FILE)
 
 
-# --- Logging Loop ---
+# --- Main Logging Loop ---
+def main_loop():
+    """Main loop for reading BME680, logging data, and updating the display."""
 
-print(f"\nBME680 logging started. Readings every {LOG_INTERVAL_SECONDS} seconds.")
-print("Press Ctrl+C to stop.")
+    # Initialize EPD only if the module was imported successfully
+    epd_kit = None
+    if epd_display:
+        epd_kit = epd_display.initialize_epd_and_fonts()
+        if epd_kit is None and epd_display.EPD_DRIVER_LOADED:
+            print("Fatal: EPD failed to initialize. Disabling display updates.")
+            global epd_display
+            epd_display = None
+            
+    print(f"\nBME680 logging started. Readings every {LOG_INTERVAL_SECONDS} seconds.")
 
-try:
-    while True:
-        # 1. Get current time
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        while True:
+            temperature = bme680.temperature
+            humidity = bme680.relative_humidity
+            pressure = bme680.pressure
+            gas = bme680.gas
+            altitude = bme680.altitude
 
-        # 2. Read sensor data
-        temperature = bme680.temperature
-        humidity = bme680.relative_humidity
-        pressure = bme680.pressure
-        altitude = bme680.altitude
-        gas = bme680.gas
+            if gas is None:
+                time.sleep(1) 
+                continue
+            
+            # --- Sensor Ready: Log and Display ---
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            data_row = [timestamp, f"{temperature:.2f}", f"{humidity:.2f}", f"{pressure:.2f}", f"{altitude:.2f}", f"{gas}"]
 
-        # Wait until the gas sensor has completed a reading
-        if gas is None:
-            # Gas data is not immediately available; skip this cycle
-            print(f"[{timestamp}] Waiting for gas reading...")
+            # 1. Log to file
+            with open(LOG_FILE, 'a', newline='') as f:
+                csv.writer(f).writerow(data_row)
+
+            # 2. Update display
+            if epd_display and epd_kit is not None:
+                epd_display.update_sensor_display(epd_kit, temperature, humidity, pressure, gas)
+
+            print(f"[{timestamp}] Temp: {temperature:.2f} C | Hum: {humidity:.2f} % | Pres: {pressure:.2f} hPa | Gas: {gas} ohms")
+
             time.sleep(LOG_INTERVAL_SECONDS)
-            continue
 
-        # 3. Prepare data row
-        data_row = [
-            timestamp,
-            f"{temperature:.2f}",
-            f"{humidity:.2f}",
-            f"{pressure:.2f}",
-            f"{altitude:.2f}",
-            f"{gas}", # Gas is typically an integer/long resistance value
-        ]
+    except KeyboardInterrupt:
+        print("\nLogging stopped by user.")
+    except Exception as e:
+        print(f"\nAn error occurred: {e}")
+        logging.exception("Unhandled error in main loop.")
+    finally:
+        # 3. Cleanup EPD
+        if epd_display and epd_kit is not None:
+            epd_display.cleanup_epd(epd_kit)
+        print(f"Data saved to {LOG_FILE}.")
 
-        # 4. Log to file
-        with open(LOG_FILE, 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(data_row)
-
-        # 5. Print to console for monitoring (optional)
-        print(f"[{timestamp}] Temp: {temperature:.2f} C | Hum: {humidity:.2f} % | Pres: {pressure:.2f} hPa | Gas: {gas} ohms")
-
-        # 6. Wait for the next log interval
-        time.sleep(LOG_INTERVAL_SECONDS)
-
-except KeyboardInterrupt:
-    print("\nLogging stopped by user.")
-except Exception as e:
-    print(f"\nAn error occurred: {e}")
-finally:
-    print(f"Data saved to {LOG_FILE}.")
+if __name__ == "__main__":
+    main_loop()
