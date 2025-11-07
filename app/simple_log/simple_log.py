@@ -1,141 +1,148 @@
+# app/epaper_display/epd_module.py
 import time
-import board
-import adafruit_bme680
-import csv
-import os
-import sys
+import socket
 import logging
-from datetime import datetime
 from typing import Optional, Tuple
+from PIL import Image, ImageDraw, ImageFont
 
-# --- Path Setup for Module Import ---
-# This block helps Python find the 'app' directory regardless of the execution context.
-# Since bme_logger_main.py is now in 'app/sensors/', we go two levels up ('../../') 
-# to find the main project root which contains the 'app' directory.
-try:
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.join(current_dir, '..', '..') # Correct path for app/sensors/ location
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-except:
-    pass # Ignore path setup errors if running in an odd environment
+# --- Driver Import and Setup ---
+# EPD_DRIVER_LOADED will be set by the import block below.
+EPD_DRIVER_LOADED = False
 
-# --- EPD Module Import and Availability Check ---
-# Attempt to import the module from the specified path and alias it to epd_display.
 try:
-    import app.epaper_display.epd_module as epd_display
+    # Attempt to import the specific hardware driver file from the same directory
+    from .epd2in13b_V4 import EPD, epdconfig, GPIO 
     
-    # Check if the module internally flagged driver failure (Mock objects active)
-    # EPD_DRIVER_LOADED is an attribute expected to be exposed by epd_module.py
-    if not epd_display.EPD_DRIVER_LOADED:
-        print("Warning: EPD module imported, but drivers/PIL failed internally. Display is mocked.")
-        EPD_MODULE_AVAILABLE = False
+    # Check if the underlying hardware access was mocked (meaning GPIO/spidev failed)
+    if GPIO is not None:
+        EPD_DRIVER_LOADED = True
+        print("EPD driver and hardware access confirmed.")
     else:
-        EPD_MODULE_AVAILABLE = True
+        # Drivers failed in epd2in13b_V4.py, but the file was found.
+        print("Warning: Hardware (GPIO/spidev) dependencies missing. EPD will use mock functions.")
         
+    EPD_Type = EPD
+
 except ImportError as e:
-    # This message is shown if the module cannot be found or loaded.
-    print(f"Failed to import EPD module from path 'app.epaper_display.epd_module': {e}.")
-    epd_display = None
-    EPD_MODULE_AVAILABLE = False
-
-
-# --- Configuration ---
-LOG_DIR = os.path.join(os.path.expanduser('~'), 'capture_image')
-LOG_FILE = os.path.join(LOG_DIR, 'bme680_data.csv')
-LOG_INTERVAL_SECONDS = 10 
-SEA_LEVEL_HPA = 1013.25 
-
-# --- Sensor Setup ---
-try:
-    i2c = board.I2C()
-    bme680 = adafruit_bme680.Adafruit_BME680_I2C(i2c)
-except Exception as e:
-    print(f"Error initializing BME680 sensor: {e}")
-    sys.exit(1)
-
-bme680.sea_level_pressure = SEA_LEVEL_HPA
-bme680.set_gas_heater(320, 150)
-
-# --- File Setup (unchanged) ---
-def initialize_log_file(filename):
-    os.makedirs(LOG_DIR, exist_ok=True)
-    if not os.path.exists(filename):
-        with open(filename, 'w', newline='') as f:
-            writer = csv.writer(f)
-            header = ['Timestamp', 'Temperature_C', 'Humidity_perc', 'Pressure_hPa', 'Altitude_m', 'Gas_resistance_ohms']
-            writer.writerow(header)
-            print(f"Created new log file: {filename} with header.")
-    else:
-        print(f"Appending to existing log file: {filename}.")
-
-initialize_log_file(LOG_FILE)
-
-
-# --- Main Logging Loop ---
-def main_loop():
-    """Main loop for reading BME680, logging data, and updating the display."""
-
-    # 1. Initialize EPD Hardware
-    epd_kit: Optional[Tuple] = None
+    logging.warning(f"EPD driver (epd2in13b_V4.py) or dependencies (PIL) not found: {e}")
     
-    # Use a local flag to track if the display is connected and initialized successfully
-    display_enabled = EPD_MODULE_AVAILABLE 
+    # Mocking classes allows the rest of the module to be callable without crashing
+    class MockEPD:
+        def init(self): pass
+        def Clear(self): pass
+        def display(self, *args): pass
+        def sleep(self): pass
+        def getbuffer(self, image): return bytearray()
+        height = 250
+        width = 122
+    
+    EPD_Type = MockEPD
+    epdconfig = type('MockConfig', (object,), {'module_exit': lambda cleanup: None})
+    EPD_DRIVER_LOADED = False
 
-    if display_enabled:
-        print("Attempting to initialize EPD hardware...")
-        # epd_kit will contain (epd, HBlackimage, HRYimage, font_section) or None on failure
-        epd_kit = epd_display.initialize_epd_and_fonts()
+
+# --- Configuration & Setup ---
+# NOTE: Update this path to where your font file is located on the system.
+# Using a common system font as a robust fallback.
+FONTDIC = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" 
+SECTION_HEIGHT = 40
+
+# --- Utility Functions ---
+
+def get_ip_address():
+    """Gets the local IP address."""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "Offline"
         
-        if epd_kit is None:
-            print("Fatal: EPD hardware initialization failed (e.g., bad wiring, SPI error). Disabling display updates.")
-            # Set local flag to False to prevent display calls in the loop/finally block
-            display_enabled = False
-        else:
-            print("EPD hardware initialized successfully.")
-            
-    print(f"\nBME680 logging started. Readings every {LOG_INTERVAL_SECONDS} seconds.")
+def get_hostname():
+    """Gets the hostname."""
+    try:
+        return socket.gethostname()
+    except Exception:
+        return "Unknown Host"
+
+# --- Drawing Functions ---
+def draw_section_text(draw, font, text: str, y_pos: int):
+    """Generic helper to draw text at a specific vertical position."""
+    # Center the text based on standard EPD width (250)
+    text_width, _ = draw.textsize(text, font=font)
+    x_pos = (250 - text_width) // 2
+    
+    draw.text((x_pos, y_pos), text, font=font, fill=0)
+
+# --- Initialization and Update Core Functions ---
+
+def initialize_epd_and_fonts() -> Optional[Tuple[EPD_Type, Image.Image, Image.Image, ImageFont.FreeTypeFont]]:
+    """Initializes the EPD hardware, loads fonts, and creates image buffers."""
+    global EPD_DRIVER_LOADED
+    
+    if not EPD_DRIVER_LOADED:
+        print("Initialization skipped: EPD drivers unavailable.")
+        return None
 
     try:
-        while True:
-            temperature = bme680.temperature
-            humidity = bme680.relative_humidity
-            pressure = bme680.pressure
-            gas = bme680.gas
-            altitude = bme680.altitude
+        epd = EPD_Type()
+        epd.init()
+        epd.Clear()
+        time.sleep(0.5)
 
-            # Ensure gas reading is available before logging/displaying
-            if gas is None:
-                time.sleep(1) 
-                continue
+        try:
+            # Try to load the custom font, fall back to default
+            font_section = ImageFont.truetype(FONTDIC, 16) 
+        except IOError:
+            logging.error(f"Font file not found at {FONTDIC}. Using default PIL font.")
+            font_section = ImageFont.load_default()
             
-            # --- Sensor Ready: Log and Display ---
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            data_row = [timestamp, f"{temperature:.2f}", f"{humidity:.2f}", f"{pressure:.2f}", f"{altitude:.2f}", f"{gas}"]
-
-            # 1. Log to file
-            with open(LOG_FILE, 'a', newline='') as f:
-                csv.writer(f).writerow(data_row)
-
-            # 2. Update display: Check local flag and epd_kit presence
-            if display_enabled and epd_kit is not None:
-                # Calls update_sensor_display from the imported module
-                epd_display.update_sensor_display(epd_kit, temperature, humidity, pressure, gas)
-
-            print(f"[{timestamp}] Temp: {temperature:.2f} C | Hum: {humidity:.2f} % | Pres: {pressure:.2f} hPa | Gas: {gas} ohms")
-
-            time.sleep(LOG_INTERVAL_SECONDS)
-
-    except KeyboardInterrupt:
-        print("\nLogging stopped by user.")
+        # Create image buffers (rotated for display layout)
+        HBlackimage = Image.new('1', (epd.height, epd.width), 255) # 250x122
+        HRYimage = Image.new('1', (epd.height, epd.width), 255) # 250x122
+        
+        return epd, HBlackimage, HRYimage, font_section
+        
     except Exception as e:
-        print(f"\nAn error occurred: {e}")
-        logging.exception("Unhandled error in main loop.")
-    finally:
-        # 3. Cleanup EPD: Only if initialization was successful
-        if display_enabled and epd_kit is not None:
-            epd_display.cleanup_epd(epd_kit)
-        print(f"Data saved to {LOG_FILE}.")
+        logging.error(f"Failed to initialize EPD or Fonts (Hardware/SPI issue?): {e}")
+        # If initialization fails here, the hardware connection is the problem.
+        EPD_DRIVER_LOADED = False
+        return None
 
-if __name__ == "__main__":
-    main_loop()
+def update_sensor_display(epd_kit: Tuple, temp: float, hum: float, pres: float, gas: int):
+    """Draws BME680 sensor data onto the ePaper display."""
+    
+    epd, HBlackimage, HRYimage, font_section = epd_kit
+    
+    # 1. Setup
+    HBlackimage.paste(255, [0, 0, epd.height, epd.width])
+    HRYimage.paste(255, [0, 0, epd.height, epd.width])
+    
+    drawblack = ImageDraw.Draw(HBlackimage)
+    drawred = ImageDraw.Draw(HRYimage)
+    
+    # 2. Draw Sensor Data
+    draw_section_text(drawblack, font_section, "--- BME680 DATA ---", 5)
+
+    # Main data in Black
+    draw_section_text(drawblack, font_section, f"Temp: {temp:.1f} C", SECTION_HEIGHT * 1 + 5)
+    draw_section_text(drawblack, font_section, f"Hum: {hum:.1f} %", SECTION_HEIGHT * 2 + 5)
+    draw_section_text(drawblack, font_section, f"Pres: {pres:.1f} hPa", SECTION_HEIGHT * 3 + 5)
+    
+    # Gas resistance often indicates air quality; draw in Red for emphasis
+    draw_section_text(drawred, font_section, f"Air Q: {gas // 1000} kOhms", SECTION_HEIGHT * 4 + 5)
+    
+    # 3. Display
+    epd.display(epd.getbuffer(HBlackimage), epd.getbuffer(HRYimage))
+
+def cleanup_epd(epd_kit: Tuple):
+    """Puts the display to sleep and cleans up the driver module."""
+    if EPD_DRIVER_LOADED:
+        try:
+            epd_kit[0].sleep()
+            epdconfig.module_exit(cleanup=True)
+            print("E-Paper display put to sleep and module cleaned up.")
+        except:
+            pass
