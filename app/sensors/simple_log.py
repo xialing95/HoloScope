@@ -6,15 +6,26 @@ import os
 import sys
 import logging
 from datetime import datetime
-import app.epaper_display.epd_module as epd_module
+from typing import Optional, Tuple # Added back for type hinting clarity
 
-
-# Import the display module
+# --- EPD Module Import and Availability Check ---
+# Attempt to import the module from the specified path and alias it to epd_display.
 try:
-    import epd_module as epd_display
+    import app.epaper_display.epd_module as epd_display
+    
+    # Check if the module internally flagged driver failure (Mock objects active)
+    # EPD_DRIVER_LOADED is an attribute expected to be exposed by epd_module.py
+    if not epd_display.EPD_DRIVER_LOADED:
+        print("Warning: EPD module imported, but drivers/PIL failed internally. Display is mocked.")
+        EPD_MODULE_AVAILABLE = False
+    else:
+        EPD_MODULE_AVAILABLE = True
+        
 except ImportError as e:
-    print(f"Failed to import epd_module.py. Display will be disabled. Error: {e}")
-    epd_display = None # Set to None if import fails
+    print(f"Failed to import EPD module from path 'app.epaper_display.epd_module': {e}.")
+    epd_display = None
+    EPD_MODULE_AVAILABLE = False
+
 
 # --- Configuration ---
 LOG_DIR = os.path.join(os.path.expanduser('~'), 'capture_image')
@@ -52,14 +63,23 @@ initialize_log_file(LOG_FILE)
 def main_loop():
     """Main loop for reading BME680, logging data, and updating the display."""
 
-    # Initialize EPD only if the module was imported successfully
-    epd_kit = None
-    if epd_display:
+    # 1. Initialize EPD Hardware
+    epd_kit: Optional[Tuple] = None
+    
+    # Use a local flag to track if the display is connected and initialized successfully
+    display_enabled = EPD_MODULE_AVAILABLE 
+
+    if display_enabled:
+        print("Attempting to initialize EPD hardware...")
+        # epd_kit will contain (epd, HBlackimage, HRYimage, font_section) or None on failure
         epd_kit = epd_display.initialize_epd_and_fonts()
-        if epd_kit is None and epd_display.EPD_DRIVER_LOADED:
-            print("Fatal: EPD failed to initialize. Disabling display updates.")
-            global epd_display
-            epd_display = None
+        
+        if epd_kit is None:
+            print("Fatal: EPD hardware initialization failed (e.g., bad wiring, SPI error). Disabling display updates.")
+            # Set local flag to False to prevent display calls in the loop/finally block
+            display_enabled = False
+        else:
+            print("EPD hardware initialized successfully.")
             
     print(f"\nBME680 logging started. Readings every {LOG_INTERVAL_SECONDS} seconds.")
 
@@ -71,6 +91,7 @@ def main_loop():
             gas = bme680.gas
             altitude = bme680.altitude
 
+            # Ensure gas reading is available before logging/displaying
             if gas is None:
                 time.sleep(1) 
                 continue
@@ -83,8 +104,9 @@ def main_loop():
             with open(LOG_FILE, 'a', newline='') as f:
                 csv.writer(f).writerow(data_row)
 
-            # 2. Update display
-            if epd_display and epd_kit is not None:
+            # 2. Update display: Check local flag and epd_kit presence
+            if display_enabled and epd_kit is not None:
+                # Calls update_sensor_display from the imported module
                 epd_display.update_sensor_display(epd_kit, temperature, humidity, pressure, gas)
 
             print(f"[{timestamp}] Temp: {temperature:.2f} C | Hum: {humidity:.2f} % | Pres: {pressure:.2f} hPa | Gas: {gas} ohms")
@@ -97,8 +119,8 @@ def main_loop():
         print(f"\nAn error occurred: {e}")
         logging.exception("Unhandled error in main loop.")
     finally:
-        # 3. Cleanup EPD
-        if epd_display and epd_kit is not None:
+        # 3. Cleanup EPD: Only if initialization was successful
+        if display_enabled and epd_kit is not None:
             epd_display.cleanup_epd(epd_kit)
         print(f"Data saved to {LOG_FILE}.")
 
