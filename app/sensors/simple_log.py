@@ -6,7 +6,19 @@ import os
 import sys
 import logging
 from datetime import datetime
-from typing import Optional, Tuple # Added back for type hinting clarity
+from typing import Optional, Tuple
+
+# --- Path Setup for Module Import ---
+# This block helps Python find the 'app' directory regardless of the execution context.
+# Since bme_logger_main.py is now in 'app/sensors/', we go two levels up ('../../') 
+# to find the main project root which contains the 'app' directory.
+try:
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.join(current_dir, '..', '..') # Correct path for app/sensors/ location
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+except:
+    pass # Ignore path setup errors if running in an odd environment
 
 # --- EPD Module Import and Availability Check ---
 # Attempt to import the module from the specified path and alias it to epd_display.
@@ -22,6 +34,7 @@ try:
         EPD_MODULE_AVAILABLE = True
         
 except ImportError as e:
+    # This message is shown if the module cannot be found or loaded.
     print(f"Failed to import EPD module from path 'app.epaper_display.epd_module': {e}.")
     epd_display = None
     EPD_MODULE_AVAILABLE = False
