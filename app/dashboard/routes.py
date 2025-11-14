@@ -98,7 +98,6 @@ def start_log():
         error_message = f"An unexpected error occurred: {str(e)}"
 
         return jsonify({
-            "status": "error",
+            "status": "error"+ str(e),
             "message": "An unexpected server error occurred.",
-            "error_detail": str(e)
         }), 500 # HTTP 500 Internal Server Error
