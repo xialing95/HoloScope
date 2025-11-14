@@ -117,7 +117,7 @@ def capture_timelapse_photo(picam2_obj, image_dir):
     try:
         # Capture from the raw stream and save to a DNG file.
         # This implicitly uses the raw sensor data configuration.
-        request = picam2.capture_request()
+        request = picam2_obj.capture_request()
         request.save_dng(image_filepath)
         request.release()
         print(f"Raw DNG image successfully saved to {image_filepath}")
