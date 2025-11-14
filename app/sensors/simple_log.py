@@ -21,7 +21,7 @@ IMAGE_INTERVAL_SECONDS = 60 # Take a photo every 60 seconds
 # --- Camera Exposure Control ---
 # Exposure Time in microseconds (e.g., 1000000 us = 1 second)
 # Set to None to use automatic exposure control (AEC).
-EXPOSURE_TIME_US = 500000 
+EXPOSURE_TIME_US = 500 
 # Set to None to use automatic analog gain control.
 ANALOG_GAIN = 1.0 
 
