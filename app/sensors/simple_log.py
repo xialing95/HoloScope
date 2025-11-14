@@ -21,7 +21,7 @@ IMAGE_INTERVAL_SECONDS = 60 # Take a photo every 60 seconds
 # --- Camera Exposure Control ---
 # Exposure Time in microseconds (e.g., 1000000 us = 1 second)
 # Set to None to use automatic exposure control (AEC).
-EXPOSURE_TIME_US = 500000 
+EXPOSURE_TIME_US = 500 
 # Set to None to use automatic analog gain control.
 ANALOG_GAIN = 1.0 
 
@@ -117,7 +117,9 @@ def capture_timelapse_photo(picam2_obj, image_dir):
     try:
         # Capture from the raw stream and save to a DNG file.
         # This implicitly uses the raw sensor data configuration.
-        picam2_obj.capture_file(image_filepath, name='raw') 
+        request = picam2.capture_request()
+        request.save_dng(image_filepath)
+        request.release()
         print(f"Raw DNG image successfully saved to {image_filepath}")
 
     except Exception as e:
