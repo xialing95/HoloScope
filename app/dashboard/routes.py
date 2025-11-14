@@ -51,7 +51,7 @@ def latest_image():
         return "No image found", 404
 
 # --- Script Execution Route ---
-@dashboard_bp.route('/start-simple-log', methods=['POST'])
+@dashboard_bp.route('/start_simple_log', methods=['POST'])
 def start_log():
     """Executes the simple_log_start.sh script."""
 
