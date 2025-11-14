@@ -3,11 +3,11 @@ import board
 import adafruit_bme680
 import csv
 import os
-import sys # New import
+import sys
 from datetime import datetime
 
-from picamera2 import Picamera2 # New import
-from libcamera import controls # New import
+from picamera2 import Picamera2
+from libcamera import controls
 
 # --- Configuration ---
 # This finds the user's home directory and appends 'capture_image'.
@@ -21,7 +21,7 @@ IMAGE_INTERVAL_SECONDS = 60 # Take a photo every 60 seconds
 # --- Camera Exposure Control ---
 # Exposure Time in microseconds (e.g., 1000000 us = 1 second)
 # Set to None to use automatic exposure control (AEC).
-EXPOSURE_TIME_US = 500 
+EXPOSURE_TIME_US = 500000 
 # Set to None to use automatic analog gain control.
 ANALOG_GAIN = 1.0 
 
@@ -41,7 +41,7 @@ try:
 except ValueError as e:
     print(f"Error initializing BME680 sensor: {e}")
     print("Ensure the sensor is correctly wired and I2C is enabled.")
-    sys.exit(1) # Use sys.exit for clean termination
+    sys.exit(1)
 
 bme680.sea_level_pressure = SEA_LEVEL_HPA
 bme680.set_gas_heater(320, 150) # Set gas heater for VOC measurement
@@ -51,36 +51,35 @@ bme680.set_gas_heater(320, 150) # Set gas heater for VOC measurement
 try:
     picam2 = Picamera2()
     
-    # Configure the camera to use the raw stream (for DNG capture)
-    # The raw stream resolution depends on your specific camera sensor.
-    # We also include a main stream for potential preview/fast JPEG generation, 
-    # but the raw stream configuration is key for DNG.
+    # Configure the camera for raw still capture
     raw_config = picam2.create_still_configuration(raw={'size': picam2.sensor_resolution})
     picam2.configure(raw_config)
     
+    # 1. Start the camera
     picam2.start()
-    print("Picamera2 started successfully.")
 
     # 2. Set Exposure Controls
     camera_controls = {}
     
     if EXPOSURE_TIME_US is not None:
+        # FIX: Use string key ("ExposureTime") instead of the control object (controls.ExposureTime)
+        # to avoid the libcamera internal type error. Value is cast to int.
+        camera_controls["ExposureTime"] = int(EXPOSURE_TIME_US)
         # Disable Automatic Exposure Control (AEC) when setting manual exposure
-        camera_controls[controls.ExposureTime] = EXPOSURE_TIME_US
-        camera_controls[controls.AeEnable] = False
+        camera_controls["AeEnable"] = False 
         print(f"Manual Exposure Time set to: {EXPOSURE_TIME_US} us")
         
     if ANALOG_GAIN is not None:
-        camera_controls[controls.AnalogueGain] = ANALOG_GAIN
+        # FIX: Use string key ("AnalogueGain") instead of the control object (controls.AnalogueGain)
+        # Value is cast to float.
+        camera_controls["AnalogueGain"] = float(ANALOG_GAIN)
         print(f"Manual Analog Gain set to: {ANALOG_GAIN}")
 
     if camera_controls:
-        # Apply the controls. Note: Controls are often applied in the background 
-        # and may take a moment to settle, especially the first time.
+        # Apply the controls.
         picam2.set_controls(camera_controls)
 
     print("Picamera2 started successfully.")
-
 
 except Exception as e:
     print(f"Error initializing Picamera2: {e}")
@@ -106,20 +105,17 @@ def initialize_log_file(filename):
 def capture_timelapse_photo(picam2_obj, image_dir):
     """
     Captures a photo using Picamera2, saving it as a DNG file 
-    by targeting the raw stream output.
+    by explicitly targeting the 'raw' stream output.
     """
     timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
-    # Using .dng extension for raw capture
     image_filepath = os.path.join(image_dir, f"timelapse_{timestamp_str}.dng")
 
     print(f"--> Capturing raw image: {os.path.basename(image_filepath)}")
 
     try:
-        # Capture from the raw stream and save to a DNG file.
-        # This implicitly uses the raw sensor data configuration.
-        request = picam2_obj.capture_request()
-        request.save_dng(image_filepath)
-        request.release()
+        # Explicitly specify 'name="raw"' to save the raw stream data,
+        # which is the source of the DNG file.
+        picam2_obj.capture_file(image_filepath, name='raw') 
         print(f"Raw DNG image successfully saved to {image_filepath}")
 
     except Exception as e:
@@ -160,7 +156,7 @@ try:
             time.sleep(LOG_INTERVAL_SECONDS)
             continue
 
-        # 3. Prepare data row and log to file (same as before)
+        # 3. Prepare data row and log to file
         data_row = [
             timestamp,
             f"{temperature:.2f}",
