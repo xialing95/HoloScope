@@ -18,6 +18,13 @@ LOG_FILE = os.path.join(LOG_DIR, 'bme680_data.csv')
 LOG_INTERVAL_SECONDS = 10   # Log BME680 data every 10 seconds
 IMAGE_INTERVAL_SECONDS = 60 # Take a photo every 60 seconds
 
+# --- Camera Exposure Control ---
+# Exposure Time in microseconds (e.g., 1000000 us = 1 second)
+# Set to None to use automatic exposure control (AEC).
+EXPOSURE_TIME_US = 500000 
+# Set to None to use automatic analog gain control.
+ANALOG_GAIN = 1.0 
+
 # The sensor compensates for altitude using sea-level pressure.
 SEA_LEVEL_HPA = 1013.25 
 
@@ -54,6 +61,27 @@ try:
     picam2.start()
     print("Picamera2 started successfully.")
 
+    # 2. Set Exposure Controls
+    camera_controls = {}
+    
+    if EXPOSURE_TIME_US is not None:
+        # Disable Automatic Exposure Control (AEC) when setting manual exposure
+        camera_controls[controls.ExposureTime] = EXPOSURE_TIME_US
+        camera_controls[controls.AeEnable] = False
+        print(f"Manual Exposure Time set to: {EXPOSURE_TIME_US} us")
+        
+    if ANALOG_GAIN is not None:
+        camera_controls[controls.AnalogueGain] = ANALOG_GAIN
+        print(f"Manual Analog Gain set to: {ANALOG_GAIN}")
+
+    if camera_controls:
+        # Apply the controls. Note: Controls are often applied in the background 
+        # and may take a moment to settle, especially the first time.
+        picam2.set_controls(camera_controls)
+
+    print("Picamera2 started successfully.")
+
+
 except Exception as e:
     print(f"Error initializing Picamera2: {e}")
     print("Ensure the camera module is connected and enabled.")
@@ -89,8 +117,7 @@ def capture_timelapse_photo(picam2_obj, image_dir):
     try:
         # Capture from the raw stream and save to a DNG file.
         # This implicitly uses the raw sensor data configuration.
-        picam2_obj.capture_file(image_filepath) 
-        
+        picam2_obj.capture_file(image_filepath, name='raw') 
         print(f"Raw DNG image successfully saved to {image_filepath}")
 
     except Exception as e:
