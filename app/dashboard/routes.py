@@ -9,7 +9,7 @@ import time
 home_dir = os.path.expanduser('~')
 capture_image_dir = os.path.join(home_dir, "capture_image")
 static_dir = os.path.join(home_dir, "HoloScope", "app", "static")
-script_path = os.path.join(home_dir, "HoloScope", "app", "sensors", "simple_log_start.sh")
+script_path = os.path.join(home_dir, "HoloScope", "simple_log_start.sh")
 
 def get_latest_image(directory):
     """
