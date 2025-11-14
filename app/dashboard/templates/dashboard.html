@@ -45,25 +45,14 @@
         </div>
     </form>
 
-    <h1>Sensor Control Panel</h1>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-            {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-            </ul>
-        {% endif %}
-        {% endwith %}
-
-        <form class="card" method="POST" action="{{ url_for('dashboard/start_log') }}">
-            <h3>Sensor Value</h3>
-            <div>
-                <button type="submit">
-                    Start Simple Log
-                </button>
-            </div>
-        </form>
+    <form class="card" method="POST" action="{{ url_for('/dashboard/start_log') }}">
+        <h3>Sensor Value</h3>
+        <div>
+            <button type="submit">
+                Start Simple Log
+            </button>
+        </div>
+    </form>
 
 
     <div>
