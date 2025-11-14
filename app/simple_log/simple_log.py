@@ -4,6 +4,7 @@ import adafruit_bme680
 import csv
 import os
 from datetime import datetime
+import epd_module
 
 # --- Configuration ---
 # This finds the user's home directory and appends 'capture_image'.
