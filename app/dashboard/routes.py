@@ -60,7 +60,6 @@ def start_log():
         # check=True will raise an exception if the script returns a non-zero exit code
         result = subprocess.run(
             [script_path],
-            check=True,
             capture_output=True,
             text=True,
             shell=False # It's safer to avoid shell=True when possible
