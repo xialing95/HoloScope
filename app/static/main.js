@@ -402,6 +402,24 @@ function refreshImage() {
     img.src = '/dashboard/latest_image?' + new Date().getTime();
 }
 
+function startSimpleLog() {
+    fetch('/dashboard/start_simple_log', {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        const logOutput = document.getElementById('simple-log-output');
+        logOutput.innerHTML = `<p>Log Status:</p><pre>${data.status}</pre>
+        <br> <p>Log Message:</p><pre>${data.message}</pre>`;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const logOutput = document.getElementById('simple-log-output');
+        logOutput.innerHTML = `<p>Log Message:</p><pre>Failed to start simple log.</pre>
+        <br> Error: ${error.message}`;
+    });
+}
+
 /*
  * Sensor JavaScript functions
  * JavaScript function to call the Flask route

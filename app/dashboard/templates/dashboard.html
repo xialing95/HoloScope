@@ -45,14 +45,18 @@
         </div>
     </form>
 
-    <form class="card" method="POST" action="/dashboard/start-log">
+    <div class="sensor-section">
         <h3>Sensor Value</h3>
         <div>
-            <button type="submit">
+            <button type="button" onclick="startSimpleLog()">
                 Start Simple Log
             </button>
         </div>
-    </form>
+        
+        <div id="simple-log-output">
+            <p>Awaiting log execution...</p>
+        </div>
+    </div>
 
 
     <div>

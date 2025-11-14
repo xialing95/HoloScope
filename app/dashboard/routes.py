@@ -51,7 +51,7 @@ def latest_image():
         return "No image found", 404
 
 # --- Script Execution Route ---
-@dashboard_bp.route('/start-log', methods=['POST'])
+@dashboard_bp.route('/start-simple-log', methods=['POST'])
 def start_log():
     """Executes the simple_log_start.sh script."""
 
@@ -66,21 +66,40 @@ def start_log():
             shell=False # It's safer to avoid shell=True when possible
         )
 
-        # Log successful output and inform the user
-        print(f"Script executed successfully. Output:\n{result.stdout}")
-        flash('Simple log started successfully!', 'success')
+# 2. Success Response
+        return jsonify({
+            "status": "success",
+            "message": "Simple log started successfully!",
+            "output": result.stdout.strip()
+        }), 200 # HTTP 200 OK
 
     except subprocess.CalledProcessError as e:
-        # Handle errors if the script fails
-        error_message = f"Error executing script: {e.stderr}"
-        print(error_message)
-        flash(f'Failed to start log. Error: {e.stderr.strip()}', 'error')
+        # 3. Handle Script Execution Error (non-zero exit code)
+        error_message = f"Error executing script: {e.stderr.strip()}"
+
+        return jsonify({
+            "status": "error",
+            "message": "Failed to start log.",
+            "error_detail": e.stderr.strip(),
+            "output": e.stdout.strip() # Include stdout in case of partial output
+        }), 500 # HTTP 500 Internal Server Error
 
     except FileNotFoundError:
-        # Handle case where the script file is not found
+        # 4. Handle Script Not Found Error
         error_message = f"Error: Script file not found at {script_path}"
-        print(error_message)
-        flash('Failed to start log. Script file not found.', 'error')
 
-    # Redirect back to the main page
-    return redirect(url_for('dashboard_bp.index'))
+        return jsonify({
+            "status": "error",
+            "message": "Failed to start log.",
+            "error_detail": "Script file not found."
+        }), 500 # HTTP 500 Internal Server Error
+
+    except Exception as e:
+        # 5. Handle any other unexpected exceptions
+        error_message = f"An unexpected error occurred: {str(e)}"
+
+        return jsonify({
+            "status": "error",
+            "message": "An unexpected server error occurred.",
+            "error_detail": str(e)
+        }), 500 # HTTP 500 Internal Server Error
