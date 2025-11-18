@@ -20,7 +20,7 @@ sudo systemctl stop holo-scope.service
 # '&' runs the process in the background.
 
 echo "Starting simple_log.py using nohup..."
-nohup python3 simple_timelapse.py > log_output.log 2>&1 &
+nohup python3 /app/simple_timelapse.py > log_output.log 2>&1 &
 
 # --- 4. Deactivate the Virtual Environment (Optional) ---
 # It's good practice to deactivate the venv in the current shell
