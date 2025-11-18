@@ -6,6 +6,7 @@
 
 echo "Activating Python virtual environment..."
 source venv/bin/activate
+sudo systemctl stop holo-scope.service
 
 # --- 2. Check for the simple_log.py process and stop it (optional but recommended) ---
 # If the script is already running via nohup, this prevents conflicts.
