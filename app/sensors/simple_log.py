@@ -16,7 +16,7 @@ LOG_FILE = os.path.join(LOG_DIR, 'bme680_data.csv')
 
 # --- Logging Intervals ---
 LOG_INTERVAL_SECONDS = 10   # Log BME680 data every 10 seconds
-IMAGE_INTERVAL_SECONDS = 60 # Take a photo every 60 seconds
+IMAGE_INTERVAL_SECONDS = 30 # Take a photo every 60 seconds
 
 # --- Camera Exposure Control ---
 # Exposure Time in microseconds (e.g., 1000000 us = 1 second)
