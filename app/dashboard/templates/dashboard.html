@@ -1,37 +1,3 @@
-<!-- <main class="container">
-
-    <div id="timelapse-setting-container" class="form-input card">
-        <h2>Time Lapse Setting</h2>
-        <form id="timelapse-form" method="POST" action="/start">
-            <div>
-                <label for="filename-input">Filename:</label>
-                <input type="text" id="filename-input" name="filename" placeholder="location, microbes"><br>
-                
-                <label for="duration-input">Total run time (seconds):</label>
-                <input type="number" id="duration-input" name="duration" placeholder="60"><br>
-                
-                <label for="interval-input">Interval between shots (seconds):</label>
-                <input type="number" id="interval-input" name="interval" placeholder="10"><br>
-                
-                <input class="button" type="submit" value="Start TimeLapse">
-            </div>
-        </form>
-        <h4 id="timelapse-status"></h4>      
-    </div>
-
-
-    <div class="card">
-        <h2>Camera Stream</h2>
-        <p>Live camera feeds will be displayed here.</p>
-    </div>
-
-    <div class="card">
-        <h2>Sensor Stream </h2>
-        <p>Sensor feed.</p>
-    </div>
-
-</main> -->
-
 <main class="container">
     <form class="card">
         <h3>PiCamera2 Time-lapse</h3>
@@ -44,32 +10,24 @@
             </button>
         </div>
     </form>
-
-    <div class="sensor-section">
-        <h3>Sensor Value</h3>
-        <div>
-            <button type="button" onclick="startSimpleLog()">
-                Start Simple Log
-            </button>
-        </div>
-        
-        <div id="simple-log-output">
-            <p>Awaiting log execution...</p>
-        </div>
+    
+    <div class="status">
+        Simple TimeLapse Status: 
+        {% if running %}
+            <span class="running">RUNNING (PID: {{ pid }})</span>
+        {% else %}
+            <span class="stopped">STOPPED</span>
+        {% endif %}
     </div>
 
+    {% if not running %}
+        <form action="/start" method="post">
+            <button type="submit" class="btn-start">Start Timelapse</button>
+        </form>
+    {% else %}
+        <form action="/stop" method="post">
+            <button type="submit" class="btn-stop">Stop Timelapse</button>
+        </form>
+    {% endif %}
 
-    <div>
-        <div id="progress-container" style="display:none;">
-            <p>Progress:</p>
-            <div>
-                <span>
-                    0/0
-                </span>
-            </div>
-            <div>
-                <div style="width:0%"></div>
-            </div>
-        </div>
-    </div>
 </main>
