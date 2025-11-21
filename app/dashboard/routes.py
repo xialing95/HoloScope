@@ -129,23 +129,23 @@ def latest_image():
 #             "message": "An unexpected server error occurred.",
 #         }), 500 # HTTP 500 Internal Server Error
 
-# @dashboard_bp.route('/start', methods=['POST'])
-# def start():
-#     if not is_running():
-#         # Ensure we use full path or relative path correctly
-#         process = subprocess.Popen(["python3", SCRIPT_NAME])
-#         with open(PID_FILE, 'w') as f:
-#             f.write(str(process.pid))
-#     return redirect(url_for('index'))
+@dashboard_bp.route('/start', methods=['POST'])
+def start():
+    if not is_running():
+        # Ensure we use full path or relative path correctly
+        process = subprocess.Popen(["python3", SCRIPT_NAME])
+        with open(PID_FILE, 'w') as f:
+            f.write(str(process.pid))
+    return redirect(url_for('index'))
 
-# @dashboard_bp.route('/stop', methods=['POST'])
-# def stop():
-#     if is_running():
-#         try:
-#             with open(PID_FILE, 'r') as f:
-#                 pid = int(f.read().strip())
-#             os.kill(pid, signal.SIGTERM)
-#             os.remove(PID_FILE)
-#         except Exception as e:
-#             print(f"Error: {e}")
-#     return redirect(url_for('index'))
+@dashboard_bp.route('/stop', methods=['POST'])
+def stop():
+    if is_running():
+        try:
+            with open(PID_FILE, 'r') as f:
+                pid = int(f.read().strip())
+            os.kill(pid, signal.SIGTERM)
+            os.remove(PID_FILE)
+        except Exception as e:
+            print(f"Error: {e}")
+    return redirect(url_for('index'))

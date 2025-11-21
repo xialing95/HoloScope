@@ -1,7 +1,4 @@
 import time
-import board
-import adafruit_bme680
-import csv
 import os
 import sys
 from datetime import datetime
