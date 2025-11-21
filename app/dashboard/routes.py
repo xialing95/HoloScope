@@ -11,8 +11,7 @@ home_dir = os.path.expanduser('~')
 capture_image_dir = os.path.join(home_dir, "capture_image")
 static_dir = os.path.join(home_dir, "HoloScope", "app", "static")
 
-SCRIPT_NAME = "simple_timelapse.py"
-static_dir = os.path.join(home_dir, "HoloScope", "app", SCRIPT_NAME)
+SCRIPT_NAME = "app/simple_timelapse.py"
 PID_FILE = "timelapse.pid"
 
 def is_running():
