@@ -21,11 +21,11 @@
     </div>
 
     {% if not running %}
-        <form action="/start" method="post">
+        <form action="dashboard/start" method="post">
             <button type="submit" class="btn-start">Start Timelapse</button>
         </form>
     {% else %}
-        <form action="/stop" method="post">
+        <form action="dashboard/stop" method="post">
             <button type="submit" class="btn-stop">Stop Timelapse</button>
         </form>
     {% endif %}
